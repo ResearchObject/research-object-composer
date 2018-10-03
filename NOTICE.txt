@@ -1,0 +1,3 @@
+Research Object Composer
+Copyright 2018 Elsevier B.V.
+------------
