@@ -5,7 +5,8 @@ import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.stereotype.Component;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObjectController;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @Component
 public class ResearchObjectProfileResourceAssembler implements ResourceAssembler<ResearchObjectProfile, Resource<ResearchObjectProfile>> {

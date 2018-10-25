@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import uk.org.esciencelab.researchobjectservice.profile.Field;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileRepository;
-import uk.org.esciencelab.researchobjectservice.profile.Field;
 
 @SpringBootApplication
 public class ResearchObjectServiceApplication implements CommandLineRunner {

@@ -2,9 +2,11 @@ package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import org.apache.taverna.robundle.Bundle;
 import org.apache.taverna.robundle.Bundles;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 import uk.org.esciencelab.researchobjectservice.profile.Field;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
+import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileRepository;
 
 import java.io.OutputStream;
 import java.net.URI;
@@ -17,17 +19,18 @@ public class ResearchObject {
     @Id
     private String id;
     private String profileId;
-    private ResearchObjectProfile profile;
     private HashMap<String, Object> fields;
+
+    @Autowired
+    private ResearchObjectProfileRepository researchObjectProfileRepository;
 
     public ResearchObject() { }
 
-    public ResearchObject(String id, ResearchObjectProfile profile) {
+    public ResearchObject(String id, String profileId) {
         super();
         this.fields = new HashMap(10);
         this.id = id;
-        this.profile = profile;
-        this.profileId = profile.getId();
+        this.profileId = profileId;
     }
 
     public String getId() {
@@ -47,11 +50,10 @@ public class ResearchObject {
     }
 
     private ResearchObjectProfile getProfile() {
-        return profile;
+        return researchObjectProfileRepository.findById(profileId).get();
     }
 
     public void setProfile(ResearchObjectProfile profile) {
-        this.profile = profile;
         this.profileId = profile.getId();
     }
 
@@ -70,10 +72,15 @@ public class ResearchObject {
         return getFields().get(name);
     }
 
-    public boolean setField(String name, Object value) throws Exception {
+    public boolean setField(String name, Object value) {
         Field field = getProfile().getField(name);
         if (field != null) {
-            getFields().put(name, field.buildValue(value));
+            try {
+                getFields().put(name, field.buildValue(value));
+            } catch (Exception e) {
+                return false;
+            }
+
             return true;
         } else {
             return false;

@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
 public class ResearchObjectProfileController {
@@ -31,7 +32,7 @@ public class ResearchObjectProfileController {
 
     @GetMapping(value="/profiles/{id}", produces="application/hal+json")
     public Resource<ResearchObjectProfile> one(@PathVariable String id) {
-        ResearchObjectProfile profile = researchObjectProfileRepository.findById(id).get();
+        ResearchObjectProfile profile = researchObjectProfileRepository.findById(id).orElseThrow(ResearchObjectProfileNotFoundException::new);
 
         return assembler.toResource(profile);
     }

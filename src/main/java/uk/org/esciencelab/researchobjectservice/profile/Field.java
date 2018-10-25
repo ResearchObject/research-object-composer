@@ -1,6 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
 
 public class Field {
     private String name;
