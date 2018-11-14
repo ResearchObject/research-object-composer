@@ -5,6 +5,9 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
+import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileNotFoundException;
+import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileRepository;
 import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidator;
 
 import javax.servlet.http.HttpServletResponse;
@@ -12,12 +15,15 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
 public class ResearchObjectController {
     @Autowired
     private ResearchObjectRepository researchObjectRepository;
+    @Autowired
+    private ResearchObjectProfileRepository researchObjectProfileRepository;
     @Autowired
     private ResearchObjectResourceAssembler assembler;
 
@@ -101,6 +107,10 @@ public class ResearchObjectController {
     }
 
     private ResearchObject getResearchObject(String id) {
-        return researchObjectRepository.findById(id).orElseThrow(ResearchObjectNotFoundException::new);
+        ResearchObject ro = researchObjectRepository.findById(id).orElseThrow(ResearchObjectNotFoundException::new);
+        ResearchObjectProfile profile = researchObjectProfileRepository.findById(ro.getProfileId()).orElseThrow(ResearchObjectProfileNotFoundException::new);
+        ro.setProfile(profile);
+
+        return ro;
     }
 }

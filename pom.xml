@@ -68,6 +68,11 @@
 			<artifactId>jsonld-java</artifactId>
 			<version>0.12.1</version>
 		</dependency>
+		<dependency>
+			<groupId>gov.loc</groupId>
+			<artifactId>bagit</artifactId>
+			<version>5.2.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
