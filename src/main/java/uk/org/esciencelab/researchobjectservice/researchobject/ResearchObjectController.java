@@ -26,6 +26,10 @@ public class ResearchObjectController {
     private ResearchObjectProfileRepository researchObjectProfileRepository;
     @Autowired
     private ResearchObjectResourceAssembler assembler;
+    @Autowired
+    private ResearchObjectBundlerService researchObjectBundlerService;
+    @Autowired
+    private ResearchObjectBaggerService researchObjectBaggerService;
 
     @GetMapping("/profiles/{profileId}/research_objects")
     public Resources<Resource<ResearchObject>> allForProfile(@PathVariable String profileId) {
@@ -99,11 +103,20 @@ public class ResearchObjectController {
         ResearchObjectValidator validator = new ResearchObjectValidator();
         if (validator.validate(researchObject)) {
             response.setStatus(HttpServletResponse.SC_OK);
-            response.addHeader("Content-Disposition", "attachment; filename=\"ro.bundle.zip\"");
-            researchObject.bundle(response.getOutputStream());
+            response.addHeader("Content-Disposition", "attachment; filename=\""+ id +".bundle.zip\"");
+            researchObjectBundlerService.bundle(researchObject, response.getOutputStream());
         } else {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
+    }
+
+    @PostMapping(value="/research_objects/{id}/bag", produces="application/zip")
+    public void mintBag(@PathVariable String id, HttpServletResponse response) throws Exception {
+        ResearchObject researchObject = getResearchObject(id);
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.addHeader("Content-Disposition", "attachment; filename=\"+" + id + "+.zip\"");
+        researchObjectBaggerService.bagToZip(researchObject, response.getOutputStream());
     }
 
     private ResearchObject getResearchObject(String id) {

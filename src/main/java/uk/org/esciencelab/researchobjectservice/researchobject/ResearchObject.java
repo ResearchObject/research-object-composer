@@ -6,7 +6,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import uk.org.esciencelab.researchobjectservice.profile.Field;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 
-import java.io.OutputStream;
 import java.util.HashMap;
 
 @Document
@@ -65,9 +64,5 @@ public class ResearchObject {
         } else {
             return false;
         }
-    }
-
-    public void bundle(OutputStream outputStream) throws Exception {
-        new ResearchObjectBundler(this).bundle(outputStream);
     }
 }
