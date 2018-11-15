@@ -58,7 +58,7 @@ public class ResearchObjectController {
 
     @DeleteMapping("/research_objects/{id}")
     public ResponseEntity<?> deleteResearchObject(@PathVariable String id) {
-        ResearchObject researchObject = getResearchObject(id);
+        ResearchObject researchObject = getResearchObject(id); // This is here to check the RO exists, throwing a 404 otherwise.
 
         researchObjectRepository.deleteById(id);
         return ResponseEntity.noContent().build();
@@ -66,7 +66,7 @@ public class ResearchObjectController {
 
     @PostMapping("/profiles/{profileId}/research_objects")
     public ResponseEntity<Object> createResearchObject(@PathVariable String profileId, @RequestBody ResearchObject researchObject) {
-        researchObject.setProfileId(profileId);
+        researchObject.setProfile(getResearchObjectProfile(profileId));
         ResearchObject savedResearchObject = researchObjectRepository.save(researchObject);
 
         Resource<ResearchObject> resource = assembler.toResource(savedResearchObject);
@@ -107,10 +107,10 @@ public class ResearchObjectController {
     }
 
     private ResearchObject getResearchObject(String id) {
-        ResearchObject ro = researchObjectRepository.findById(id).orElseThrow(ResearchObjectNotFoundException::new);
-        ResearchObjectProfile profile = researchObjectProfileRepository.findById(ro.getProfileId()).orElseThrow(ResearchObjectProfileNotFoundException::new);
-        ro.setProfile(profile);
+        return researchObjectRepository.findById(id).orElseThrow(ResearchObjectNotFoundException::new);
+    }
 
-        return ro;
+    private ResearchObjectProfile getResearchObjectProfile(String id) {
+        return researchObjectProfileRepository.findById(id).orElseThrow(ResearchObjectProfileNotFoundException::new);
     }
 }

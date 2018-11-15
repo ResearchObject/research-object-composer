@@ -1,7 +1,9 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document
 public class ResearchObjectProfile {
     @Id
     private String id;

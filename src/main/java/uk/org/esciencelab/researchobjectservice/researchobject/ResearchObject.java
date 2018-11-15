@@ -1,16 +1,19 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 import uk.org.esciencelab.researchobjectservice.profile.Field;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 
 import java.io.OutputStream;
 import java.util.HashMap;
 
+@Document
 public class ResearchObject {
     @Id
     private String id;
-    private String profileId;
+    @DBRef
     private ResearchObjectProfile profile;
     private HashMap<String, Object> fields;
 
@@ -24,20 +27,15 @@ public class ResearchObject {
         this.id = id;
     }
 
-    public void setProfileId(String profileId) {
-        this.profileId = profileId;
-    }
-
     public String getProfileId() {
-        return profileId;
+        return getProfile().getId();
     }
 
-    private ResearchObjectProfile getProfile() {
+    public ResearchObjectProfile getProfile() {
         return this.profile;
     }
 
     public void setProfile(ResearchObjectProfile profile) {
-        this.profileId = profile.getId();
         this.profile = profile;
     }
 
