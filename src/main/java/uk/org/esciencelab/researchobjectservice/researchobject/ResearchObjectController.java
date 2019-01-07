@@ -78,24 +78,6 @@ public class ResearchObjectController {
         return ResponseEntity.created(URI.create(resource.getLink("self").getHref())).body(resource);
     }
 
-    @GetMapping("/research_objects/{id}/{field}")
-    public ResponseEntity<Object> getResearchObjectField(@PathVariable String id, @PathVariable String field) {
-        ResearchObject researchObject = getResearchObject(id);
-
-        return ResponseEntity.ok(researchObject.getField(field));
-    }
-
-    @PutMapping("/research_objects/{id}/{field}")
-    public ResponseEntity<Object> updateResearchObjectField(@PathVariable String id, @PathVariable String field, @RequestBody String value) {
-        ResearchObject researchObject = getResearchObject(id);
-
-        researchObject.setField(field, value);
-
-        researchObjectRepository.save(researchObject);
-
-        return ResponseEntity.noContent().build();
-    }
-
     @PostMapping(value="/research_objects/{id}/bundle", produces="application/zip")
     public void mintResearchObject(@PathVariable String id, HttpServletResponse response) throws Exception {
         ResearchObject researchObject = getResearchObject(id);

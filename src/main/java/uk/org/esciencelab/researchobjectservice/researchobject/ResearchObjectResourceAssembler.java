@@ -3,6 +3,7 @@ package uk.org.esciencelab.researchobjectservice.researchobject;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.stereotype.Component;
+import uk.org.esciencelab.researchobjectservice.profile.FieldController;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileController;
 
 import java.util.Map;
@@ -20,7 +21,7 @@ public class ResearchObjectResourceAssembler implements ResourceAssembler<Resear
                 linkTo(methodOn(ResearchObjectProfileController.class).one(researchObject.getProfileId())).withRel("profile"));
 
         for (Map.Entry<String, Object> entry : researchObject.getFields().entrySet()) {
-            resource.add(linkTo(methodOn(ResearchObjectController.class).getResearchObjectField(researchObject.getId(), entry.getKey())).withRel(entry.getKey()));
+            resource.add(linkTo(methodOn(FieldController.class).getResearchObjectField(researchObject.getId(), entry.getKey())).withRel(entry.getKey()));
         }
 
         return resource;
