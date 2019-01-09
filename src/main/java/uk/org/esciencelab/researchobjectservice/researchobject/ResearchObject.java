@@ -1,11 +1,20 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
+import org.everit.json.schema.ArraySchema;
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.StringSchema;
+import org.everit.json.schema.ValidationException;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import uk.org.esciencelab.researchobjectservice.profile.Field;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 
+import javax.validation.Valid;
+import javax.validation.Validation;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 @Document
@@ -40,7 +49,7 @@ public class ResearchObject {
 
     public HashMap<String, Object> getFields() {
         if (fields == null) {
-            this.fields = new HashMap(10);
+            this.fields = getProfile().getTemplate();
         }
         return fields;
     }
@@ -51,18 +60,30 @@ public class ResearchObject {
         return getFields().get(name);
     }
 
-    public boolean setField(String name, Object value) {
-        Field field = getProfile().getField(name);
-        if (field != null) {
-            try {
-                getFields().put(name, field.buildValue(value));
-            } catch (Exception e) {
-                return false;
+    public boolean setField(String field, String value) {
+        Object obj;
+        try {
+            Schema s = getFieldSchema(field);
+            if (s instanceof ArraySchema) {
+                obj = new JSONArray(value);
+            } else if (s instanceof StringSchema) {
+                obj = value;
+            } else {
+                obj = new JSONObject(value);
             }
 
-            return true;
-        } else {
+            getFieldSchema(field).validate(obj);
+        } catch (ValidationException e) {
+            System.out.println(e.toJSON());
             return false;
         }
+
+        getFields().put(field, obj);
+
+        return true;
+    }
+
+    private Schema getFieldSchema(String field) {
+        return getProfile().getSchema().getPropertySchemas().get(field);
     }
 }
