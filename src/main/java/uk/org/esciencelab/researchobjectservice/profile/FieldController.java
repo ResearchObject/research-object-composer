@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.MethodNotAllowedException;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObjectNotFoundException;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObjectRepository;
@@ -37,6 +38,37 @@ public class FieldController {
         } catch (ValidationException e) {
             return ResponseEntity.badRequest().body(e.toJSON().toString());
         }
+    }
+
+    @PostMapping(value="/research_objects/{id}/{field}", produces="application/json")
+    public ResponseEntity<Object> appendToResearchObjectField(@PathVariable String id, @PathVariable String field, @RequestBody String value) {
+        ResearchObject researchObject = getResearchObject(id);
+        checkField(researchObject, field);
+        if (!(researchObject.supportsAppend(field))) {
+            throw new MethodNotAllowedException("POST", null);
+        }
+
+        try {
+            researchObject.appendToField(field, value);
+            researchObjectRepository.save(researchObject);
+            JSONObject jo = new JSONObject();
+            jo.put(field, researchObject.getField(field));
+            return ResponseEntity.ok(jo.toString());
+        } catch (ValidationException e) {
+            return ResponseEntity.badRequest().body(e.toJSON().toString());
+        }
+    }
+
+    @DeleteMapping(value="/research_objects/{id}/{field}", produces="application/json")
+    public ResponseEntity<Object> clearResearchObjectField(@PathVariable String id, @PathVariable String field, @RequestBody String value) {
+        ResearchObject researchObject = getResearchObject(id);
+        checkField(researchObject, field);
+
+        researchObject.clearField(field);
+        researchObjectRepository.save(researchObject);
+        JSONObject jo = new JSONObject();
+        jo.put(field, researchObject.getField(field));
+        return ResponseEntity.ok(jo.toString());
     }
 
     private ResearchObject getResearchObject(String id) {

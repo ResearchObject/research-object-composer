@@ -1,7 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import org.everit.json.schema.ArraySchema;
-import org.everit.json.schema.ReferenceSchema;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.StringSchema;
 import org.json.JSONArray;
@@ -57,28 +56,46 @@ public class ResearchObject {
     }
 
     public void setField(String field, String value) {
+        Schema schema = getFieldSchema(field);
+        Object obj = asJSONObject(schema, value);
+
+        schema.validate(obj);
+
+        getFields().put(field, obj);
+    }
+
+    public void appendToField(String field, String value) {
+        JSONArray arr = (JSONArray) getField(field);
+
+        arr.put(arr.length(), value);
+    }
+
+    public void clearField(String field) {
+        Object blank = getProfile().getBlankField(field);
+
+        getFields().put(field, blank);
+    }
+
+    private Object asJSONObject(Schema schema, String value) {
         Object obj;
 
-        Schema s = getFieldSchema(field);
-        if (s instanceof ReferenceSchema) {
-            s = ((ReferenceSchema) s).getReferredSchema();
-        }
-
         // TODO: Find a better way of doing this
-        if (s instanceof ArraySchema) {
+        if (schema instanceof ArraySchema) {
             obj = new JSONArray(value);
-        } else if (s instanceof StringSchema) {
+        } else if (schema instanceof StringSchema) {
             obj = value;
         } else {
             obj = new JSONObject(value);
         }
 
-        getFieldSchema(field).validate(obj);
-
-        getFields().put(field, obj);
+        return obj;
     }
 
-    private Schema getFieldSchema(String field) {
-        return getProfile().getSchema().getPropertySchemas().get(field);
+    public Schema getFieldSchema(String field) {
+        return getProfile().getFieldSchema(field);
+    }
+
+    public boolean supportsAppend(String field) {
+        return getFieldSchema(field) instanceof ArraySchema;
     }
 }

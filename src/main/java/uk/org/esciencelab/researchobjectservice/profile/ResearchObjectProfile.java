@@ -3,6 +3,7 @@ package uk.org.esciencelab.researchobjectservice.profile;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.ObjectSchema;
+import org.everit.json.schema.ReferenceSchema;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONArray;
@@ -69,16 +70,39 @@ public class ResearchObjectProfile {
         HashMap<String, Object> h = new HashMap(fields.length);
         for (String f : fields) {
             Schema fieldSchema = schemaMap.get(f);
-            Object value;
-            if (fieldSchema instanceof ArraySchema) {
-                value = new JSONArray();
-            } else {
-                value = null;
-            }
 
-            h.put(f, value);
+            h.put(f, getBlankField(fieldSchema));
         }
 
         return h;
+    }
+
+    @JsonIgnore
+    public Object getBlankField(String field) {
+        Schema fieldSchema = getSchema().getPropertySchemas().get(field);
+
+        return getBlankField(fieldSchema);
+    }
+
+    @JsonIgnore
+    public Object getBlankField(Schema fieldSchema) {
+        Object value;
+        if (fieldSchema instanceof ArraySchema) {
+            value = new JSONArray();
+        } else {
+            value = null;
+        }
+
+        return value;
+    }
+
+    public Schema getFieldSchema(String field) {
+        Schema schema = getSchema().getPropertySchemas().get(field);
+
+        if (schema instanceof ReferenceSchema) {
+            schema = ((ReferenceSchema) schema).getReferredSchema();
+        }
+
+        return schema;
     }
 }
