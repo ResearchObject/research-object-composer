@@ -6,7 +6,9 @@
     },
     "input" : {
       "type": "array",
-      "items": { "$ref" : "#/definitions/Guid" }
+      "items": {
+        "$ref" : "#/definitions/Guid"
+      }
     },
     "workflow_params" : {
       "type" : "object"
@@ -14,7 +16,8 @@
   },
   "definitions" : {
     "Guid" : {
-      "type" : "string"
+      "type" : "string",
+      "format" : "uri"
     }
   }
 }

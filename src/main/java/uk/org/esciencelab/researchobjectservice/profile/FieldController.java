@@ -1,9 +1,14 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
+import org.everit.json.schema.ValidationException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.org.esciencelab.researchobjectservice.researchobject.*;
+import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
+import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObjectNotFoundException;
+import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObjectRepository;
+
 
 @RestController
 public class FieldController {
@@ -18,17 +23,19 @@ public class FieldController {
         return ResponseEntity.ok(researchObject.getField(field));
     }
 
-    @PutMapping("/research_objects/{id}/{field}")
+    @PutMapping(value="/research_objects/{id}/{field}", produces="application/json")
     public ResponseEntity<Object> updateResearchObjectField(@PathVariable String id, @PathVariable String field, @RequestBody String value) {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);
 
-        if (researchObject.setField(field, value)) {
+        try {
+            researchObject.setField(field, value);
             researchObjectRepository.save(researchObject);
-
-            return ResponseEntity.ok(researchObject.getField(field));
-        } else {
-            return ResponseEntity.badRequest().build();
+            JSONObject jo = new JSONObject();
+            jo.put(field, researchObject.getField(field));
+            return ResponseEntity.ok(jo.toString());
+        } catch (ValidationException e) {
+            return ResponseEntity.badRequest().body(e.toJSON().toString());
         }
     }
 

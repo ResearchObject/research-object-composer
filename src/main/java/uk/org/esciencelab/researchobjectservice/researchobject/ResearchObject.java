@@ -1,20 +1,16 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import org.everit.json.schema.ArraySchema;
+import org.everit.json.schema.ReferenceSchema;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.StringSchema;
-import org.everit.json.schema.ValidationException;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 
-import javax.validation.Valid;
-import javax.validation.Validation;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 @Document
@@ -60,27 +56,26 @@ public class ResearchObject {
         return getFields().get(name);
     }
 
-    public boolean setField(String field, String value) {
+    public void setField(String field, String value) {
         Object obj;
-        try {
-            Schema s = getFieldSchema(field);
-            if (s instanceof ArraySchema) {
-                obj = new JSONArray(value);
-            } else if (s instanceof StringSchema) {
-                obj = value;
-            } else {
-                obj = new JSONObject(value);
-            }
 
-            getFieldSchema(field).validate(obj);
-        } catch (ValidationException e) {
-            System.out.println(e.toJSON());
-            return false;
+        Schema s = getFieldSchema(field);
+        if (s instanceof ReferenceSchema) {
+            s = ((ReferenceSchema) s).getReferredSchema();
         }
 
-        getFields().put(field, obj);
+        // TODO: Find a better way of doing this
+        if (s instanceof ArraySchema) {
+            obj = new JSONArray(value);
+        } else if (s instanceof StringSchema) {
+            obj = value;
+        } else {
+            obj = new JSONObject(value);
+        }
 
-        return true;
+        getFieldSchema(field).validate(obj);
+
+        getFields().put(field, obj);
     }
 
     private Schema getFieldSchema(String field) {
