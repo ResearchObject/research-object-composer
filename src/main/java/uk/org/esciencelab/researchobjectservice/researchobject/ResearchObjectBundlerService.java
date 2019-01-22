@@ -17,24 +17,24 @@ public class ResearchObjectBundlerService {
     private ResearchObjectBaggerService researchObjectBaggerService;
 
     public void bundle(ResearchObject researchObject, OutputStream outputStream) throws Exception {
-        Bundle bundle = Bundles.createBundle();
-        for (Map.Entry<String, Object> entry : researchObject.getFields().entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue().toString();
-            URI ref = URI.create(value);
-            Path out = bundle.getRoot().resolve(key);
-            Bundles.setReference(out, ref);
-        }
-
-        Path bagPath = researchObjectBaggerService.bag(researchObject);
-        Path roBagPath = bundle.getRoot().resolve("bag");
-
-        Files.walk(bagPath)
-                .forEach(source -> copy(source, roBagPath.resolve(bagPath.relativize(source).toString())));
-
-        Path path = Files.createTempFile("bundle", ".zip");
-        Bundles.closeAndSaveBundle(bundle, path);
-        Files.copy(path, outputStream);
+//        Bundle bundle = Bundles.createBundle();
+//        for (Map.Entry<String, Object> entry : researchObject.getFields().entrySet()) {
+//            String key = entry.getKey();
+//            String value = entry.getValue().toString();
+//            URI ref = URI.create(value);
+//            Path out = bundle.getRoot().resolve(key);
+//            Bundles.setReference(out, ref);
+//        }
+//
+//        Path bagPath = researchObjectBaggerService.bag(researchObject);
+//        Path roBagPath = bundle.getRoot().resolve("bag");
+//
+//        Files.walk(bagPath)
+//                .forEach(source -> copy(source, roBagPath.resolve(bagPath.relativize(source).toString())));
+//
+//        Path path = Files.createTempFile("bundle", ".zip");
+//        Bundles.closeAndSaveBundle(bundle, path);
+//        Files.copy(path, outputStream);
     }
 
     private void copy(Path source, Path dest) {

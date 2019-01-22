@@ -27,12 +27,12 @@ public class ResearchObjectBaggerService {
         Bag bag = BagCreator.bagInPlace(bagLocation, Arrays.asList(algorithm), false);
 
         ArrayList<FetchItem> fetchItems = new ArrayList<FetchItem>();
-        for (Map.Entry<String, Object> entry : researchObject.getFields().entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue().toString();
-            URL ref = new URL(value);
-            fetchItems.add(new FetchItem(ref, (long) -1, bagLocation.resolve(key)));
-        }
+//        for (Map.Entry<String, Object> entry : researchObject.getFields().entrySet()) {
+//            String key = entry.getKey();
+//            String value = entry.getValue().toString();
+//            URL ref = new URL(value);
+//            fetchItems.add(new FetchItem(ref, (long) -1, bagLocation.resolve(key)));
+//        }
 
         FetchWriter.writeFetchFile(fetchItems, bagLocation, bagLocation, StandardCharsets.UTF_8);
 
