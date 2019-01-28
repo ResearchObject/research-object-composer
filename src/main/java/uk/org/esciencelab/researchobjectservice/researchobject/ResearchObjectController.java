@@ -31,17 +31,6 @@ public class ResearchObjectController {
     @Autowired
     private ResearchObjectBaggerService researchObjectBaggerService;
 
-    @GetMapping("/profiles/{profileId}/research_objects")
-    public Resources<Resource<ResearchObject>> allForProfile(@PathVariable String profileId) {
-        List<ResearchObject> allByProfileId = researchObjectRepository.findAllByProfileId(profileId);
-        List<Resource<ResearchObject>> researchObjectResources = allByProfileId.stream()
-                .map(assembler::toResource)
-                .collect(Collectors.toList());
-
-        return new Resources<>(researchObjectResources,
-                linkTo(methodOn(ResearchObjectController.class).allForProfile(profileId)).withSelfRel());
-    }
-
     @GetMapping("/research_objects")
     public Resources<Resource<ResearchObject>> all() {
         List<ResearchObject> all = researchObjectRepository.findAll();
@@ -67,6 +56,19 @@ public class ResearchObjectController {
         researchObjectRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/profiles/{profileId}/research_objects")
+    public Resources<Resource<ResearchObject>> allForProfile(@PathVariable String profileId) {
+        ResearchObjectProfile profile = getResearchObjectProfile(profileId);
+        List<ResearchObject> allByProfile = researchObjectRepository.findAllByProfile(profile);
+        List<Resource<ResearchObject>> researchObjectResources = allByProfile.stream()
+                .map(assembler::toResource)
+                .collect(Collectors.toList());
+
+        return new Resources<>(researchObjectResources,
+                linkTo(methodOn(ResearchObjectController.class).allForProfile(profileId)).withSelfRel());
+    }
+
 
     @PostMapping("/profiles/{profileId}/research_objects")
     public ResponseEntity<Object> createResearchObject(@PathVariable String profileId, @RequestBody ResearchObject researchObject) {

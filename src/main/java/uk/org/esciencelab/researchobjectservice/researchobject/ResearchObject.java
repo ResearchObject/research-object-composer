@@ -1,5 +1,8 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.StringSchema;
@@ -10,17 +13,26 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 
 @Document
 public class ResearchObject {
     @Id
     private String id;
+    @JsonIgnore
     @DBRef
     private ResearchObjectProfile profile;
-    private HashMap<String, Object> fields;
+    private JSONObject fields;
 
     public ResearchObject() { }
+
+    public ResearchObject(ResearchObjectProfile profile) {
+        this.profile = profile;
+        this.fields = getProfile().getTemplate();
+    }
 
     public String getId() {
         return id;
@@ -40,16 +52,29 @@ public class ResearchObject {
 
     public void setProfile(ResearchObjectProfile profile) {
         this.profile = profile;
-    }
-
-    public HashMap<String, Object> getFields() {
-        if (fields == null) {
+        if (this.fields == null) {
             this.fields = getProfile().getTemplate();
         }
-        return fields;
     }
 
-    public void setFields(HashMap<String, Object> hash) { this.fields = hash; }
+    @JsonGetter("fields")
+    public Map<String, Object> getFieldsForJson() {
+        Map<String, Object> m = getFields().toMap();
+
+        System.out.println(JSONObject.NULL.equals(m.get("workflow")));
+        System.out.println(JSONObject.NULL.getClass().getName());
+        System.out.println(m.get("workflow").getClass().getName());
+
+        convertMapToNulls(m);
+
+        return m;
+    }
+
+    public JSONObject getFields() { return fields; }
+
+    public void setFields(JSONObject obj) {
+        this.fields = obj;
+    }
 
     public Object getField(String name) {
         return getFields().get(name);
@@ -57,7 +82,7 @@ public class ResearchObject {
 
     public void setField(String field, String value) {
         Schema schema = getFieldSchema(field);
-        Object obj = asJSONObject(schema, value);
+        Object obj = JSONObject.wrap(value);
 
         schema.validate(obj);
 
@@ -98,4 +123,35 @@ public class ResearchObject {
     public boolean supportsAppend(String field) {
         return getFieldSchema(field) instanceof ArraySchema;
     }
+
+    private void convertMapToNulls(Map<String, Object> map) {
+        Iterator it = map.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            if (pair.getValue() == null || pair.getValue().equals(null)) {
+                pair.setValue(null);
+            } else if (pair.getValue() instanceof Map) {
+                convertMapToNulls((Map<String, Object>) pair.getValue());
+            } else if (pair.getValue() instanceof List) {
+                convertListToNulls((List<Object>) pair.getValue());
+            }
+//            it.remove(); // avoids a ConcurrentModificationException
+        }
+    }
+
+    private void convertListToNulls(List<Object> list) {
+        ListIterator it = list.listIterator();
+        while (it.hasNext()) {
+            Object value = it.next();
+            if (value == JSONObject.NULL) {
+                it.set(null);
+            } else if (value instanceof Map) {
+                convertMapToNulls((Map<String, Object>) value);
+            } else if (value instanceof List) {
+                convertListToNulls((List<Object>) value);
+            }
+//            it.remove(); // avoids a ConcurrentModificationException
+        }
+    }
+
 }

@@ -6,8 +6,6 @@ import org.springframework.stereotype.Component;
 import uk.org.esciencelab.researchobjectservice.profile.FieldController;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileController;
 
-import java.util.Map;
-
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
@@ -20,8 +18,8 @@ public class ResearchObjectResourceAssembler implements ResourceAssembler<Resear
                 linkTo(methodOn(ResearchObjectController.class).one(researchObject.getId())).withSelfRel(),
                 linkTo(methodOn(ResearchObjectProfileController.class).one(researchObject.getProfileId())).withRel("profile"));
 
-        for (Map.Entry<String, Object> entry : researchObject.getFields().entrySet()) {
-            resource.add(linkTo(methodOn(FieldController.class).getResearchObjectField(researchObject.getId(), entry.getKey())).withRel(entry.getKey()));
+        for (String field : researchObject.getFields().keySet()) {
+            resource.add(linkTo(methodOn(FieldController.class).getResearchObjectField(researchObject.getId(), field)).withRel(field));
         }
 
         return resource;

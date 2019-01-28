@@ -13,4 +13,8 @@ public class ResearchObjectServiceApplicationTests {
 	public void contextLoads() {
 	}
 
+	@Test
+	public void getResearchObjectProfiles() {
+
+	}
 }

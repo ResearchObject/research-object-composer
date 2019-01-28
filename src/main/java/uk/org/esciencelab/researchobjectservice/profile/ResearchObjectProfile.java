@@ -13,7 +13,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 @Document
@@ -65,16 +64,16 @@ public class ResearchObjectProfile {
     }
 
     @JsonIgnore
-    public HashMap<String, Object> getTemplate() {
+    public JSONObject getTemplate() {
         Map<String, Schema> schemaMap = getSchema().getPropertySchemas();
-        HashMap<String, Object> h = new HashMap(fields.length);
+        JSONObject o = new JSONObject();
         for (String f : fields) {
             Schema fieldSchema = schemaMap.get(f);
 
-            h.put(f, getBlankField(fieldSchema));
+            o.put(f, getBlankField(fieldSchema));
         }
 
-        return h;
+        return o;
     }
 
     @JsonIgnore
@@ -89,8 +88,10 @@ public class ResearchObjectProfile {
         Object value;
         if (fieldSchema instanceof ArraySchema) {
             value = new JSONArray();
+        } else if (fieldSchema instanceof ObjectSchema) {
+            value = new JSONObject();
         } else {
-            value = null;
+            value = JSONObject.NULL;
         }
 
         return value;
@@ -99,7 +100,7 @@ public class ResearchObjectProfile {
     public Schema getFieldSchema(String field) {
         Schema schema = getSchema().getPropertySchemas().get(field);
 
-        if (schema instanceof ReferenceSchema) {
+        while (schema instanceof ReferenceSchema) {
             schema = ((ReferenceSchema) schema).getReferredSchema();
         }
 

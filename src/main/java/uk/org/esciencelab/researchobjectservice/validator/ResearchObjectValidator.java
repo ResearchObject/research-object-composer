@@ -5,8 +5,6 @@ import org.json.JSONObject;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
 
-import java.util.ArrayList;
-
 public class ResearchObjectValidator {
 
     private JSONObject errors;
