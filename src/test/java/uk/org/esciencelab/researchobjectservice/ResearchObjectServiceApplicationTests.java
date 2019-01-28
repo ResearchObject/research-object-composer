@@ -10,11 +10,5 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class ResearchObjectServiceApplicationTests {
 
 	@Test
-	public void contextLoads() {
-	}
-
-	@Test
-	public void getResearchObjectProfiles() {
-
-	}
+	public void contextLoads() { }
 }

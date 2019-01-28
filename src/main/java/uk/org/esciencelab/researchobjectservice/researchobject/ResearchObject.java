@@ -2,7 +2,6 @@ package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.StringSchema;
@@ -60,10 +59,6 @@ public class ResearchObject {
     @JsonGetter("fields")
     public Map<String, Object> getFieldsForJson() {
         Map<String, Object> m = getFields().toMap();
-
-        System.out.println(JSONObject.NULL.equals(m.get("workflow")));
-        System.out.println(JSONObject.NULL.getClass().getName());
-        System.out.println(m.get("workflow").getClass().getName());
 
         convertMapToNulls(m);
 

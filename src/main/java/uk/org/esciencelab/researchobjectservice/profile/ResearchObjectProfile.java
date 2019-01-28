@@ -8,30 +8,23 @@ import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.InputStream;
 import java.util.Map;
 
 @Document
 public class ResearchObjectProfile {
     @Id
     private String id;
-    private String schemaPath;
-    private String [] fields;
+    private JSONObject schema;
 
     public ResearchObjectProfile() {}
 
-    public ResearchObjectProfile(String id, String schemaPath) {
+    public ResearchObjectProfile(String id, JSONObject schema) {
         super();
         this.id = id;
-        this.schemaPath = schemaPath;
-        InputStream is = getClass().getClassLoader().getResourceAsStream(schemaPath);
-        JSONObject rawSchema = new JSONObject(new JSONTokener(is));
-        JSONObject properties = rawSchema.getJSONObject("properties");
-        this.fields = properties.keySet().toArray(new String[properties.keySet().size()]);
+        this.schema = schema;
     }
 
     public String getId() {
@@ -44,17 +37,16 @@ public class ResearchObjectProfile {
 
     @JsonIgnore
     public ObjectSchema getSchema() {
-        InputStream is = getClass().getClassLoader().getResourceAsStream(schemaPath);
-        JSONObject rawSchema = new JSONObject(new JSONTokener(is));
-        return (ObjectSchema) SchemaLoader.load(rawSchema);
+        return (ObjectSchema) SchemaLoader.load(schema);
     }
 
     public String [] getFields() {
-        return this.fields;
+        JSONObject properties = schema.getJSONObject("properties");
+        return properties.keySet().toArray(new String[properties.keySet().size()]);
     }
 
     public boolean hasField(String field) {
-        for (String f : this.fields) {
+        for (String f : getFields()) {
             if (field.equals(f)) {
                 return true;
             }
@@ -67,7 +59,7 @@ public class ResearchObjectProfile {
     public JSONObject getTemplate() {
         Map<String, Schema> schemaMap = getSchema().getPropertySchemas();
         JSONObject o = new JSONObject();
-        for (String f : fields) {
+        for (String f : getFields()) {
             Schema fieldSchema = schemaMap.get(f);
 
             o.put(f, getBlankField(fieldSchema));
