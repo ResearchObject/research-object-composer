@@ -7,6 +7,7 @@ import org.everit.json.schema.Schema;
 import org.everit.json.schema.StringSchema;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -77,7 +78,7 @@ public class ResearchObject {
 
     public void setField(String field, String value) {
         Schema schema = getFieldSchema(field);
-        Object obj = JSONObject.wrap(value);
+        Object obj = new JSONTokener(value).nextValue();
 
         schema.validate(obj);
 
