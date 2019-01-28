@@ -15,7 +15,7 @@ public class ResearchObjectValidator {
         ResearchObjectProfile profile = researchObject.getProfile();
 
         try {
-            profile.getSchema().validate(new JSONObject(researchObject.getFields()));
+            profile.validate(new JSONObject(researchObject.getFields()));
         } catch (ValidationException e) {
             this.errors = e.toJSON();
             System.out.println(getErrors());

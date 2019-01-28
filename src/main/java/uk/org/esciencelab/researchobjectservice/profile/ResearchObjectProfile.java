@@ -1,30 +1,29 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.everit.json.schema.ArraySchema;
-import org.everit.json.schema.ObjectSchema;
-import org.everit.json.schema.ReferenceSchema;
-import org.everit.json.schema.Schema;
+import org.everit.json.schema.*;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.InputStream;
 import java.util.Map;
 
 @Document
 public class ResearchObjectProfile {
     @Id
     private String id;
-    private JSONObject schema;
+    private String schemaPath;
 
     public ResearchObjectProfile() {}
 
-    public ResearchObjectProfile(String id, JSONObject schema) {
+    public ResearchObjectProfile(String id, String schemaPath) {
         super();
         this.id = id;
-        this.schema = schema;
+        this.schemaPath = schemaPath;
     }
 
     public String getId() {
@@ -36,12 +35,23 @@ public class ResearchObjectProfile {
     }
 
     @JsonIgnore
-    public ObjectSchema getSchema() {
-        return (ObjectSchema) SchemaLoader.load(schema);
+    public ObjectSchema getObjectSchema() {
+        return (ObjectSchema) SchemaLoader.load(getSchema());
+    }
+
+    @JsonIgnore
+    public String getSchemaPath() {
+        return this.schemaPath;
+    }
+
+    @JsonIgnore
+    public JSONObject getSchema() {
+        InputStream is = getClass().getClassLoader().getResourceAsStream(getSchemaPath());
+        return new JSONObject(new JSONTokener(is));
     }
 
     public String [] getFields() {
-        JSONObject properties = schema.getJSONObject("properties");
+        JSONObject properties = getSchema().getJSONObject("properties");
         return properties.keySet().toArray(new String[properties.keySet().size()]);
     }
 
@@ -57,7 +67,7 @@ public class ResearchObjectProfile {
 
     @JsonIgnore
     public JSONObject getTemplate() {
-        Map<String, Schema> schemaMap = getSchema().getPropertySchemas();
+        Map<String, Schema> schemaMap = getObjectSchema().getPropertySchemas();
         JSONObject o = new JSONObject();
         for (String f : getFields()) {
             Schema fieldSchema = schemaMap.get(f);
@@ -70,7 +80,7 @@ public class ResearchObjectProfile {
 
     @JsonIgnore
     public Object getBlankField(String field) {
-        Schema fieldSchema = getSchema().getPropertySchemas().get(field);
+        Schema fieldSchema = getObjectSchema().getPropertySchemas().get(field);
 
         return getBlankField(fieldSchema);
     }
@@ -90,12 +100,16 @@ public class ResearchObjectProfile {
     }
 
     public Schema getFieldSchema(String field) {
-        Schema schema = getSchema().getPropertySchemas().get(field);
+        Schema schema = getObjectSchema().getPropertySchemas().get(field);
 
         while (schema instanceof ReferenceSchema) {
             schema = ((ReferenceSchema) schema).getReferredSchema();
         }
 
         return schema;
+    }
+
+    public void validate(JSONObject object) throws ValidationException {
+        getObjectSchema().validate(object);
     }
 }

@@ -1,23 +1,13 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
 import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.junit.Before;
 import org.junit.Test;
-
-import java.io.InputStream;
 
 import static org.junit.Assert.*;
 
 public class ResearchObjectProfileTest {
 
-    public static JSONObject draftTaskSchema;
-
-    @Before
-    public void setUp() {
-        InputStream is = getClass().getClassLoader().getResourceAsStream("static/draft_task_schema.json");
-        draftTaskSchema = new JSONObject(new JSONTokener(is));
-    }
+    private static final String draftTaskSchema = "static/draft_task_schema.json";
 
     @Test
     public void createProfile() {
