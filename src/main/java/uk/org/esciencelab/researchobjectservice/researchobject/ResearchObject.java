@@ -78,7 +78,7 @@ public class ResearchObject {
 
     public void setField(String field, String value) {
         Schema schema = getFieldSchema(field);
-        Object obj = new JSONTokener(value).nextValue();
+        Object obj = asJSONObject(value);
 
         schema.validate(obj);
 
@@ -88,28 +88,13 @@ public class ResearchObject {
     public void appendToField(String field, String value) {
         JSONArray arr = (JSONArray) getField(field);
 
-        arr.put(arr.length(), value);
+        arr.put(arr.length(), asJSONObject(value));
     }
 
     public void clearField(String field) {
         Object blank = getProfile().getBlankField(field);
 
         getFields().put(field, blank);
-    }
-
-    private Object asJSONObject(Schema schema, String value) {
-        Object obj;
-
-        // TODO: Find a better way of doing this
-        if (schema instanceof ArraySchema) {
-            obj = new JSONArray(value);
-        } else if (schema instanceof StringSchema) {
-            obj = value;
-        } else {
-            obj = new JSONObject(value);
-        }
-
-        return obj;
     }
 
     public Schema getFieldSchema(String field) {
@@ -150,4 +135,7 @@ public class ResearchObject {
         }
     }
 
+    private Object asJSONObject(String value) {
+        return new JSONTokener(value).nextValue();
+    }
 }

@@ -20,5 +20,6 @@ public class ResearchObjectServiceApplication implements CommandLineRunner {
         profileRepository.deleteAll();
 
         profileRepository.save(new ResearchObjectProfile("draft_task", "static/draft_task_schema.json"));
+        profileRepository.save(new ResearchObjectProfile("data_bundle", "static/data_bundle_schema.json"));
     }
 }

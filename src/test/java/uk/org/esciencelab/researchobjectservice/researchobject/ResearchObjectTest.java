@@ -14,10 +14,12 @@ import static org.junit.Assert.assertFalse;
 public class ResearchObjectTest {
 
     public static ResearchObjectProfile draftTaskProfile;
+    public static ResearchObjectProfile dataBundleProfile;
 
     @Before
     public void setUp() {
         draftTaskProfile = new ResearchObjectProfile("draft_task", "static/draft_task_schema.json");
+        dataBundleProfile = new ResearchObjectProfile("data_bundle", "static/data_bundle_schema.json");
     }
 
     @Test
@@ -68,8 +70,30 @@ public class ResearchObjectTest {
 
         assertEquals("[]", ro.getField("input").toString());
 
-        ro.appendToField("input", "ark://xyz.123");
+        ro.appendToField("input", "\"ark://xyz.123\"");
 
         assertEquals("[\"ark://xyz.123\"]", ro.getField("input").toString());
+
     }
+
+    @Test
+    public void appendToComplexField() {
+        ResearchObject ro = new ResearchObject(dataBundleProfile);
+
+        assertTrue(ro.supportsAppend("data"));
+
+        assertEquals("[]", ro.getField("data").toString());
+
+        ro.appendToField("data","{\"length\": 123,\"filename\": \"important_doc.pdf\",\"sha256\": \"5a81483d96b0bc15ad19af7f5a662e14b275729fbc05579b18513e7f550016b1\",\"url\" : \"http://example.com/important_doc.pdf\"}");
+
+        JSONArray data = (JSONArray) ro.getField("data");
+        assertEquals(1, data.length());
+        JSONObject importantDoc = (JSONObject) data.get(0);
+        assertEquals("important_doc.pdf", importantDoc.get("filename"));
+        assertEquals("5a81483d96b0bc15ad19af7f5a662e14b275729fbc05579b18513e7f550016b1", importantDoc.get("sha256"));
+        assertEquals(123, importantDoc.getInt("length"));
+
+    }
+
+
 }
