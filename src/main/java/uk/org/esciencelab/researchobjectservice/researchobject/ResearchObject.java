@@ -86,9 +86,13 @@ public class ResearchObject {
     }
 
     public void appendToField(String field, String value) {
+        Schema schema = getListFieldItemSchema(field);
         JSONArray arr = (JSONArray) getField(field);
+        Object obj = asJSONObject(value);
 
-        arr.put(arr.length(), asJSONObject(value));
+        schema.validate(obj);
+
+        arr.put(arr.length(), obj);
     }
 
     public void clearField(String field) {
@@ -99,6 +103,10 @@ public class ResearchObject {
 
     public Schema getFieldSchema(String field) {
         return getProfile().getFieldSchema(field);
+    }
+
+    public Schema getListFieldItemSchema(String field) {
+        return getProfile().getListFieldItemSchema(field);
     }
 
     public boolean supportsAppend(String field) {

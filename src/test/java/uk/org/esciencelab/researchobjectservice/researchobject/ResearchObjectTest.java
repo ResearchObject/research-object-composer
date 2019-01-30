@@ -91,18 +91,31 @@ public class ResearchObjectTest {
 
         assertEquals("[]", ro.getField("data").toString());
 
-        ro.appendToField("data","{\"length\": 123,\"filename\": \"important_doc.pdf\",\"sha256\": \"5a81483d96b0bc15ad19af7f5a662e14b275729fbc05579b18513e7f550016b1\",\"url\" : \"http://example.com/important_doc.pdf\"}");
+        ro.appendToField("data","{\"length\": 123,\"filename\": \"important_doc.pdf\",\"sha512\": \"a131b5e2cb03fbeae9ba608b2912b27d73540a53562dcc752d43a499541e948682158c432cd1dcb55542d0fc84d9164963a8b6d7d6838f8e033cfe4449d1dd4c\",\"url\" : \"http://example.com/important_doc.pdf\"}");
 
         JSONArray data = (JSONArray) ro.getField("data");
         assertEquals(1, data.length());
         JSONObject importantDoc = (JSONObject) data.get(0);
         assertEquals("important_doc.pdf", importantDoc.get("filename"));
-        assertEquals("5a81483d96b0bc15ad19af7f5a662e14b275729fbc05579b18513e7f550016b1", importantDoc.get("sha256"));
+        assertEquals("a131b5e2cb03fbeae9ba608b2912b27d73540a53562dcc752d43a499541e948682158c432cd1dcb55542d0fc84d9164963a8b6d7d6838f8e033cfe4449d1dd4c", importantDoc.get("sha512"));
         assertEquals(123, importantDoc.getInt("length"));
     }
 
     @Test
-    public void validateSha512ChecksumPresent() {
+    public void validatesWhenAppendingField() {
+        ResearchObject ro = new ResearchObject(dataBundleProfile);
+
+        try {
+            // Missing SHA-512
+            ro.appendToField("data","{\"length\": 123,\"filename\": \"important_doc.pdf\",\"url\" : \"http://example.com/important_doc.pdf\"}");
+        } catch (ValidationException e) {
+            JSONObject errorReport = e.toJSON();
+            assertEquals("required key [sha512] not found", errorReport.get("message"));
+        }
+    }
+
+    @Test
+    public void validatesWhenSettingField() {
         ResearchObject ro = new ResearchObject(dataBundleProfile);
 
         // SHA-512

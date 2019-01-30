@@ -109,6 +109,12 @@ public class ResearchObjectProfile {
         return schema;
     }
 
+    public Schema getListFieldItemSchema(String field) {
+        ArraySchema schema = (ArraySchema) getFieldSchema(field);
+
+        return schema.getAllItemSchema();
+    }
+
     public void validate(JSONObject object) throws ValidationException {
         getObjectSchema().validate(object);
     }
