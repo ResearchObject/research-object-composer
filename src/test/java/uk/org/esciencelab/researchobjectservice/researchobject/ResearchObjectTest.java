@@ -102,23 +102,17 @@ public class ResearchObjectTest {
     }
 
     @Test
-    public void validateAtLeastOneChecksumPresent() {
+    public void validateSha512ChecksumPresent() {
         ResearchObject ro = new ResearchObject(dataBundleProfile);
 
-        // SHA-256
-        ro.setField("data","[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"sha256\": \"5a81483d96b0bc15ad19af7f5a662e14b275729fbc05579b18513e7f550016b1\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
         // SHA-512
         ro.setField("data","[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"sha512\": \"a131b5e2cb03fbeae9ba608b2912b27d73540a53562dcc752d43a499541e948682158c432cd1dcb55542d0fc84d9164963a8b6d7d6838f8e033cfe4449d1dd4c\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
-        // MD5
-        ro.setField("data","[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"md5\": \"df3e129a722a865cc3539b4e69507bad\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
-        // Everything
-        ro.setField("data","[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"md5\": \"df3e129a722a865cc3539b4e69507bad\", \"sha256\": \"5a81483d96b0bc15ad19af7f5a662e14b275729fbc05579b18513e7f550016b1\",\"sha512\": \"a131b5e2cb03fbeae9ba608b2912b27d73540a53562dcc752d43a499541e948682158c432cd1dcb55542d0fc84d9164963a8b6d7d6838f8e033cfe4449d1dd4c\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
         // Nothing
         try {
             ro.setField("data", "[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
         } catch (ValidationException e) {
-            System.out.println(e.toJSON());
-            assert(true);
+            JSONObject errorReport = e.toJSON();
+            assertEquals("required key [sha512] not found", errorReport.get("message"));
         }
     }
 }

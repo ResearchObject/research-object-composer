@@ -21,10 +21,5 @@
       "format": "uri"
     }
   },
-  "required" : ["length", "filename", "url"],
-  "anyOf": [
-    {"required": ["md5"]},
-    {"required": ["sha256"]},
-    {"required": ["sha512"]}
-  ]
+  "required" : ["length", "filename", "url", "sha512"]
 }
