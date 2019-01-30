@@ -1,8 +1,10 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
+import org.everit.json.schema.ValidationException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 
@@ -16,10 +18,16 @@ public class ResearchObjectTest {
     public static ResearchObjectProfile draftTaskProfile;
     public static ResearchObjectProfile dataBundleProfile;
 
+    // This is needed to handle the "classpath" protocol used to join resolve $refs in the JSON schemas.
+    @BeforeClass
+    public static void init() {
+        org.apache.catalina.webresources.TomcatURLStreamHandlerFactory.getInstance();
+    }
+
     @Before
     public void setUp() {
-        draftTaskProfile = new ResearchObjectProfile("draft_task", "static/draft_task_schema.json");
-        dataBundleProfile = new ResearchObjectProfile("data_bundle", "static/data_bundle_schema.json");
+        draftTaskProfile = new ResearchObjectProfile("draft_task", "schemas/draft_task_schema.json");
+        dataBundleProfile = new ResearchObjectProfile("data_bundle", "schemas/data_bundle_schema.json");
     }
 
     @Test
@@ -73,7 +81,6 @@ public class ResearchObjectTest {
         ro.appendToField("input", "\"ark://xyz.123\"");
 
         assertEquals("[\"ark://xyz.123\"]", ro.getField("input").toString());
-
     }
 
     @Test
@@ -92,8 +99,26 @@ public class ResearchObjectTest {
         assertEquals("important_doc.pdf", importantDoc.get("filename"));
         assertEquals("5a81483d96b0bc15ad19af7f5a662e14b275729fbc05579b18513e7f550016b1", importantDoc.get("sha256"));
         assertEquals(123, importantDoc.getInt("length"));
-
     }
 
+    @Test
+    public void validateAtLeastOneChecksumPresent() {
+        ResearchObject ro = new ResearchObject(dataBundleProfile);
 
+        // SHA-256
+        ro.setField("data","[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"sha256\": \"5a81483d96b0bc15ad19af7f5a662e14b275729fbc05579b18513e7f550016b1\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
+        // SHA-512
+        ro.setField("data","[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"sha512\": \"a131b5e2cb03fbeae9ba608b2912b27d73540a53562dcc752d43a499541e948682158c432cd1dcb55542d0fc84d9164963a8b6d7d6838f8e033cfe4449d1dd4c\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
+        // MD5
+        ro.setField("data","[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"md5\": \"df3e129a722a865cc3539b4e69507bad\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
+        // Everything
+        ro.setField("data","[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"md5\": \"df3e129a722a865cc3539b4e69507bad\", \"sha256\": \"5a81483d96b0bc15ad19af7f5a662e14b275729fbc05579b18513e7f550016b1\",\"sha512\": \"a131b5e2cb03fbeae9ba608b2912b27d73540a53562dcc752d43a499541e948682158c432cd1dcb55542d0fc84d9164963a8b6d7d6838f8e033cfe4449d1dd4c\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
+        // Nothing
+        try {
+            ro.setField("data", "[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
+        } catch (ValidationException e) {
+            System.out.println(e.toJSON());
+            assert(true);
+        }
+    }
 }

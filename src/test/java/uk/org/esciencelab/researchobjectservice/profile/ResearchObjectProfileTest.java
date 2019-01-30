@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 
 public class ResearchObjectProfileTest {
 
-    private static final String draftTaskSchema = "static/draft_task_schema.json";
+    private static final String draftTaskSchema = "schemas/draft_task_schema.json";
 
     @Test
     public void createProfile() {
@@ -20,7 +20,6 @@ public class ResearchObjectProfileTest {
         assertEquals("org.everit.json.schema.ArraySchema", profile.getFieldSchema("input").getClass().getName());
         assertEquals("org.everit.json.schema.StringSchema", profile.getFieldSchema("workflow").getClass().getName());
         assertEquals("org.everit.json.schema.ObjectSchema", profile.getFieldSchema("workflow_params").getClass().getName());
-
     }
 
     @Test

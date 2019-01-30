@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "properties": {
+    "length": {
+      "type": "integer"
+    },
+    "filename": {
+      "type": "string"
+    },
+    "md5": {
+      "type": "string"
+    },
+    "sha256": {
+      "type": "string"
+    },
+    "sha512": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "required" : ["length", "filename", "url"],
+  "anyOf": [
+    {"required": ["md5"]},
+    {"required": ["sha256"]},
+    {"required": ["sha512"]}
+  ]
+}
