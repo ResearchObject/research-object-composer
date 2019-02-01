@@ -108,6 +108,7 @@ public class ResearchObjectTest {
         try {
             // Missing SHA-512
             ro.appendToField("data","{\"length\": 123,\"filename\": \"important_doc.pdf\",\"url\" : \"http://example.com/important_doc.pdf\"}");
+            assertTrue("RO validation should fail due to missing SHA-512 checksum", false);
         } catch (ValidationException e) {
             JSONObject errorReport = e.toJSON();
             assertEquals("required key [sha512] not found", errorReport.get("message"));
@@ -120,9 +121,11 @@ public class ResearchObjectTest {
 
         // SHA-512
         ro.setField("data","[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"sha512\": \"a131b5e2cb03fbeae9ba608b2912b27d73540a53562dcc752d43a499541e948682158c432cd1dcb55542d0fc84d9164963a8b6d7d6838f8e033cfe4449d1dd4c\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
-        // Nothing
+
         try {
+            // Missing SHA-512
             ro.setField("data", "[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
+            assertTrue("RO validation should fail due to missing SHA-512 checksum", false);
         } catch (ValidationException e) {
             JSONObject errorReport = e.toJSON();
             assertEquals("required key [sha512] not found", errorReport.get("message"));
