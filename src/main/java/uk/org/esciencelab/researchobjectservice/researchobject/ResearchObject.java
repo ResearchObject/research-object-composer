@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.Schema;
-import org.everit.json.schema.StringSchema;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -25,13 +24,13 @@ public class ResearchObject {
     @JsonIgnore
     @DBRef
     private ResearchObjectProfile profile;
-    private JSONObject fields;
+    private JSONObject content;
 
     public ResearchObject() { }
 
     public ResearchObject(ResearchObjectProfile profile) {
         this.profile = profile;
-        this.fields = getProfile().getTemplate();
+        this.content = getProfile().getTemplate();
     }
 
     public String getId() {
@@ -52,28 +51,28 @@ public class ResearchObject {
 
     public void setProfile(ResearchObjectProfile profile) {
         this.profile = profile;
-        if (this.fields == null) {
-            this.fields = getProfile().getTemplate();
+        if (this.content == null) {
+            this.content = getProfile().getTemplate();
         }
     }
 
-    @JsonGetter("fields")
-    public Map<String, Object> getFieldsForJson() {
-        Map<String, Object> m = getFields().toMap();
+    @JsonGetter("content")
+    public Map<String, Object> getContentForJson() {
+        Map<String, Object> m = getContent().toMap();
 
         convertMapToNulls(m);
 
         return m;
     }
 
-    public JSONObject getFields() { return fields; }
+    public JSONObject getContent() { return content; }
 
     public void setFields(JSONObject obj) {
-        this.fields = obj;
+        this.content = obj;
     }
 
     public Object getField(String name) {
-        return getFields().get(name);
+        return getContent().get(name);
     }
 
     public void setField(String field, String value) {
@@ -82,7 +81,7 @@ public class ResearchObject {
 
         schema.validate(obj);
 
-        getFields().put(field, obj);
+        getContent().put(field, obj);
     }
 
     public void appendToField(String field, String value) {
@@ -98,7 +97,7 @@ public class ResearchObject {
     public void clearField(String field) {
         Object blank = getProfile().getBlankField(field);
 
-        getFields().put(field, blank);
+        getContent().put(field, blank);
     }
 
     public Schema getFieldSchema(String field) {

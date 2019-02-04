@@ -36,7 +36,7 @@ public class ResearchObjectTest {
 
         assertEquals("draft_task", ro.getProfile().getId());
 
-        JSONObject fields = ro.getFields();
+        JSONObject fields = ro.getContent();
         assertEquals(3, fields.keySet().size());
         assertEquals("[]", fields.get("input").toString());
         assertEquals("null", fields.get("workflow").toString());
@@ -51,7 +51,7 @@ public class ResearchObjectTest {
         ro.setField("input", "[\"ark://abc.123\", \"ark://abc.456\"]");
         ro.setField("workflow_params", "{ \"x\" : 123 }");
 
-        JSONObject fields = ro.getFields();
+        JSONObject fields = ro.getContent();
         JSONArray input = (JSONArray) fields.get("input");
         assertEquals(2, input.length());
         assertArrayEquals(new String [] {"ark://abc.123", "ark://abc.456"}, input.toList().toArray());

@@ -18,7 +18,7 @@ public class ResearchObjectResourceAssembler implements ResourceAssembler<Resear
                 linkTo(methodOn(ResearchObjectController.class).one(researchObject.getId())).withSelfRel(),
                 linkTo(methodOn(ResearchObjectProfileController.class).one(researchObject.getProfileId())).withRel("profile"));
 
-        for (String field : researchObject.getFields().keySet()) {
+        for (String field : researchObject.getContent().keySet()) {
             resource.add(linkTo(methodOn(FieldController.class).getResearchObjectField(researchObject.getId(), field)).withRel(field));
         }
 

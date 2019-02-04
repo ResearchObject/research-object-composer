@@ -69,7 +69,6 @@ public class ResearchObjectController {
                 linkTo(methodOn(ResearchObjectController.class).allForProfile(profileId)).withSelfRel());
     }
 
-
     @PostMapping("/profiles/{profileId}/research_objects")
     public ResponseEntity<Object> createResearchObject(@PathVariable String profileId, @RequestBody ResearchObject researchObject) {
         researchObject.setProfile(getResearchObjectProfile(profileId));
