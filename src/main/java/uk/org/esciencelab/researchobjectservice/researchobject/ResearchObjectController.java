@@ -1,6 +1,7 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
@@ -27,15 +28,17 @@ public class ResearchObjectController {
     @Autowired
     private ResearchObjectResourceAssembler assembler;
     @Autowired
+    private ResearchObjectSummaryResourceAssembler summaryAssembler;
+    @Autowired
     private ResearchObjectBundlerService researchObjectBundlerService;
     @Autowired
     private ResearchObjectBaggerService researchObjectBaggerService;
 
     @GetMapping("/research_objects")
-    public Resources<Resource<ResearchObject>> all() {
+    public Resources<Resource<ResearchObjectSummary>> all() {
         List<ResearchObject> all = researchObjectRepository.findAll();
-        List<Resource<ResearchObject>> researchObjectResources = all.stream()
-                .map(assembler::toResource)
+        List<Resource<ResearchObjectSummary>> researchObjectResources = all.stream()
+                .map(summaryAssembler::toResource)
                 .collect(Collectors.toList());
 
         return new Resources<>(researchObjectResources,
@@ -58,11 +61,11 @@ public class ResearchObjectController {
     }
 
     @GetMapping("/profiles/{profileId}/research_objects")
-    public Resources<Resource<ResearchObject>> allForProfile(@PathVariable String profileId) {
+    public Resources<Resource<ResearchObjectSummary>> allForProfile(@PathVariable String profileId) {
         ResearchObjectProfile profile = getResearchObjectProfile(profileId);
         List<ResearchObject> allByProfile = researchObjectRepository.findAllByProfile(profile);
-        List<Resource<ResearchObject>> researchObjectResources = allByProfile.stream()
-                .map(assembler::toResource)
+        List<Resource<ResearchObjectSummary>> researchObjectResources = allByProfile.stream()
+                .map(summaryAssembler::toResource)
                 .collect(Collectors.toList());
 
         return new Resources<>(researchObjectResources,
