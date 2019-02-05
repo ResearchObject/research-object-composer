@@ -1,5 +1,10 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 
-public interface ResearchObjectProfileRepository extends MongoRepository<ResearchObjectProfile, String> { }
+import java.util.Optional;
+
+public interface ResearchObjectProfileRepository extends PagingAndSortingRepository<ResearchObjectProfile, Long> {
+    Optional<ResearchObjectProfile> findByName(@Param("name") String name);
+}

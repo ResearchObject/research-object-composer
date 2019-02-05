@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,8 @@ public class ResearchObjectProfileController {
 
     @GetMapping(value="/profiles", produces="application/hal+json")
     public Resources<Resource<ResearchObjectProfile>> all() {
-        List<Resource<ResearchObjectProfile>> profiles = researchObjectProfileRepository.findAll().stream()
+        Collection<ResearchObjectProfile> all = (Collection) researchObjectProfileRepository.findAll();
+        List<Resource<ResearchObjectProfile>> profiles = all.stream()
                 .map(assembler::toResource)
                 .collect(Collectors.toList());
 
@@ -31,7 +33,7 @@ public class ResearchObjectProfileController {
     }
 
     @GetMapping(value="/profiles/{id}", produces="application/hal+json")
-    public Resource<ResearchObjectProfile> one(@PathVariable String id) {
+    public Resource<ResearchObjectProfile> one(@PathVariable Long id) {
         ResearchObjectProfile profile = researchObjectProfileRepository.findById(id).orElseThrow(ResearchObjectProfileNotFoundException::new);
 
         return assembler.toResource(profile);

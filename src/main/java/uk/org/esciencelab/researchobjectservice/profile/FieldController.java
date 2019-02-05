@@ -17,7 +17,7 @@ public class FieldController {
     private ResearchObjectRepository researchObjectRepository;
 
     @GetMapping("/research_objects/{id}/{field}")
-    public ResponseEntity<Object> getResearchObjectField(@PathVariable String id, @PathVariable String field) {
+    public ResponseEntity<Object> getResearchObjectField(@PathVariable Long id, @PathVariable String field) {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);
 
@@ -25,7 +25,7 @@ public class FieldController {
     }
 
     @PutMapping(value="/research_objects/{id}/{field}", produces="application/json")
-    public ResponseEntity<Object> updateResearchObjectField(@PathVariable String id, @PathVariable String field, @RequestBody String value) {
+    public ResponseEntity<Object> updateResearchObjectField(@PathVariable Long id, @PathVariable String field, @RequestBody String value) {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);
 
@@ -41,7 +41,7 @@ public class FieldController {
     }
 
     @PostMapping(value="/research_objects/{id}/{field}", produces="application/json")
-    public ResponseEntity<Object> appendToResearchObjectField(@PathVariable String id, @PathVariable String field, @RequestBody String value) {
+    public ResponseEntity<Object> appendToResearchObjectField(@PathVariable Long id, @PathVariable String field, @RequestBody String value) {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);
         if (!(researchObject.supportsAppend(field))) {
@@ -60,7 +60,7 @@ public class FieldController {
     }
 
     @DeleteMapping(value="/research_objects/{id}/{field}", produces="application/json")
-    public ResponseEntity<Object> clearResearchObjectField(@PathVariable String id, @PathVariable String field, @RequestBody String value) {
+    public ResponseEntity<Object> clearResearchObjectField(@PathVariable Long id, @PathVariable String field, @RequestBody String value) {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);
 
@@ -72,7 +72,7 @@ public class FieldController {
     }
 
     @PatchMapping(value="/research_objects/{id}/content", produces="application/json")
-    public ResponseEntity<Object> updateResearchObjectField(@PathVariable String id, @RequestBody String jsonPatch) throws Exception {
+    public ResponseEntity<Object> updateResearchObjectField(@PathVariable Long id, @RequestBody String jsonPatch) throws Exception {
         ResearchObject researchObject = getResearchObject(id);
         try {
             researchObject.patchContent(jsonPatch);
@@ -84,7 +84,7 @@ public class FieldController {
         }
     }
 
-    private ResearchObject getResearchObject(String id) {
+    private ResearchObject getResearchObject(Long id) {
         return researchObjectRepository.findById(id).orElseThrow(ResearchObjectNotFoundException::new);
     }
 

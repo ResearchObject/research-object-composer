@@ -1,15 +1,9 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 
 public class ResearchObjectSummary {
-    @Id
-    private String id;
-    @JsonIgnore
-    @DBRef
+    private Long id;
     private ResearchObjectProfile profile;
 
     public ResearchObjectSummary(ResearchObject researchObject) {
@@ -17,7 +11,7 @@ public class ResearchObjectSummary {
         this.profile = researchObject.getProfile();
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
@@ -25,7 +19,7 @@ public class ResearchObjectSummary {
         return profile;
     }
 
-    public String getProfileId() {
-        return getProfile().getId();
+    public String getProfileName() {
+        return getProfile().getName();
     }
 }

@@ -6,33 +6,38 @@ import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
 
+import javax.persistence.*;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
-@Document
+@Entity
 public class ResearchObjectProfile {
     @Id
-    private String id;
+    @GeneratedValue(strategy= GenerationType.AUTO)
+    private Long id;
+    @OneToMany(targetEntity=ResearchObject.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_id")
+    private List<ResearchObject> researchObjects;
+    @Column(unique=true)
+    private String name;
     private String schemaPath;
 
     public ResearchObjectProfile() {}
 
-    public ResearchObjectProfile(String id, String schemaPath) {
+    public ResearchObjectProfile(String name, String schemaPath) {
         super();
-        this.id = id;
+        this.name = name;
         this.schemaPath = schemaPath;
     }
 
-    public String getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String getName() { return this.name; }
 
     @JsonIgnore
     public ObjectSchema getObjectSchema() {

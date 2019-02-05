@@ -6,29 +6,38 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.Schema;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 
+import javax.persistence.*;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-@Document
+@TypeDefs({
+        @TypeDef(name = "json", typeClass = JsonStringType.class),
+        @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+})
+@Entity
 public class ResearchObject {
     @Id
-    private String id;
-    @JsonIgnore
-    @DBRef
+    @GeneratedValue(strategy= GenerationType.AUTO)
+    private Long id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_id")
     private ResearchObjectProfile profile;
+    @Type(type = "jsonb")
     private JSONObject content;
 
     public ResearchObject() { }
@@ -38,17 +47,16 @@ public class ResearchObject {
         this.content = getProfile().getTemplate();
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getProfileId() {
+    @JsonIgnore
+    public Long getProfileId() {
         return getProfile().getId();
     }
+
+    public String getProfileName() { return getProfile().getName(); }
 
     public ResearchObjectProfile getProfile() {
         return this.profile;

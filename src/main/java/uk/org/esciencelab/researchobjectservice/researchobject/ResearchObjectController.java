@@ -12,6 +12,7 @@ import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidato
 
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,7 @@ public class ResearchObjectController {
 
     @GetMapping("/research_objects")
     public Resources<Resource<ResearchObjectSummary>> all() {
-        List<ResearchObject> all = researchObjectRepository.findAll();
+        Collection<ResearchObject> all = (Collection) researchObjectRepository.findAll();
         List<Resource<ResearchObjectSummary>> researchObjectResources = all.stream()
                 .map(summaryAssembler::toResource)
                 .collect(Collectors.toList());
@@ -45,35 +46,35 @@ public class ResearchObjectController {
     }
 
     @GetMapping("/research_objects/{id}")
-    public Resource<ResearchObject> one(@PathVariable String id) {
+    public Resource<ResearchObject> one(@PathVariable Long id) {
         ResearchObject researchObject = getResearchObject(id);
 
         return assembler.toResource(researchObject);
     }
 
     @DeleteMapping("/research_objects/{id}")
-    public ResponseEntity<?> deleteResearchObject(@PathVariable String id) {
+    public ResponseEntity<?> deleteResearchObject(@PathVariable Long id) {
         ResearchObject researchObject = getResearchObject(id); // This is here to check the RO exists, throwing a 404 otherwise.
 
         researchObjectRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/profiles/{profileId}/research_objects")
-    public Resources<Resource<ResearchObjectSummary>> allForProfile(@PathVariable String profileId) {
-        ResearchObjectProfile profile = getResearchObjectProfile(profileId);
+    @GetMapping("/profiles/{profileName}/research_objects")
+    public Resources<Resource<ResearchObjectSummary>> allForProfile(@PathVariable String profileName) {
+        ResearchObjectProfile profile = getResearchObjectProfile(profileName);
         List<ResearchObject> allByProfile = researchObjectRepository.findAllByProfile(profile);
         List<Resource<ResearchObjectSummary>> researchObjectResources = allByProfile.stream()
                 .map(summaryAssembler::toResource)
                 .collect(Collectors.toList());
 
         return new Resources<>(researchObjectResources,
-                linkTo(methodOn(ResearchObjectController.class).allForProfile(profileId)).withSelfRel());
+                linkTo(methodOn(ResearchObjectController.class).allForProfile(profileName)).withSelfRel());
     }
 
-    @PostMapping("/profiles/{profileId}/research_objects")
-    public ResponseEntity<Object> createResearchObject(@PathVariable String profileId, @RequestBody ResearchObject researchObject) {
-        researchObject.setProfile(getResearchObjectProfile(profileId));
+    @PostMapping("/profiles/{profileName}/research_objects")
+    public ResponseEntity<Object> createResearchObject(@PathVariable String profileName, @RequestBody ResearchObject researchObject) {
+        researchObject.setProfile(getResearchObjectProfile(profileName));
         ResearchObject savedResearchObject = researchObjectRepository.save(researchObject);
 
         Resource<ResearchObject> resource = assembler.toResource(savedResearchObject);
@@ -82,7 +83,7 @@ public class ResearchObjectController {
     }
 
     @PostMapping(value="/research_objects/{id}/bundle", produces="application/zip")
-    public void mintResearchObject(@PathVariable String id, HttpServletResponse response) throws Exception {
+    public void mintResearchObject(@PathVariable Long id, HttpServletResponse response) throws Exception {
         ResearchObject researchObject = getResearchObject(id);
 
         ResearchObjectValidator validator = new ResearchObjectValidator();
@@ -96,7 +97,7 @@ public class ResearchObjectController {
     }
 
     @PostMapping(value="/research_objects/{id}/bag", produces="application/zip")
-    public void mintBag(@PathVariable String id, HttpServletResponse response) throws Exception {
+    public void mintBag(@PathVariable Long id, HttpServletResponse response) throws Exception {
         ResearchObject researchObject = getResearchObject(id);
 
         response.setStatus(HttpServletResponse.SC_OK);
@@ -104,11 +105,11 @@ public class ResearchObjectController {
         researchObjectBaggerService.bagToZip(researchObject, response.getOutputStream());
     }
 
-    private ResearchObject getResearchObject(String id) {
+    private ResearchObject getResearchObject(Long id) {
         return researchObjectRepository.findById(id).orElseThrow(ResearchObjectNotFoundException::new);
     }
 
-    private ResearchObjectProfile getResearchObjectProfile(String id) {
-        return researchObjectProfileRepository.findById(id).orElseThrow(ResearchObjectProfileNotFoundException::new);
+    private ResearchObjectProfile getResearchObjectProfile(String name) {
+        return researchObjectProfileRepository.findByName(name).orElseThrow(ResearchObjectProfileNotFoundException::new);
     }
 }
