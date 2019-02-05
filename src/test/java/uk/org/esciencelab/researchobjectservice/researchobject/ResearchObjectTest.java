@@ -102,6 +102,26 @@ public class ResearchObjectTest {
     }
 
     @Test
+    public void patchContent() throws Exception {
+        ResearchObject ro = new ResearchObject(dataBundleProfile);
+        ro.appendToField("data","{\"length\": 123,\"filename\": \"important_doc.pdf\",\"sha512\": \"a131b5e2cb03fbeae9ba608b2912b27d73540a53562dcc752d43a499541e948682158c432cd1dcb55542d0fc84d9164963a8b6d7d6838f8e033cfe4449d1dd4c\",\"url\" : \"http://example.com/important_doc.pdf\"}");
+
+        ro.patchContent("[" +
+                "{ \"op\" : \"replace\",  \"path\": \"/data/0/filename\", \"value\" : \"very_important_doc.pdf\" }," +
+                "{ \"op\" : \"add\",  \"path\": \"/data/-\", \"value\" : {\"length\": 123,\"filename\": \"another_important_doc.pdf\",\"sha512\": \"a131b5e2cb03fbeae9ba608b2912b27d73540a53562dcc752d43a499541e948682158c432cd1dcb55542d0fc84d9164963a8b6d7d6838f8e033cfe4449d1dd4c\", \"url\" : \"http://example.com/another_important_doc.pdf\"}}" +
+                "]");
+
+        JSONArray data = (JSONArray) ro.getField("data");
+        assertEquals(2, data.length());
+        JSONObject importantDoc = (JSONObject) data.get(0);
+        JSONObject anotherImportantDoc = (JSONObject) data.get(1);
+        assertEquals("very_important_doc.pdf", importantDoc.get("filename"));
+        assertEquals(123, importantDoc.getInt("length"));
+        assertEquals("another_important_doc.pdf", anotherImportantDoc.get("filename"));
+        assertEquals(123, anotherImportantDoc.getInt("length"));
+    }
+
+    @Test
     public void validatesWhenAppendingField() {
         ResearchObject ro = new ResearchObject(dataBundleProfile);
 
@@ -125,6 +145,20 @@ public class ResearchObjectTest {
         try {
             // Missing SHA-512
             ro.setField("data", "[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
+            assertTrue("RO validation should fail due to missing SHA-512 checksum", false);
+        } catch (ValidationException e) {
+            JSONObject errorReport = e.toJSON();
+            assertEquals("required key [sha512] not found", errorReport.get("message"));
+        }
+    }
+
+    @Test
+    public void validatesWhenPatching() throws Exception {
+        ResearchObject ro = new ResearchObject(dataBundleProfile);
+
+        try {
+            // Missing SHA-512
+            ro.patchContent("[{ \"op\" : \"add\",  \"path\": \"/data/-\", \"value\" : {\"length\": 123,\"filename\": \"important_doc.pdf\",\"url\" : \"http://example.com/important_doc.pdf\"}}]");
             assertTrue("RO validation should fail due to missing SHA-512 checksum", false);
         } catch (ValidationException e) {
             JSONObject errorReport = e.toJSON();

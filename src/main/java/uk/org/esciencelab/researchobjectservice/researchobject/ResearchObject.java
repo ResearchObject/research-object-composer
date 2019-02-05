@@ -2,6 +2,10 @@ package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.Schema;
 import org.json.JSONArray;
@@ -12,6 +16,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -60,14 +65,12 @@ public class ResearchObject {
     public Map<String, Object> getContentForJson() {
         Map<String, Object> m = getContent().toMap();
 
-        convertMapToNulls(m);
-
         return m;
     }
 
     public JSONObject getContent() { return content; }
 
-    public void setFields(JSONObject obj) {
+    public void setContent(JSONObject obj) {
         this.content = obj;
     }
 
@@ -98,6 +101,21 @@ public class ResearchObject {
         Object blank = getProfile().getBlankField(field);
 
         getContent().put(field, blank);
+    }
+
+    public void patchContent(String jsonPatch) throws IOException, JsonPatchException {
+        ObjectMapper contentMapper = new ObjectMapper();
+        JsonNode contentNode = contentMapper.readTree(getContent().toString());
+
+        ObjectMapper patchMapper = new ObjectMapper();
+        JsonNode patchNode = patchMapper.readTree(jsonPatch);
+
+        JsonPatch patch = JsonPatch.fromJson(patchNode);
+        JSONObject patchedObject = new JSONObject(patch.apply(contentNode).toString());
+
+        getProfile().getObjectSchema().validate(patchedObject);
+
+        this.setContent(patchedObject);
     }
 
     public Schema getFieldSchema(String field) {

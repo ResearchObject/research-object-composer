@@ -71,6 +71,19 @@ public class FieldController {
         return ResponseEntity.ok(jo.toString());
     }
 
+    @PatchMapping(value="/research_objects/{id}/content", produces="application/json")
+    public ResponseEntity<Object> updateResearchObjectField(@PathVariable String id, @RequestBody String jsonPatch) throws Exception {
+        ResearchObject researchObject = getResearchObject(id);
+        try {
+            researchObject.patchContent(jsonPatch);
+            researchObjectRepository.save(researchObject);
+            JSONObject jo = researchObject.getContent();
+            return ResponseEntity.ok(jo.toString());
+        } catch (ValidationException e) {
+            return ResponseEntity.badRequest().body(e.toJSON().toString());
+        }
+    }
+
     private ResearchObject getResearchObject(String id) {
         return researchObjectRepository.findById(id).orElseThrow(ResearchObjectNotFoundException::new);
     }

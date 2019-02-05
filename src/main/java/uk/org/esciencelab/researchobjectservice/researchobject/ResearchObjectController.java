@@ -1,7 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
