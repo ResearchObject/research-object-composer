@@ -1,5 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -13,13 +14,10 @@ public class ResearchObjectProfileTest {
     public void createProfile() {
         ResearchObjectProfile profile = new ResearchObjectProfile("draft_task", draftTaskSchema);
 
-        assertEquals("draft_task", profile.getId());
+        assertEquals("draft_task", profile.getName());
         assertArrayEquals(new String [] {"input", "workflow", "workflow_params"}, profile.getFields());
         assertTrue(profile.hasField("input"));
         assertFalse(profile.hasField("banana"));
-        assertEquals("org.everit.json.schema.ArraySchema", profile.getFieldSchema("input").getClass().getName());
-        assertEquals("org.everit.json.schema.StringSchema", profile.getFieldSchema("workflow").getClass().getName());
-        assertEquals("org.everit.json.schema.ObjectSchema", profile.getFieldSchema("workflow_params").getClass().getName());
     }
 
     @Test

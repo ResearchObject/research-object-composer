@@ -1,9 +1,11 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 
 public class ResearchObjectSummary {
     private Long id;
+    @JsonIgnore
     private ResearchObjectProfile profile;
 
     public ResearchObjectSummary(ResearchObject researchObject) {

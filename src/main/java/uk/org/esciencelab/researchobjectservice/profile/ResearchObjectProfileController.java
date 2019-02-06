@@ -32,9 +32,9 @@ public class ResearchObjectProfileController {
                 linkTo(methodOn(ResearchObjectProfileController.class).all()).withSelfRel());
     }
 
-    @GetMapping(value="/profiles/{id}", produces="application/hal+json")
-    public Resource<ResearchObjectProfile> one(@PathVariable Long id) {
-        ResearchObjectProfile profile = researchObjectProfileRepository.findById(id).orElseThrow(ResearchObjectProfileNotFoundException::new);
+    @GetMapping(value="/profiles/{name}", produces="application/hal+json")
+    public Resource<ResearchObjectProfile> one(@PathVariable String name) {
+        ResearchObjectProfile profile = researchObjectProfileRepository.findByName(name).orElseThrow(ResearchObjectProfileNotFoundException::new);
 
         return assembler.toResource(profile);
     }

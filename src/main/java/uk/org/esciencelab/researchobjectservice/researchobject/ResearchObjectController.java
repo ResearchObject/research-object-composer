@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileNotFoundException;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileRepository;
-import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidator;
+import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
@@ -86,13 +86,14 @@ public class ResearchObjectController {
     public void mintResearchObject(@PathVariable Long id, HttpServletResponse response) throws Exception {
         ResearchObject researchObject = getResearchObject(id);
 
-        ResearchObjectValidator validator = new ResearchObjectValidator();
-        if (validator.validate(researchObject)) {
+        try {
+            researchObject.validate();
             response.setStatus(HttpServletResponse.SC_OK);
             response.addHeader("Content-Disposition", "attachment; filename=\""+ id +".bundle.zip\"");
             researchObjectBundlerService.bundle(researchObject, response.getOutputStream());
-        } else {
+        } catch (ProfileValidationException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            //response.getOutputStream().write(e.toJSON().toString());
         }
     }
 

@@ -1,6 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
-import org.everit.json.schema.ValidationException;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +9,7 @@ import org.springframework.web.server.MethodNotAllowedException;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObjectNotFoundException;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObjectRepository;
+import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationException;
 
 
 @RestController
@@ -35,7 +36,7 @@ public class FieldController {
             JSONObject jo = new JSONObject();
             jo.put(field, researchObject.getField(field));
             return ResponseEntity.ok(jo.toString());
-        } catch (ValidationException e) {
+        } catch (ProfileValidationException e) {
             return ResponseEntity.badRequest().body(e.toJSON().toString());
         }
     }
@@ -54,7 +55,7 @@ public class FieldController {
             JSONObject jo = new JSONObject();
             jo.put(field, researchObject.getField(field));
             return ResponseEntity.ok(jo.toString());
-        } catch (ValidationException e) {
+        } catch (ProfileValidationException e) {
             return ResponseEntity.badRequest().body(e.toJSON().toString());
         }
     }
@@ -77,9 +78,9 @@ public class FieldController {
         try {
             researchObject.patchContent(jsonPatch);
             researchObjectRepository.save(researchObject);
-            JSONObject jo = researchObject.getContent();
+            JsonNode jo = researchObject.getContent();
             return ResponseEntity.ok(jo.toString());
-        } catch (ValidationException e) {
+        } catch (ProfileValidationException e) {
             return ResponseEntity.badRequest().body(e.toJSON().toString());
         }
     }
