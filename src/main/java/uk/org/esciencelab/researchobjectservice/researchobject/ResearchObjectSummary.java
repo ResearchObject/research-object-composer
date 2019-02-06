@@ -13,9 +13,7 @@ public class ResearchObjectSummary {
         this.profile = researchObject.getProfile();
     }
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
 
     public ResearchObjectProfile getProfile() {
         return profile;

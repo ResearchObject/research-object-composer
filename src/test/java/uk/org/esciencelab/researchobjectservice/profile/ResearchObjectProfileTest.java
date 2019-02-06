@@ -1,13 +1,11 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class ResearchObjectProfileTest {
-
     private static final String draftTaskSchema = "schemas/draft_task_schema.json";
 
     @Test
@@ -23,9 +21,9 @@ public class ResearchObjectProfileTest {
     @Test
     public void getProfileTemplate() {
         ResearchObjectProfile profile = new ResearchObjectProfile("draft_task", draftTaskSchema);
-        JSONObject template = profile.getTemplate();
+        JsonNode template = profile.getTemplate();
 
-        assertEquals(3, template.keySet().size());
+        assertEquals(3, template.size());
         assertEquals("[]", template.get("input").toString());
         assertEquals("null", template.get("workflow").toString());
         assertEquals("{}", template.get("workflow_params").toString());

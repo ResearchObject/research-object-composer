@@ -14,18 +14,12 @@ import java.util.Map;
 import java.util.Set;
 
 public class SchemaWrapper {
-    private JSONObject schemaJson;
     private ObjectSchema objectSchema;
-
-    public SchemaWrapper(JSONObject schemaJson) {
-        this.schemaJson = schemaJson;
-        this.objectSchema = (ObjectSchema) SchemaLoader.load(this.schemaJson);
-    }
 
     public SchemaWrapper(String schemaPath) {
         InputStream is = getClass().getClassLoader().getResourceAsStream(schemaPath);
-        this.schemaJson = new JSONObject(new JSONTokener(is));
-        this.objectSchema = (ObjectSchema) SchemaLoader.load(this.schemaJson);
+        JSONObject schemaJson = new JSONObject(new JSONTokener(is));
+        this.objectSchema = (ObjectSchema) SchemaLoader.load(schemaJson);
     }
 
     public ObjectSchema getObjectSchema() {
@@ -34,7 +28,7 @@ public class SchemaWrapper {
 
     public String [] getFields() {
         Set<String> fieldNames = getObjectSchema().getPropertySchemas().keySet();
-        return fieldNames.toArray(new String[fieldNames.size()]);
+        return fieldNames.toArray(new String[0]);
     }
 
     public JSONObject getTemplate() {
@@ -45,12 +39,6 @@ public class SchemaWrapper {
         }
 
         return o;
-    }
-
-    public Object getBlankField(String field) {
-        Schema fieldSchema = getObjectSchema().getPropertySchemas().get(field);
-
-        return getBlankField(fieldSchema);
     }
 
     public Object getBlankField(Schema fieldSchema) {

@@ -1,4 +1,3 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
-public class ResearchObjectNotFoundException extends RuntimeException {
-}
+public class ResearchObjectNotFoundException extends RuntimeException { }

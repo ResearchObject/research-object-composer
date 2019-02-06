@@ -9,17 +9,14 @@ import org.junit.Test;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationException;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 public class ResearchObjectTest {
-
-    public static ResearchObjectProfile draftTaskProfile;
-    public static ResearchObjectProfile dataBundleProfile;
+    private static ResearchObjectProfile draftTaskProfile;
+    private static ResearchObjectProfile dataBundleProfile;
 
     // This is needed to handle the "classpath" protocol used to join resolve $refs in the JSON schemas.
     @BeforeClass
@@ -40,14 +37,14 @@ public class ResearchObjectTest {
         assertEquals("draft_task", ro.getProfile().getName());
 
         ObjectNode fields = ro.getContent();
-        //assertEquals(3, fields.keySet().size());
+        assertEquals(3, fields.size());
         assertEquals("[]", fields.get("input").toString());
         assertEquals("null", fields.get("workflow").toString());
         assertEquals("{}", fields.get("workflow_params").toString());
     }
 
     @Test
-    public void getAndSetROFields() throws Exception {
+    public void getAndSetROFields() {
         ResearchObject ro = new ResearchObject(draftTaskProfile);
 
         ro.setField("workflow", "\"ark://xyz.123\"");
@@ -60,7 +57,7 @@ public class ResearchObjectTest {
         assertEquals("ark://abc.123", input.get(0).asText());
         assertEquals("ark://abc.456", input.get(1).asText());
         assertEquals("ark://xyz.123", fields.get("workflow").asText());
-        assertEquals(123, ((ObjectNode) fields.get("workflow_params")).get("x").asInt());
+        assertEquals(123, fields.get("workflow_params").get("x").asInt());
 
         ro.clearField("workflow");
         assertEquals("null", fields.get("workflow").toString());
@@ -132,7 +129,7 @@ public class ResearchObjectTest {
         try {
             // Missing SHA-512
             ro.appendToField("data","{\"length\": 123,\"filename\": \"important_doc.pdf\",\"url\" : \"http://example.com/important_doc.pdf\"}");
-            assertTrue("RO validation should fail due to missing SHA-512 checksum", false);
+            fail("RO validation should fail due to missing SHA-512 checksum");
         } catch (ProfileValidationException e) {
             JSONObject errorReport = e.toJSON();
             assertEquals("required key [sha512] not found", errorReport.get("message"));
@@ -149,7 +146,7 @@ public class ResearchObjectTest {
         try {
             // Missing SHA-512
             ro.setField("data", "[{\"length\": 123,\"filename\": \"important_doc.pdf\",\"url\" : \"http://example.com/important_doc.pdf\"}]");
-            assertTrue("RO validation should fail due to missing SHA-512 checksum", false);
+            fail("RO validation should fail due to missing SHA-512 checksum");
         } catch (ProfileValidationException e) {
             JSONObject errorReport = e.toJSON();
             assertEquals("required key [sha512] not found", errorReport.get("message"));
@@ -163,17 +160,10 @@ public class ResearchObjectTest {
         try {
             // Missing SHA-512
             ro.patchContent("[{ \"op\" : \"add\",  \"path\": \"/data/-\", \"value\" : {\"length\": 123,\"filename\": \"important_doc.pdf\",\"url\" : \"http://example.com/important_doc.pdf\"}}]");
-            assertTrue("RO validation should fail due to missing SHA-512 checksum", false);
+            fail("RO validation should fail due to missing SHA-512 checksum");
         } catch (ProfileValidationException e) {
             JSONObject errorReport = e.toJSON();
             assertEquals("required key [sha512] not found", errorReport.get("message"));
         }
-    }
-
-    private List iteratorToList(Iterator iterator) {
-        List list = new ArrayList<>();
-        iterator.forEachRemaining(list::add);
-
-        return list;
     }
 }

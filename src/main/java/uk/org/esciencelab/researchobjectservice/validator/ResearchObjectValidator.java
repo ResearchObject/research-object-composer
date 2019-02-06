@@ -5,22 +5,14 @@ import org.everit.json.schema.ValidationException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import uk.org.esciencelab.researchobjectservice.profile.SchemaWrapper;
-import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
 
 import static uk.org.esciencelab.researchobjectservice.profile.JsonUnifier.jsonObject;
 
 public class ResearchObjectValidator {
-
-    private ResearchObject researchObject;
     private SchemaWrapper schemaWrapper;
 
-    public ResearchObjectValidator(ResearchObject researchObject) {
-        this.researchObject = researchObject;
-        this.schemaWrapper = researchObject.getProfile().getSchemaWrapper();
-    }
-
-    public SchemaWrapper getSchemaWrapper() {
-        return this.schemaWrapper;
+    public ResearchObjectValidator(SchemaWrapper schemaWrapper) {
+        this.schemaWrapper = schemaWrapper;
     }
 
     public void validate(JsonNode content) throws ProfileValidationException {
@@ -33,6 +25,10 @@ public class ResearchObjectValidator {
         } catch (ValidationException e) {
             throw new ProfileValidationException(e.toJSON());
         }
+    }
+
+    public void validate(String content) throws ProfileValidationException {
+        validate(new JSONObject(content));
     }
 
     public void validateFieldValue(String field, String value) throws ProfileValidationException {
@@ -49,6 +45,10 @@ public class ResearchObjectValidator {
         } catch (ValidationException e) {
             throw new ProfileValidationException(e.toJSON());
         }
+    }
+
+    private SchemaWrapper getSchemaWrapper() {
+        return this.schemaWrapper;
     }
 
     private Object convertValueForValidate(String value) {

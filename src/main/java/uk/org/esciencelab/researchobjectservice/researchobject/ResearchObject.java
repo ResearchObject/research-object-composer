@@ -21,8 +21,6 @@ import javax.persistence.*;
 import java.io.IOException;
 import java.util.Map;
 
-import static uk.org.esciencelab.researchobjectservice.profile.JsonUnifier.jsonNode;
-
 @TypeDefs({
         @TypeDef(name = "json", typeClass = JsonStringType.class),
         @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
@@ -133,13 +131,8 @@ public class ResearchObject {
         }
     }
 
-    private JsonNode convertValueForSet(Object value) {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.convertValue(value, JsonNode.class);
-    }
-
     private ResearchObjectValidator getValidator() {
-        return new ResearchObjectValidator(this);
+        return getProfile().getValidator();
     }
 
     public void validate() {
@@ -147,6 +140,6 @@ public class ResearchObject {
     }
 
     private ObjectNode getTemplate() {
-        return (ObjectNode) jsonNode(getProfile().getTemplate());
+        return getProfile().getTemplate();
     }
 }

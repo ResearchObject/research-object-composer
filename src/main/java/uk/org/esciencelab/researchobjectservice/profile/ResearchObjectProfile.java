@@ -1,12 +1,14 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.Cascade;
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
+import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidator;
 
 import javax.persistence.*;
 import java.util.List;
+
+import static uk.org.esciencelab.researchobjectservice.profile.JsonUnifier.jsonNode;
 
 @Entity
 public class ResearchObjectProfile {
@@ -40,8 +42,8 @@ public class ResearchObjectProfile {
     }
 
     @JsonIgnore
-    public JSONObject getTemplate() {
-        return getSchemaWrapper().getTemplate();
+    public ObjectNode getTemplate() {
+        return (ObjectNode) jsonNode(getSchemaWrapper().getTemplate());
     }
 
     public String [] getFields() {
@@ -56,5 +58,10 @@ public class ResearchObjectProfile {
         }
 
         return false;
+    }
+
+    @JsonIgnore
+    public ResearchObjectValidator getValidator() {
+        return new ResearchObjectValidator(getSchemaWrapper());
     }
 }
