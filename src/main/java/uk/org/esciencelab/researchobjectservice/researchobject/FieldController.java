@@ -14,7 +14,7 @@ public class FieldController {
     @Autowired
     private ResearchObjectRepository researchObjectRepository;
 
-    @GetMapping("/research_objects/{id}/{field}")
+    @GetMapping("/research_objects/{id}/content/{field}")
     public ResponseEntity<Object> getResearchObjectField(@PathVariable Long id, @PathVariable String field) {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);
@@ -22,7 +22,7 @@ public class FieldController {
         return ResponseEntity.ok(researchObject.getField(field));
     }
 
-    @PutMapping(value="/research_objects/{id}/{field}", produces="application/json")
+    @PutMapping(value="/research_objects/{id}/content/{field}", produces="application/json")
     public ResponseEntity<Object> updateResearchObjectField(@PathVariable Long id, @PathVariable String field, @RequestBody String value) {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);
@@ -38,7 +38,7 @@ public class FieldController {
         }
     }
 
-    @PostMapping(value="/research_objects/{id}/{field}", produces="application/json")
+    @PostMapping(value="/research_objects/{id}/content/{field}", produces="application/json")
     public ResponseEntity<Object> appendToResearchObjectField(@PathVariable Long id, @PathVariable String field, @RequestBody String value) {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);
@@ -57,7 +57,7 @@ public class FieldController {
         }
     }
 
-    @DeleteMapping(value="/research_objects/{id}/{field}", produces="application/json")
+    @DeleteMapping(value="/research_objects/{id}/content/{field}", produces="application/json")
     public ResponseEntity<Object> clearResearchObjectField(@PathVariable Long id, @PathVariable String field, @RequestBody String value) {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);

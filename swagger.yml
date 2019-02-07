@@ -144,7 +144,7 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/ResearchObject"
-  /research_objects/{id}/{field}:
+  /research_objects/{id}/content/{field}:
     get:
       tags:
       - "research_object"
