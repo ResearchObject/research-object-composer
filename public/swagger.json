@@ -1,0 +1,544 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "A composer for Research Objects",
+    "version": "0.1.0",
+    "title": "RO Composer",
+    "contact": {
+      "email": "finn.bacall@manchester.ac.uk"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host": "cspool55.cs.man.ac.uk:8080",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "profile",
+      "description": "A profile for describing Research Objects"
+    },
+    {
+      "name": "research_object",
+      "description": "Research Objects"
+    }
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+    "/profiles": {
+      "get": {
+        "tags": [
+          "profile"
+        ],
+        "summary": "Show a list of available Research Object Profiles",
+        "description": "",
+        "operationId": "addPet",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/hal+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ProfileList"
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{name}": {
+      "get": {
+        "tags": [
+          "profile"
+        ],
+        "summary": "Get a Research Object Profile",
+        "description": "",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "type": "string",
+            "description": "The unique identifier of the profile",
+            "required": true
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/hal+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Profile"
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{name}/research_objects": {
+      "get": {
+        "tags": [
+          "profile",
+          "research_object"
+        ],
+        "summary": "Show a list of Research Objects that conform to the given profile",
+        "description": "",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "type": "string",
+            "description": "The unique identifier of the profile",
+            "required": true
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/hal+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ResearchObjectSummaryList"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "profile",
+          "research_object"
+        ],
+        "summary": "Create a new Research Object that conforms to the given profile",
+        "description": "",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "schema": {
+              "type": "object"
+            }
+          },
+          {
+            "in": "path",
+            "name": "name",
+            "type": "string",
+            "description": "The unique identifier of the profile",
+            "required": true
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/hal+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ResearchObject"
+            }
+          }
+        }
+      }
+    },
+    "/research_objects": {
+      "get": {
+        "tags": [
+          "research_object"
+        ],
+        "summary": "Show a list of all Research Objects",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/hal+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ResearchObjectSummaryList"
+            }
+          }
+        }
+      }
+    },
+    "/research_objects/{id}": {
+      "get": {
+        "tags": [
+          "research_object"
+        ],
+        "summary": "Get a Research Object Profile",
+        "description": "",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "integer",
+            "description": "The numeric ID of the Research Object",
+            "required": true
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/hal+json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ResearchObject"
+            }
+          }
+        }
+      }
+    },
+    "/research_objects/{id}/content/{field}": {
+      "get": {
+        "tags": [
+          "research_object"
+        ],
+        "summary": "Get a single field of the Research Object",
+        "description": "",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "integer",
+            "description": "The numeric ID of the Research Object",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "field",
+            "type": "string",
+            "description": "The name of the field to get, see profile for a list of field names",
+            "required": true
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "research_object"
+        ],
+        "summary": "Set a single field of the Research Object",
+        "description": "",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "integer",
+            "description": "The numeric ID of the Research Object",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "field",
+            "type": "string",
+            "description": "The name of the field to set, see profile for a list of field names",
+            "required": true
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "research_object"
+        ],
+        "summary": "Clear a single field of the Research Object",
+        "description": "",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "integer",
+            "description": "The numeric ID of the Research Object",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "field",
+            "type": "string",
+            "description": "The name of the field to clear, see profile for a list of field names",
+            "required": true
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/research_objects/{id}/content": {
+      "patch": {
+        "tags": [
+          "research_object"
+        ],
+        "summary": "Modify the Research Object's content using a JSON Patch",
+        "description": "",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "The JSON Patch to perform",
+            "schema": {
+              "$ref": "#/definitions/JSONPatchRequest"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "type": "integer",
+            "description": "The numeric ID of the Research Object",
+            "required": true
+          }
+        ],
+        "consumes": [
+          "application/json-patch+json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ProfileList": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/HALCollection"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "_embedded": {
+              "type": "object",
+              "properties": {
+                "researchObjectProfileList": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Profile"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Profile": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "_links": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Links"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "researchObjects": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ResearchObjectSummaryList": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/HALCollection"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "_embedded": {
+              "type": "object",
+              "properties": {
+                "researchObjectSummaryList": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ResearchObjectSummary"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ResearchObject": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "profileName": {
+          "type": "string"
+        },
+        "content": {
+          "type": "object"
+        },
+        "_links": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Links"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "profile": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ResearchObjectSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "profileName": {
+          "type": "string"
+        },
+        "_links": {
+          "$ref": "#/definitions/Links"
+        }
+      }
+    },
+    "HALCollection": {
+      "type": "object",
+      "properties": {
+        "_embedded": {
+          "type": "object"
+        },
+        "_links": {
+          "$ref": "#/definitions/Links"
+        }
+      }
+    },
+    "Links": {
+      "type": "object",
+      "properties": {
+        "self": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "JSONPatchRequest": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/JSONPatchDocument"
+      }
+    },
+    "JSONPatchDocument": {
+      "description": "A JSON Patch document (RFC 6902)",
+      "required": [
+        "op",
+        "path"
+      ],
+      "properties": {
+        "op": {
+          "type": "string",
+          "description": "The operation to be performed",
+          "enum": [
+            "add",
+            "remove",
+            "replace",
+            "move",
+            "copy",
+            "test"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "description": "A JSON Pointer (RFC 6901)"
+        },
+        "value": {
+          "type": "object",
+          "description": "The value to be used within the operations."
+        },
+        "from": {
+          "type": "string",
+          "description": "A string containing a JSON Pointer value."
+        }
+      }
+    }
+  }
+}
