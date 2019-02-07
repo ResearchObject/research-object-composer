@@ -1,4 +1,4 @@
-package uk.org.esciencelab.researchobjectservice.profile;
+package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;

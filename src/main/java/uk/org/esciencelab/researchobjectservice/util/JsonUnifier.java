@@ -1,4 +1,4 @@
-package uk.org.esciencelab.researchobjectservice.profile;
+package uk.org.esciencelab.researchobjectservice.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

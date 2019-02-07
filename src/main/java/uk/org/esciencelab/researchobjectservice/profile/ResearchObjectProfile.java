@@ -8,7 +8,7 @@ import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidato
 import javax.persistence.*;
 import java.util.List;
 
-import static uk.org.esciencelab.researchobjectservice.profile.JsonUnifier.jsonNode;
+import static uk.org.esciencelab.researchobjectservice.util.JsonUnifier.jsonNode;
 
 @Entity
 public class ResearchObjectProfile {

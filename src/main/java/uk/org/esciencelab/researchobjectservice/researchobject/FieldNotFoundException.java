@@ -1,4 +1,4 @@
-package uk.org.esciencelab.researchobjectservice.profile;
+package uk.org.esciencelab.researchobjectservice.researchobject;
 
 public class FieldNotFoundException extends RuntimeException {
     public FieldNotFoundException(String field) {

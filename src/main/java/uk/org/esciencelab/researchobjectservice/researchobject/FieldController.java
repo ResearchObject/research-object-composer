@@ -1,4 +1,4 @@
-package uk.org.esciencelab.researchobjectservice.profile;
+package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.JSONObject;
@@ -6,9 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.MethodNotAllowedException;
-import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
-import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObjectNotFoundException;
-import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObjectRepository;
 import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationException;
 
 

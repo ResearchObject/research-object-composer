@@ -6,7 +6,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import uk.org.esciencelab.researchobjectservice.profile.SchemaWrapper;
 
-import static uk.org.esciencelab.researchobjectservice.profile.JsonUnifier.jsonObject;
+import static uk.org.esciencelab.researchobjectservice.util.JsonUnifier.jsonObject;
 
 public class ResearchObjectValidator {
     private SchemaWrapper schemaWrapper;
