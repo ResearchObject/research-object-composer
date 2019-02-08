@@ -67,7 +67,6 @@ paths:
     get:
       tags:
       - "profile"
-      - "research_object"
       summary: "List Research Objects for Profile"
       description: "Show a list of Research Objects that conform to the given profile"
       operationId: "listResearchObjectsForProfile"
@@ -90,7 +89,6 @@ paths:
           description: "Profile not found"
     post:
       tags:
-      - "profile"
       - "research_object"
       summary: "Create Research Object"
       description: "Create a new Research Object that conforms to the given profile"
