@@ -34,9 +34,9 @@
         "tags": [
           "profile"
         ],
-        "summary": "Show a list of available Research Object Profiles",
-        "description": "",
-        "operationId": "addPet",
+        "summary": "List Profiles",
+        "description": "Show a list of available Research Object Profiles",
+        "operationId": "listProfiles",
         "consumes": [
           "application/json"
         ],
@@ -58,8 +58,9 @@
         "tags": [
           "profile"
         ],
-        "summary": "Get a Research Object Profile",
-        "description": "",
+        "summary": "Get Profile",
+        "description": "Get a Research Object Profile",
+        "operationId": "getProfile",
         "parameters": [
           {
             "in": "path",
@@ -81,6 +82,9 @@
             "schema": {
               "$ref": "#/definitions/Profile"
             }
+          },
+          "404": {
+            "description": "Profile not found"
           }
         }
       }
@@ -91,8 +95,9 @@
           "profile",
           "research_object"
         ],
-        "summary": "Show a list of Research Objects that conform to the given profile",
-        "description": "",
+        "summary": "List Research Objects for Profile",
+        "description": "Show a list of Research Objects that conform to the given profile",
+        "operationId": "listResearchObjectsForProfile",
         "parameters": [
           {
             "in": "path",
@@ -114,6 +119,9 @@
             "schema": {
               "$ref": "#/definitions/ResearchObjectSummaryList"
             }
+          },
+          "404": {
+            "description": "Profile not found"
           }
         }
       },
@@ -122,8 +130,9 @@
           "profile",
           "research_object"
         ],
-        "summary": "Create a new Research Object that conforms to the given profile",
-        "description": "",
+        "summary": "Create Research Object",
+        "description": "Create a new Research Object that conforms to the given profile",
+        "operationId": "createResearchObject",
         "parameters": [
           {
             "in": "body",
@@ -153,6 +162,12 @@
             "schema": {
               "$ref": "#/definitions/ResearchObject"
             }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Profile not found"
           }
         }
       }
@@ -162,8 +177,9 @@
         "tags": [
           "research_object"
         ],
-        "summary": "Show a list of all Research Objects",
-        "description": "",
+        "summary": "List Research Objects",
+        "description": "Show a list of all Research Objects",
+        "operationId": "listResearchObjects",
         "consumes": [
           "application/json"
         ],
@@ -185,8 +201,9 @@
         "tags": [
           "research_object"
         ],
-        "summary": "Get a Research Object Profile",
-        "description": "",
+        "summary": "Get Research Object",
+        "description": "Get a Research Objects",
+        "operationId": "getResearchObject",
         "parameters": [
           {
             "in": "path",
@@ -208,6 +225,9 @@
             "schema": {
               "$ref": "#/definitions/ResearchObject"
             }
+          },
+          "404": {
+            "description": "Research object not found"
           }
         }
       }
@@ -217,8 +237,9 @@
         "tags": [
           "research_object"
         ],
-        "summary": "Get a single field of the Research Object",
-        "description": "",
+        "summary": "Get Research Object field",
+        "description": "Retrieve a single field of the Research Object",
+        "operationId": "getResearchObjectField",
         "parameters": [
           {
             "in": "path",
@@ -244,6 +265,12 @@
         "responses": {
           "200": {
             "description": "successful operation"
+          },
+          "400": {
+            "description": "The given field is not present on the Research Object"
+          },
+          "404": {
+            "description": "Research object not found"
           }
         }
       },
@@ -251,8 +278,9 @@
         "tags": [
           "research_object"
         ],
-        "summary": "Set a single field of the Research Object",
-        "description": "",
+        "summary": "Set Research Object field",
+        "description": "Set a single field on the Research Object",
+        "operationId": "setResearchObjectField",
         "parameters": [
           {
             "in": "path",
@@ -278,6 +306,59 @@
         "responses": {
           "200": {
             "description": "successful operation"
+          },
+          "400": {
+            "description": "The value being set violated the profile.",
+            "schema": {
+              "$ref": "#/definitions/ValidationErrorDocument"
+            }
+          },
+          "404": {
+            "description": "Research object not found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "research_object"
+        ],
+        "summary": "Append to Research Object field",
+        "description": "Append a value to a list field on the Research Object",
+        "operationId": "appendResearchObjectField",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "integer",
+            "description": "The numeric ID of the Research Object",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "field",
+            "type": "string",
+            "description": "The name of the field to set, see profile for a list of field names. Must be a list field.",
+            "required": true
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "The value being appended violated the profile.",
+            "schema": {
+              "$ref": "#/definitions/ValidationErrorDocument"
+            }
+          },
+          "404": {
+            "description": "Research object not found"
           }
         }
       },
@@ -285,8 +366,9 @@
         "tags": [
           "research_object"
         ],
-        "summary": "Clear a single field of the Research Object",
-        "description": "",
+        "summary": "Clear Research Object field",
+        "description": "Reset a single field on the Research Object to its default value ({}, [] or null).",
+        "operationId": "clearResearchObjectField",
         "parameters": [
           {
             "in": "path",
@@ -312,6 +394,9 @@
         "responses": {
           "200": {
             "description": "successful operation"
+          },
+          "404": {
+            "description": "Research object not found"
           }
         }
       }
@@ -321,8 +406,9 @@
         "tags": [
           "research_object"
         ],
-        "summary": "Modify the Research Object's content using a JSON Patch",
-        "description": "",
+        "summary": "Patch Research Object content",
+        "description": "Modify the Research Object's content using a JSON Patch",
+        "operationId": "patchResearchObjectContent",
         "parameters": [
           {
             "in": "body",
@@ -352,6 +438,15 @@
             "schema": {
               "type": "object"
             }
+          },
+          "400": {
+            "description": "The patched Research Object content violated the profile.",
+            "schema": {
+              "$ref": "#/definitions/ValidationErrorDocument"
+            }
+          },
+          "404": {
+            "description": "Research object not found"
           }
         }
       }
@@ -501,6 +596,10 @@
         }
       }
     },
+    "JSONPointer": {
+      "type": "string",
+      "description": "A JSON Pointer (RFC 6901)"
+    },
     "JSONPatchRequest": {
       "type": "array",
       "items": {
@@ -527,16 +626,72 @@
           ]
         },
         "path": {
-          "type": "string",
-          "description": "A JSON Pointer (RFC 6901)"
+          "allOf": [
+            {
+              "$ref": "#/definitions/JSONPointer"
+            },
+            {
+              "description": "A pointer to the value being operated on. In the case of `move` and `copy` operations, it is a pointer to the destination."
+            }
+          ]
         },
         "value": {
-          "type": "object",
-          "description": "The value to be used within the operations."
+          "description": "The value to be used within the operations. Can be any JSON type."
         },
         "from": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/JSONPointer"
+            },
+            {
+              "description": "In the case of `move` and `copy` operations, a pointer to the source value."
+            }
+          ]
+        }
+      }
+    },
+    "ValidationErrorDocument": {
+      "description": "A document detailing errors that occurred when trying to validate the Research Object, or a field on that Research Object.",
+      "required": [
+        "schemaLocation",
+        "pointerToViolation",
+        "causingExceptions"
+      ],
+      "properties": {
+        "schemaLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/JSONPointer"
+            },
+            {
+              "description": "A pointer to the schema that was violated by this error."
+            }
+          ]
+        },
+        "pointerToViolation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/JSONPointer"
+            },
+            {
+              "description": "A pointer to the value in the request that caused the error."
+            }
+          ]
+        },
+        "causingExceptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ValidationErrorDocument"
+          },
+          "description": "Nested exceptions"
+        },
+        "keyword": {
           "type": "string",
-          "description": "A string containing a JSON Pointer value."
+          "description": "The property of the schema that was violated."
+        },
+        "message": {
+          "type": "string",
+          "description": "A human-readable error message."
         }
       }
     }
