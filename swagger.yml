@@ -61,6 +61,8 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/Profile"
+        404:
+          description: "Profile not found"
   /profiles/{name}/research_objects:
     get:
       tags:
@@ -84,6 +86,8 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/ResearchObjectSummaryList"
+        404:
+          description: "Profile not found"
     post:
       tags:
       - "profile"
@@ -111,6 +115,10 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/ResearchObject"
+        404:
+          description: "Profile not found"
+        400:
+          description: "Bad request"
   /research_objects:
     get:
       tags:
@@ -149,6 +157,8 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/ResearchObject"
+        404:
+          description: "Research object not found"
   /research_objects/{id}/content/{field}:
     get:
       tags:
@@ -174,6 +184,10 @@ paths:
       responses:
         200:
           description: "successful operation"
+        404:
+          description: "Research object not found"
+        400:
+          description: "The given field is not present on the Research Object"
     put:
       tags:
       - "research_object"
@@ -198,6 +212,12 @@ paths:
       responses:
         200:
           description: "successful operation"
+        404:
+          description: "Research object not found"
+        400:
+          description: "The value being set violated the profile."
+          schema:
+            $ref: "#/definitions/ValidationErrorDocument"
     post:
       tags:
       - "research_object"
@@ -222,6 +242,12 @@ paths:
       responses:
         200:
           description: "successful operation"
+        404:
+          description: "Research object not found"
+        400:
+          description: "The value being appended violated the profile."
+          schema:
+            $ref: "#/definitions/ValidationErrorDocument"
     delete:
       tags:
       - "research_object"
@@ -246,6 +272,8 @@ paths:
       responses:
         200:
           description: "successful operation"
+        404:
+          description: "Research object not found"
   /research_objects/{id}/content:
     patch:
       tags:
@@ -273,6 +301,12 @@ paths:
           description: "successful operation"
           schema:
             type: "object"
+        404:
+          description: "Research object not found"
+        400:
+          description: "The patched Research Object content violated the profile."
+          schema:
+            $ref: "#/definitions/ValidationErrorDocument"
 definitions:
   ProfileList:
     allOf:
@@ -356,6 +390,9 @@ definitions:
       self:
         type: "string"
         format: "uri"
+  JSONPointer:
+    type: "string"
+    description: "A JSON Pointer (RFC 6901)"
   JSONPatchRequest:
     type: "array"
     items:
@@ -377,11 +414,38 @@ definitions:
         - "copy"
         - "test"
       path:
-        type: "string"
-        description: "A JSON Pointer (RFC 6901)"
+        allOf:
+          - $ref: "#/definitions/JSONPointer"
+          - description: "A pointer to the value being operated on. In the case of `move` and `copy` operations, it is a pointer to the destination."
       value:
-        type: "object"
-        description: "The value to be used within the operations."
+        description: "The value to be used within the operations. Can be any JSON type."
       from:
+        allOf:
+          - $ref: "#/definitions/JSONPointer"
+          - description: "In the case of `move` and `copy` operations, a pointer to the source value."
+  ValidationErrorDocument:
+    description: "A document detailing errors that occurred when trying to validate the Research Object, or a field on that Research Object."
+    required:
+    - "schemaLocation"
+    - "pointerToViolation"
+    - "causingExceptions"
+    properties:
+      schemaLocation:
+        allOf:
+          - $ref: "#/definitions/JSONPointer"
+          - description: "A pointer to the schema that was violated by this error."
+      pointerToViolation:
+        allOf:
+          - $ref: "#/definitions/JSONPointer"
+          - description: "A pointer to the value in the request that caused the error."
+      causingExceptions:
+        type: "array"
+        items:
+          $ref: "#/definitions/ValidationErrorDocument"
+        description: "Nested exceptions"
+      keyword:
         type: "string"
-        description: "A string containing a JSON Pointer value."
+        description: "The property of the schema that was violated."
+      message:
+        type: "string"
+        description: "A human-readable error message."
