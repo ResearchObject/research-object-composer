@@ -597,8 +597,7 @@
       }
     },
     "JSONPointer": {
-      "type": "string",
-      "description": "A JSON Pointer (RFC 6901)"
+      "type": "string"
     },
     "JSONPatchRequest": {
       "type": "array",
