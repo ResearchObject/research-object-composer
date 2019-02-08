@@ -27,9 +27,9 @@ paths:
     get:
       tags:
       - "profile"
-      summary: "Show a list of available Research Object Profiles"
-      description: ""
-      operationId: "addPet"
+      summary: "List Profiles"
+      description: "Show a list of available Research Object Profiles"
+      operationId: "listProfiles"
       consumes:
       - "application/json"
       produces:
@@ -43,8 +43,9 @@ paths:
     get:
       tags:
       - "profile"
-      summary: "Get a Research Object Profile"
-      description: ""
+      summary: "Get Profile"
+      description: "Get a Research Object Profile"
+      operationId: "getProfile"
       parameters:
       - in: "path"
         name: "name"
@@ -65,8 +66,9 @@ paths:
       tags:
       - "profile"
       - "research_object"
-      summary: "Show a list of Research Objects that conform to the given profile"
-      description: ""
+      summary: "List Research Objects for Profile"
+      description: "Show a list of Research Objects that conform to the given profile"
+      operationId: "listResearchObjectsForProfile"
       parameters:
       - in: "path"
         name: "name"
@@ -86,8 +88,9 @@ paths:
       tags:
       - "profile"
       - "research_object"
-      summary: "Create a new Research Object that conforms to the given profile"
-      description: ""
+      summary: "Create Research Object"
+      description: "Create a new Research Object that conforms to the given profile"
+      operationId: "createResearchObject"
       parameters:
       - in: body
         name: body
@@ -112,8 +115,9 @@ paths:
     get:
       tags:
       - "research_object"
-      summary: "Show a list of all Research Objects"
-      description: ""
+      summary: "List Research Objects"
+      description: "Show a list of all Research Objects"
+      operationId: "listResearchObjects"
       consumes:
       - "application/json"
       produces:
@@ -127,8 +131,9 @@ paths:
     get:
       tags:
       - "research_object"
-      summary: "Get a Research Object Profile"
-      description: ""
+      summary: "Get Research Object"
+      description: "Get a Research Objects"
+      operationId: "getResearchObject"
       parameters:
       - in: "path"
         name: "id"
@@ -148,8 +153,9 @@ paths:
     get:
       tags:
       - "research_object"
-      summary: "Get a single field of the Research Object"
-      description: ""
+      summary: "Get Research Object field"
+      description: "Retrieve a single field of the Research Object"
+      operationId: "getResearchObjectField"
       parameters:
       - in: "path"
         name: "id"
@@ -171,8 +177,9 @@ paths:
     put:
       tags:
       - "research_object"
-      summary: "Set a single field of the Research Object"
-      description: ""
+      summary: "Set Research Object field"
+      description: "Set a single field on the Research Object"
+      operationId: "setResearchObjectField"
       parameters:
       - in: "path"
         name: "id"
@@ -191,11 +198,36 @@ paths:
       responses:
         200:
           description: "successful operation"
+    post:
+      tags:
+      - "research_object"
+      summary: "Append to Research Object field"
+      description: "Append a value to a list field on the Research Object"
+      operationId: "appendResearchObjectField"
+      parameters:
+      - in: "path"
+        name: "id"
+        type: "integer"
+        description: "The numeric ID of the Research Object"
+        required: true
+      - in: "path"
+        name: "field"
+        type: "string"
+        description: "The name of the field to set, see profile for a list of field names. Must be a list field."
+        required: true
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
     delete:
       tags:
       - "research_object"
-      summary: "Clear a single field of the Research Object"
-      description: ""
+      summary: "Clear Research Object field"
+      description: "Reset a single field on the Research Object to its default value ({}, [] or null)."
+      operationId: "clearResearchObjectField"
       parameters:
       - in: "path"
         name: "id"
@@ -218,8 +250,9 @@ paths:
     patch:
       tags:
       - "research_object"
-      summary: "Modify the Research Object's content using a JSON Patch"
-      description: ""
+      summary: "Patch Research Object content"
+      description: "Modify the Research Object's content using a JSON Patch"
+      operationId: "patchResearchObjectContent"
       parameters:
       - in: "body"
         name: "body"
