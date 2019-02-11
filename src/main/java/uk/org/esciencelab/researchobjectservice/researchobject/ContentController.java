@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.MethodNotAllowedException;
 
 @RestController
-public class FieldController {
+public class ContentController {
     @Autowired
     private ResearchObjectRepository researchObjectRepository;
 
@@ -53,10 +53,16 @@ public class FieldController {
     }
 
     @PatchMapping(value="/research_objects/{id}/content", produces="application/json")
-    public ResponseEntity<Object> updateResearchObjectField(@PathVariable Long id, @RequestBody JsonNode jsonPatch) throws Exception {
+    public ResponseEntity<Object> patchResearchObjectContent(@PathVariable Long id, @RequestBody JsonNode jsonPatch) throws Exception {
         ResearchObject researchObject = getResearchObject(id);
         researchObject.patchContent(jsonPatch);
         researchObjectRepository.save(researchObject);
+        return ResponseEntity.ok(researchObject.getContent());
+    }
+
+    @GetMapping(value="/research_objects/{id}/content", produces="application/json")
+    public ResponseEntity<Object> getResearchObjectContent(@PathVariable Long id) {
+        ResearchObject researchObject = getResearchObject(id);
         return ResponseEntity.ok(researchObject.getContent());
     }
 

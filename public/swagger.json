@@ -135,7 +135,7 @@
           {
             "in": "body",
             "name": "body",
-            "description": "Research Object content (optional)",
+            "description": "The content of the Research Object (optional)",
             "schema": {
               "type": "object"
             }
@@ -441,6 +441,37 @@
             "description": "The patched Research Object content violated the profile.",
             "schema": {
               "$ref": "#/definitions/ValidationErrorDocument"
+            }
+          },
+          "404": {
+            "description": "Research object not found"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "research_object"
+        ],
+        "summary": "Get Research Object content",
+        "description": "Get the Research Object's content",
+        "operationId": "getResearchObjectContent",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "integer",
+            "description": "The numeric ID of the Research Object",
+            "required": true
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object"
             }
           },
           "404": {

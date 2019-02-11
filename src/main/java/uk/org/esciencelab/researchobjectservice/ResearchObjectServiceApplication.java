@@ -16,7 +16,7 @@ public class ResearchObjectServiceApplication implements CommandLineRunner {
         SpringApplication.run(ResearchObjectServiceApplication.class, args);
     }
 
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         if (!profileRepository.findByName("draft_task").isPresent()) {
             profileRepository.save(new ResearchObjectProfile("draft_task", "schemas/draft_task_schema.json"));
         }

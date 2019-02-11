@@ -19,10 +19,11 @@ public class ResearchObjectResourceAssembler implements ResourceAssembler<Resear
                 linkTo(methodOn(ResearchObjectController.class).one(researchObject.getId())).withSelfRel(),
                 linkTo(methodOn(ResearchObjectProfileController.class).one(researchObject.getProfileName())).withRel("profile"));
 
+        resource.add(linkTo(methodOn(ContentController.class).getResearchObjectContent(researchObject.getId())).withRel("content"));
         Iterator<String> i = researchObject.getContent().fieldNames();
         while(i.hasNext()) {
             String field = i.next();
-            resource.add(linkTo(methodOn(FieldController.class).getResearchObjectField(researchObject.getId(), field)).withRel(field));
+            resource.add(linkTo(methodOn(ContentController.class).getResearchObjectField(researchObject.getId(), field)).withRel(field));
         }
 
         return resource;

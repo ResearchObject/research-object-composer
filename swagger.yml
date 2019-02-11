@@ -94,11 +94,11 @@ paths:
       description: "Create a new Research Object that conforms to the given profile"
       operationId: "createResearchObject"
       parameters:
-      - in: body
-        name: body
-        description: ""
+      - in: "body"
+        name: "body"
+        description: "The content of the Research Object (optional)"
         schema:
-          type: object
+          type: "object"
       - in: "path"
         name: "name"
         type: "string"
@@ -109,8 +109,8 @@ paths:
       produces:
       - "application/hal+json"
       responses:
-        200:
-          description: "successful operation"
+        201:
+          description: "successfully created"
           schema:
             $ref: "#/definitions/ResearchObject"
         404:
@@ -305,6 +305,27 @@ paths:
           description: "The patched Research Object content violated the profile."
           schema:
             $ref: "#/definitions/ValidationErrorDocument"
+    get:
+      tags:
+      - "research_object"
+      summary: "Get Research Object content"
+      description: "Get the Research Object's content"
+      operationId: "getResearchObjectContent"
+      parameters:
+      - in: "path"
+        name: "id"
+        type: "integer"
+        description: "The numeric ID of the Research Object"
+        required: true
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "object"
+        404:
+          description: "Research object not found"
 definitions:
   ProfileList:
     allOf:
