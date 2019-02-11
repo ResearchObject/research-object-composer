@@ -26,15 +26,11 @@ public class FieldController {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);
 
-        try {
-            researchObject.setField(field, value);
-            researchObjectRepository.save(researchObject);
-            JSONObject jo = new JSONObject();
-            jo.put(field, researchObject.getField(field));
-            return ResponseEntity.ok(jo.toString());
-        } catch (ProfileValidationException e) {
-            return ResponseEntity.badRequest().body(e.toJSON().toString());
-        }
+        researchObject.setField(field, value);
+        researchObjectRepository.save(researchObject);
+        JSONObject jo = new JSONObject();
+        jo.put(field, researchObject.getField(field));
+        return ResponseEntity.ok(jo.toString());
     }
 
     @PostMapping(value="/research_objects/{id}/content/{field}", produces="application/json")
@@ -45,15 +41,11 @@ public class FieldController {
             throw new MethodNotAllowedException("POST", null);
         }
 
-        try {
-            researchObject.appendToField(field, value);
-            researchObjectRepository.save(researchObject);
-            JSONObject jo = new JSONObject();
-            jo.put(field, researchObject.getField(field));
-            return ResponseEntity.ok(jo.toString());
-        } catch (ProfileValidationException e) {
-            return ResponseEntity.badRequest().body(e.toJSON().toString());
-        }
+        researchObject.appendToField(field, value);
+        researchObjectRepository.save(researchObject);
+        JSONObject jo = new JSONObject();
+        jo.put(field, researchObject.getField(field));
+        return ResponseEntity.ok(jo.toString());
     }
 
     @DeleteMapping(value="/research_objects/{id}/content/{field}", produces="application/json")
@@ -71,14 +63,10 @@ public class FieldController {
     @PatchMapping(value="/research_objects/{id}/content", produces="application/json")
     public ResponseEntity<Object> updateResearchObjectField(@PathVariable Long id, @RequestBody String jsonPatch) throws Exception {
         ResearchObject researchObject = getResearchObject(id);
-        try {
-            researchObject.patchContent(jsonPatch);
-            researchObjectRepository.save(researchObject);
-            JsonNode jo = researchObject.getContent();
-            return ResponseEntity.ok(jo.toString());
-        } catch (ProfileValidationException e) {
-            return ResponseEntity.badRequest().body(e.toJSON().toString());
-        }
+        researchObject.patchContent(jsonPatch);
+        researchObjectRepository.save(researchObject);
+        JsonNode jo = researchObject.getContent();
+        return ResponseEntity.ok(jo.toString());
     }
 
     private ResearchObject getResearchObject(Long id) {

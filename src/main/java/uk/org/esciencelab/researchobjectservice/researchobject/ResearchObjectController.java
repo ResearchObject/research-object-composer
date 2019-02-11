@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+import static uk.org.esciencelab.researchobjectservice.util.JsonUnifier.jsonNode;
 
 @RestController
 public class ResearchObjectController {
@@ -83,8 +84,6 @@ public class ResearchObjectController {
         } catch (IOException e) {
             System.out.println(e);
             return ResponseEntity.badRequest().body("JSON parsing error.");
-        }  catch (ProfileValidationException e) {
-            return ResponseEntity.badRequest().body(e.toJSON().toString());
         }
 
         ResearchObject savedResearchObject = researchObjectRepository.save(researchObject);
@@ -96,15 +95,10 @@ public class ResearchObjectController {
     public void mintResearchObject(@PathVariable Long id, HttpServletResponse response) throws Exception {
         ResearchObject researchObject = getResearchObject(id);
 
-        try {
-            researchObject.validate();
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.addHeader("Content-Disposition", "attachment; filename=\""+ id +".bundle.zip\"");
-            researchObjectBundlerService.bundle(researchObject, response.getOutputStream());
-        } catch (ProfileValidationException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            //response.getOutputStream().write(e.toJSON().toString());
-        }
+        researchObject.validate();
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.addHeader("Content-Disposition", "attachment; filename=\""+ id +".bundle.zip\"");
+        researchObjectBundlerService.bundle(researchObject, response.getOutputStream());
     }
 
     @PostMapping(value="/research_objects/{id}/bag", produces="application/zip")
