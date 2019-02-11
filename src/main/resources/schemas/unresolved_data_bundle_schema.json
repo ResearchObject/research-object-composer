@@ -1,0 +1,11 @@
+{
+  "type" : "object",
+  "properties" : {
+    "data": {
+      "type": "array",
+      "items": {
+        "$ref": "classpath:/schemas/minid_metadata_schema.json"
+      }
+    }
+  }
+}

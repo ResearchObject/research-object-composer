@@ -4,7 +4,29 @@
     "data": {
       "type": "array",
       "items": {
-        "$ref": "classpath:/schemas/minid_metadata_schema.json"
+        "type": "object",
+        "properties": {
+          "length": {
+            "type": "integer"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "md5": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "sha512": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required" : ["length", "filename", "url", "sha512"]
       }
     }
   }

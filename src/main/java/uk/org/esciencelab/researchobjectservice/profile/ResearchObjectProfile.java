@@ -1,6 +1,7 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
 import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidator;
@@ -58,6 +59,10 @@ public class ResearchObjectProfile {
         }
 
         return false;
+    }
+
+    public JsonNode getSchema() {
+        return getSchemaWrapper().toJsonNode();
     }
 
     @JsonIgnore

@@ -1,5 +1,7 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.ObjectSchema;
 import org.everit.json.schema.ReferenceSchema;
@@ -9,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
@@ -72,5 +75,14 @@ public class SchemaWrapper {
 
     public boolean canAppend(String field) {
         return getFieldSchema(field) instanceof ArraySchema;
+    }
+
+    public JsonNode toJsonNode() {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(getObjectSchema().toString(), JsonNode.class);
+        } catch (IOException e) {
+            return null;
+        }
     }
 }

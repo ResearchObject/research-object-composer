@@ -350,6 +350,8 @@ definitions:
         type: "array"
         items:
           type: "string"
+      schema:
+        $ref: "#/definitions/JSONSchemaDraft4"
       _links:
         allOf:
         - $ref: "#/definitions/Links"
@@ -467,3 +469,6 @@ definitions:
       message:
         type: "string"
         description: "A human-readable error message."
+  JSONSchemaDraft4:
+    type: "object"
+    description: "A schema conforming to the JSON schema (Draft 4) spec. https://json-schema.org/specification-links.html#draft-4"
