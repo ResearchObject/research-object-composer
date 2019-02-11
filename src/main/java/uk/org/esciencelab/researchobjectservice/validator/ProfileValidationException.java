@@ -6,17 +6,13 @@ import org.json.JSONObject;
 import static uk.org.esciencelab.researchobjectservice.util.JsonUnifier.jsonNode;
 
 public class ProfileValidationException extends RuntimeException {
-    private JSONObject json;
+    private JsonNode jsonNode;
 
     public ProfileValidationException(JSONObject json) {
-        this.json = json;
+        this.jsonNode = jsonNode(json);
     }
 
-    public JSONObject toJSON() {
-        return this.json;
-    };
-
     public JsonNode toJsonNode() {
-        return jsonNode(this.json);
+        return this.jsonNode;
     };
 }

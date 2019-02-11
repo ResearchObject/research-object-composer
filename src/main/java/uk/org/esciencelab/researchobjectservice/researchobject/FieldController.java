@@ -1,7 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +26,7 @@ public class FieldController {
 
         researchObject.setField(field, value);
         researchObjectRepository.save(researchObject);
-        JSONObject jo = new JSONObject();
-        jo.put(field, researchObject.getField(field));
-        return ResponseEntity.ok(jo.toString());
+        return ResponseEntity.ok(researchObject.getField(field));
     }
 
     @PostMapping(value="/research_objects/{id}/content/{field}", produces="application/json")
@@ -42,9 +39,7 @@ public class FieldController {
 
         researchObject.appendToField(field, value);
         researchObjectRepository.save(researchObject);
-        JSONObject jo = new JSONObject();
-        jo.put(field, researchObject.getField(field));
-        return ResponseEntity.ok(jo.toString());
+        return ResponseEntity.ok(researchObject.getField(field));
     }
 
     @DeleteMapping(value="/research_objects/{id}/content/{field}", produces="application/json")
@@ -54,9 +49,7 @@ public class FieldController {
 
         researchObject.clearField(field);
         researchObjectRepository.save(researchObject);
-        JSONObject jo = new JSONObject();
-        jo.put(field, researchObject.getField(field));
-        return ResponseEntity.ok(jo.toString());
+        return ResponseEntity.ok(researchObject.getField(field));
     }
 
     @PatchMapping(value="/research_objects/{id}/content", produces="application/json")
@@ -64,8 +57,7 @@ public class FieldController {
         ResearchObject researchObject = getResearchObject(id);
         researchObject.patchContent(jsonPatch);
         researchObjectRepository.save(researchObject);
-        JsonNode jo = researchObject.getContent();
-        return ResponseEntity.ok(jo.toString());
+        return ResponseEntity.ok(researchObject.getContent());
     }
 
     private ResearchObject getResearchObject(Long id) {

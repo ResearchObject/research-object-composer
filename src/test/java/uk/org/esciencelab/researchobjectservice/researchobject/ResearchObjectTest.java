@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.jena.atlas.io.IO;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -143,8 +141,8 @@ public class ResearchObjectTest {
             ro.appendToField("data", missingSha512);
             fail("RO validation should fail due to missing SHA-512 checksum");
         } catch (ProfileValidationException e) {
-            JSONObject errorReport = e.toJSON();
-            assertEquals("required key [sha512] not found", errorReport.get("message"));
+            JsonNode errorReport = e.toJsonNode();
+            assertEquals("required key [sha512] not found", errorReport.get("message").asText());
         }
     }
 
@@ -161,8 +159,8 @@ public class ResearchObjectTest {
             ro.setField("data", dataBundleContent);
             fail("RO validation should fail due to missing SHA-512 checksum");
         } catch (ProfileValidationException e) {
-            JSONObject errorReport = e.toJSON();
-            assertEquals("required key [sha512] not found", errorReport.get("message"));
+            JsonNode errorReport = e.toJsonNode();
+            assertEquals("required key [sha512] not found", errorReport.get("message").asText());
         }
     }
 
@@ -178,8 +176,8 @@ public class ResearchObjectTest {
             ro.patchContent(dataBundleBadPatch);
             fail("RO validation should fail due to missing SHA-512 checksum");
         } catch (ProfileValidationException e) {
-            JSONObject errorReport = e.toJSON();
-            assertEquals("required key [sha512] not found", errorReport.get("message"));
+            JsonNode errorReport = e.toJsonNode();
+            assertEquals("required key [sha512] not found", errorReport.get("message").asText());
         }
     }
 }
