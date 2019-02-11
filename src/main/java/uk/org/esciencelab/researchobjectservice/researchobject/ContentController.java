@@ -1,10 +1,13 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.fge.jsonpatch.JsonPatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.MethodNotAllowedException;
+
+import java.io.IOException;
 
 @RestController
 public class ContentController {
@@ -53,11 +56,17 @@ public class ContentController {
     }
 
     @PatchMapping(value="/research_objects/{id}/content", produces="application/json")
-    public ResponseEntity<Object> patchResearchObjectContent(@PathVariable Long id, @RequestBody JsonNode jsonPatch) throws Exception {
+    public ResponseEntity<Object> patchResearchObjectContent(@PathVariable Long id, @RequestBody JsonNode jsonPatch) {
         ResearchObject researchObject = getResearchObject(id);
-        researchObject.patchContent(jsonPatch);
-        researchObjectRepository.save(researchObject);
-        return ResponseEntity.ok(researchObject.getContent());
+        try {
+            researchObject.patchContent(jsonPatch);
+            researchObjectRepository.save(researchObject);
+            return ResponseEntity.ok(researchObject.getContent());
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body("JSON parse error");
+        } catch (JsonPatchException e) {
+            return ResponseEntity.badRequest().body("Invalid JSON patch");
+        }
     }
 
     @GetMapping(value="/research_objects/{id}/content", produces="application/json")

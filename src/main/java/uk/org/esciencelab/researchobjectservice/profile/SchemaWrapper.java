@@ -6,6 +6,7 @@ import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.ObjectSchema;
 import org.everit.json.schema.ReferenceSchema;
 import org.everit.json.schema.Schema;
+import org.everit.json.schema.loader.SchemaClient;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,9 +21,13 @@ public class SchemaWrapper {
     private ObjectSchema objectSchema;
 
     public SchemaWrapper(String schemaPath) {
-        InputStream is = getClass().getClassLoader().getResourceAsStream(schemaPath);
+        InputStream is = getClass().getClassLoader().getResourceAsStream("public" + schemaPath);
         JSONObject schemaJson = new JSONObject(new JSONTokener(is));
-        this.objectSchema = (ObjectSchema) SchemaLoader.load(schemaJson);
+        this.objectSchema = (ObjectSchema) SchemaLoader.builder()
+                .schemaClient(SchemaClient.classPathAwareClient())
+                .schemaJson(schemaJson)
+                .resolutionScope("classpath://public/")
+                .build().load().build();
     }
 
     public ObjectSchema getObjectSchema() {
@@ -77,12 +82,8 @@ public class SchemaWrapper {
         return getFieldSchema(field) instanceof ArraySchema;
     }
 
-    public JsonNode toJsonNode() {
-        try {
+    public JsonNode toJsonNode() throws IOException {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(getObjectSchema().toString(), JsonNode.class);
-        } catch (IOException e) {
-            return null;
-        }
     }
 }

@@ -23,16 +23,10 @@ public class ResearchObjectTest {
     private static JsonNode draftTaskContent;
     private static JsonNode dataBundleContent;
 
-    // This is needed to handle the "classpath" protocol used to join resolve $refs in the JSON schemas.
-    @BeforeClass
-    public static void init() {
-        org.apache.catalina.webresources.TomcatURLStreamHandlerFactory.getInstance();
-    }
-
     @Before
     public void setUp() throws IOException {
-        draftTaskProfile = new ResearchObjectProfile("draft_task", "schemas/draft_task_schema.json");
-        dataBundleProfile = new ResearchObjectProfile("data_bundle", "schemas/data_bundle_schema.json");
+        draftTaskProfile = new ResearchObjectProfile("draft_task", "/schemas/draft_task_schema.json");
+        dataBundleProfile = new ResearchObjectProfile("data_bundle", "/schemas/data_bundle_schema.json");
 
         ObjectMapper mapper = new ObjectMapper();
         draftTaskContent = mapper.readTree(getClass().getClassLoader().getResourceAsStream("researchobject/draft_task_content.json"));

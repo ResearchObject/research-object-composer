@@ -18,11 +18,11 @@ public class ResearchObjectServiceApplication implements CommandLineRunner {
 
     public void run(String... args) {
         if (!profileRepository.findByName("draft_task").isPresent()) {
-            profileRepository.save(new ResearchObjectProfile("draft_task", "schemas/draft_task_schema.json"));
+            profileRepository.save(new ResearchObjectProfile("draft_task", "/schemas/draft_task_schema.json"));
         }
 
         if (!profileRepository.findByName("data_bundle").isPresent()) {
-            profileRepository.save(new ResearchObjectProfile("data_bundle", "schemas/data_bundle_schema.json"));
+            profileRepository.save(new ResearchObjectProfile("data_bundle", "/schemas/data_bundle_schema.json"));
         }
     }
 }

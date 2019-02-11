@@ -5,6 +5,7 @@ import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.stereotype.Component;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObjectController;
 
+import static org.springframework.hateoas.mvc.BasicLinkBuilder.linkToCurrentMapping;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
@@ -16,6 +17,7 @@ public class ResearchObjectProfileResourceAssembler implements ResourceAssembler
 
         return new Resource<>(profile,
                 linkTo(methodOn(ResearchObjectProfileController.class).one(profile.getName())).withSelfRel(),
+                linkToCurrentMapping().slash(profile.getSchemaPath()).withRel("schema"),
                 linkTo(methodOn(ResearchObjectController.class).allForProfile(profile.getName())).withRel("researchObjects"));
     }
 }

@@ -117,6 +117,28 @@ paths:
           description: "Profile not found"
         400:
           description: "Bad request"
+  /schemas/{name}:
+    get:
+      tags:
+      - "profile"
+      summary: "Get JSON Schema"
+      description: "Get a JSON Schema"
+      operationId: "getSchema"
+      parameters:
+      - in: "path"
+        name: "name"
+        type: "string"
+        description: "The schema filename"
+        required: true
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/JSONSchemaDraft7"
+        404:
+          description: "Schema not found"
   /research_objects:
     get:
       tags:
@@ -350,14 +372,15 @@ definitions:
         type: "array"
         items:
           type: "string"
-      schema:
-        $ref: "#/definitions/JSONSchemaDraft4"
       _links:
         allOf:
         - $ref: "#/definitions/Links"
         - type: "object"
           properties:
             researchObjects:
+              type: "string"
+              format: "uri"
+            schema:
               type: "string"
               format: "uri"
   ResearchObjectSummaryList:
@@ -469,6 +492,6 @@ definitions:
       message:
         type: "string"
         description: "A human-readable error message."
-  JSONSchemaDraft4:
+  JSONSchemaDraft7:
     type: "object"
-    description: "A schema conforming to the JSON schema (Draft 4) spec. https://json-schema.org/specification-links.html#draft-4"
+    description: "A schema conforming to the JSON schema (Draft 7) spec. https://json-schema.org/specification-links.html#draft-7"
