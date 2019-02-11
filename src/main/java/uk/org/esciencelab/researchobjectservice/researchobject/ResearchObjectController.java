@@ -11,6 +11,7 @@ import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileRep
 import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationException;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
@@ -73,12 +74,21 @@ public class ResearchObjectController {
     }
 
     @PostMapping("/profiles/{profileName}/research_objects")
-    public ResponseEntity<Object> createResearchObject(@PathVariable String profileName, @RequestBody ResearchObject researchObject) {
-        researchObject.setProfile(getResearchObjectProfile(profileName));
+    public ResponseEntity<Object> createResearchObject(@PathVariable String profileName, @RequestBody String content) {
+        ResearchObject researchObject = new ResearchObject(getResearchObjectProfile(profileName));
+
+        try {
+            researchObject.setContent(content);
+            researchObject.validate();
+        } catch (IOException e) {
+            System.out.println(e);
+            return ResponseEntity.badRequest().body("JSON parsing error.");
+        }  catch (ProfileValidationException e) {
+            return ResponseEntity.badRequest().body(e.toJSON().toString());
+        }
+
         ResearchObject savedResearchObject = researchObjectRepository.save(researchObject);
-
         Resource<ResearchObject> resource = assembler.toResource(savedResearchObject);
-
         return ResponseEntity.created(URI.create(resource.getLink("self").getHref())).body(resource);
     }
 

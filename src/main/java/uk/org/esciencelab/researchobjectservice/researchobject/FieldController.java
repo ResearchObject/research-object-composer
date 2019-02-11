@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.MethodNotAllowedException;
 import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationException;
 
-
 @RestController
 public class FieldController {
     @Autowired
@@ -58,7 +57,7 @@ public class FieldController {
     }
 
     @DeleteMapping(value="/research_objects/{id}/content/{field}", produces="application/json")
-    public ResponseEntity<Object> clearResearchObjectField(@PathVariable Long id, @PathVariable String field, @RequestBody String value) {
+    public ResponseEntity<Object> clearResearchObjectField(@PathVariable Long id, @PathVariable String field) {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);
 

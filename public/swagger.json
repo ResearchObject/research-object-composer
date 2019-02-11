@@ -135,7 +135,7 @@
           {
             "in": "body",
             "name": "body",
-            "description": "",
+            "description": "Research Object content (optional)",
             "schema": {
               "type": "object"
             }
@@ -155,8 +155,8 @@
           "application/hal+json"
         ],
         "responses": {
-          "200": {
-            "description": "successful operation",
+          "201": {
+            "description": "successfully created",
             "schema": {
               "$ref": "#/definitions/ResearchObject"
             }

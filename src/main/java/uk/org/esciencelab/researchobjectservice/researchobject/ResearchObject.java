@@ -82,6 +82,11 @@ public class ResearchObject {
         this.content = obj;
     }
 
+    public void setContent(String content) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        setContent(mapper.readValue(content, ObjectNode.class));
+    }
+
     public JsonNode getField(String name) {
         return getContent().get(name);
     }
