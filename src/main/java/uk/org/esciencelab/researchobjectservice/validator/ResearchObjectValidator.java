@@ -31,7 +31,7 @@ public class ResearchObjectValidator {
         validate(new JSONObject(content));
     }
 
-    public void validateFieldValue(String field, String value) throws ProfileValidationException {
+    public void validateFieldValue(String field, JsonNode value) throws ProfileValidationException {
         try {
             getSchemaWrapper().getFieldSchema(field).validate(convertValueForValidate(value));
         } catch (ValidationException e) {
@@ -39,7 +39,7 @@ public class ResearchObjectValidator {
         }
     }
 
-    public void validateListFieldValue(String field, String value) throws ProfileValidationException {
+    public void validateListFieldValue(String field, JsonNode value) throws ProfileValidationException {
         try {
             getSchemaWrapper().getListFieldItemSchema(field).validate(convertValueForValidate(value));
         } catch (ValidationException e) {
@@ -51,7 +51,7 @@ public class ResearchObjectValidator {
         return this.schemaWrapper;
     }
 
-    private Object convertValueForValidate(String value) {
-        return new JSONTokener(value).nextValue();
+    private Object convertValueForValidate(JsonNode value) {
+        return new JSONTokener(value.toString()).nextValue();
     }
 }

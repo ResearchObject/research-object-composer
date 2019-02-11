@@ -1,5 +1,7 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
@@ -8,10 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileNotFoundException;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileRepository;
-import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationException;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-import static uk.org.esciencelab.researchobjectservice.util.JsonUnifier.jsonNode;
 
 @RestController
 public class ResearchObjectController {
@@ -75,16 +74,11 @@ public class ResearchObjectController {
     }
 
     @PostMapping("/profiles/{profileName}/research_objects")
-    public ResponseEntity<Object> createResearchObject(@PathVariable String profileName, @RequestBody String content) {
+    public ResponseEntity<Object> createResearchObject(@PathVariable String profileName, @RequestBody JsonNode content) {
         ResearchObject researchObject = new ResearchObject(getResearchObjectProfile(profileName));
 
-        try {
-            researchObject.setContent(content);
-            researchObject.validate();
-        } catch (IOException e) {
-            System.out.println(e);
-            return ResponseEntity.badRequest().body("JSON parsing error.");
-        }
+        researchObject.setContent((ObjectNode) content);
+        researchObject.validate();
 
         ResearchObject savedResearchObject = researchObjectRepository.save(researchObject);
         Resource<ResearchObject> resource = assembler.toResource(savedResearchObject);

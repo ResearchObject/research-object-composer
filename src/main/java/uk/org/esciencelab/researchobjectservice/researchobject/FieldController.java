@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.MethodNotAllowedException;
-import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationException;
 
 @RestController
 public class FieldController {
@@ -22,7 +21,7 @@ public class FieldController {
     }
 
     @PutMapping(value="/research_objects/{id}/content/{field}", produces="application/json")
-    public ResponseEntity<Object> updateResearchObjectField(@PathVariable Long id, @PathVariable String field, @RequestBody String value) {
+    public ResponseEntity<Object> updateResearchObjectField(@PathVariable Long id, @PathVariable String field, @RequestBody JsonNode value) {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);
 
@@ -34,7 +33,7 @@ public class FieldController {
     }
 
     @PostMapping(value="/research_objects/{id}/content/{field}", produces="application/json")
-    public ResponseEntity<Object> appendToResearchObjectField(@PathVariable Long id, @PathVariable String field, @RequestBody String value) {
+    public ResponseEntity<Object> appendToResearchObjectField(@PathVariable Long id, @PathVariable String field, @RequestBody JsonNode value) {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);
         if (!(researchObject.supportsAppend(field))) {
@@ -61,7 +60,7 @@ public class FieldController {
     }
 
     @PatchMapping(value="/research_objects/{id}/content", produces="application/json")
-    public ResponseEntity<Object> updateResearchObjectField(@PathVariable Long id, @RequestBody String jsonPatch) throws Exception {
+    public ResponseEntity<Object> updateResearchObjectField(@PathVariable Long id, @RequestBody JsonNode jsonPatch) throws Exception {
         ResearchObject researchObject = getResearchObject(id);
         researchObject.patchContent(jsonPatch);
         researchObjectRepository.save(researchObject);

@@ -1,0 +1,11 @@
+[
+  {
+    "op": "add",
+    "path": "/data/-",
+    "value": {
+      "length": 123,
+      "filename": "important_doc.pdf",
+      "url": "http://example.com/important_doc.pdf"
+    }
+  }
+]

@@ -1,0 +1,5 @@
+{
+  "workflow" : "ark://xyz.123",
+  "input" : ["ark://abc.123", "ark://abc.456"],
+  "workflow_params" : { "x" : 123 }
+}

@@ -1,11 +1,8 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
@@ -19,7 +16,6 @@ import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidato
 
 import javax.persistence.*;
 import java.io.IOException;
-import java.util.Map;
 
 @TypeDefs({
         @TypeDef(name = "json", typeClass = JsonStringType.class),
@@ -68,54 +64,38 @@ public class ResearchObject {
         }
     }
 
-    @JsonGetter("content")
-    public Map<String, Object> getContentForJson() {
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> result = mapper.convertValue(getContent(), Map.class);
-
-        return result;
-    }
-
     public ObjectNode getContent() { return content; }
 
     public void setContent(ObjectNode obj) {
         this.content = obj;
     }
 
-    public void setContent(String content) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        setContent(mapper.readValue(content, ObjectNode.class));
-    }
-
     public JsonNode getField(String name) {
         return getContent().get(name);
     }
 
-    public void setField(String field, String value) {
+    public void setField(String field, JsonNode value) {
         getValidator().validateFieldValue(field, value);
 
-        getContent().set(field, convertValueForSet(value));
+        getContent().set(field, value);
     }
 
-    public void appendToField(String field, String value) {
+    public void appendToField(String field, JsonNode value) {
         ArrayNode arr = (ArrayNode) getField(field);
 
         getValidator().validateListFieldValue(field, value);
 
-        arr.add(convertValueForSet(value));
+        arr.add(value);
     }
 
     public void clearField(String field) {
         getContent().set(field, getTemplate().get(field));
     }
 
-    public void patchContent(String jsonPatch) throws IOException, JsonPatchException {
+    public void patchContent(JsonNode jsonPatch) throws IOException, JsonPatchException {
         JsonNode contentNode = getContent();
 
-        ObjectMapper patchMapper = new ObjectMapper();
-        JsonNode patchNode = patchMapper.readTree(jsonPatch);
-
-        JsonPatch patch = JsonPatch.fromJson(patchNode);
+        JsonPatch patch = JsonPatch.fromJson(jsonPatch);
         JsonNode patchedObject = patch.apply(contentNode);
 
         getValidator().validate(patchedObject);
@@ -125,15 +105,6 @@ public class ResearchObject {
 
     public boolean supportsAppend(String field) {
         return getProfile().getSchemaWrapper().canAppend(field);
-    }
-
-    private JsonNode convertValueForSet(String value) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.readTree(value);
-        } catch (IOException e) {
-            return NullNode.getInstance();
-        }
     }
 
     private ResearchObjectValidator getValidator() {

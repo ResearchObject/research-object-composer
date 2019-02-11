@@ -2,9 +2,8 @@ package uk.org.esciencelab.researchobjectservice.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsonorg.JsonOrgModule;
 import org.json.JSONObject;
-
-import java.io.IOException;
 
 public class JsonUnifier {
     public static JSONObject jsonObject(JsonNode jsonNode) {
@@ -16,12 +15,9 @@ public class JsonUnifier {
     }
 
     public static JsonNode jsonNode(JSONObject jsonObject) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readTree(jsonObject.toString());
-        } catch (IOException e) {
-            return null;
-        }
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JsonOrgModule());
+        return mapper.convertValue(jsonObject, JsonNode.class);
     }
 
     public static JsonNode jsonNode(JsonNode jsonNode) {
