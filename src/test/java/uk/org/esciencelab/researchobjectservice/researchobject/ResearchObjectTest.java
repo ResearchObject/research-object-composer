@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationException;
@@ -137,6 +136,7 @@ public class ResearchObjectTest {
         } catch (ProfileValidationException e) {
             JsonNode errorReport = e.toJsonNode();
             assertEquals("required key [sha512] not found", errorReport.get("message").asText());
+            assertEquals("#", errorReport.get("pointerToViolation").asText());
         }
     }
 
@@ -155,6 +155,23 @@ public class ResearchObjectTest {
         } catch (ProfileValidationException e) {
             JsonNode errorReport = e.toJsonNode();
             assertEquals("required key [sha512] not found", errorReport.get("message").asText());
+            assertEquals("#/0", errorReport.get("pointerToViolation").asText());
+        }
+    }
+
+    @Test
+    public void validatesRegex() {
+        ResearchObject ro = new ResearchObject(dataBundleProfile);
+
+        try {
+            // Bad SHA-512
+            ((ObjectNode) dataBundleContent.get(0)).put("sha512", "banana");
+            ro.setField("data", dataBundleContent);
+            fail("RO validation should fail due to malformed SHA-512 checksum");
+        } catch (ProfileValidationException e) {
+            JsonNode errorReport = e.toJsonNode();
+            assertEquals("string [banana] does not match pattern ^[0-9a-f]{128}$", errorReport.get("message").asText());
+            assertEquals("#/0/sha512", errorReport.get("pointerToViolation").asText());
         }
     }
 
@@ -172,6 +189,7 @@ public class ResearchObjectTest {
         } catch (ProfileValidationException e) {
             JsonNode errorReport = e.toJsonNode();
             assertEquals("required key [sha512] not found", errorReport.get("message").asText());
+            assertEquals("#/data/0", errorReport.get("pointerToViolation").asText());
         }
     }
 }

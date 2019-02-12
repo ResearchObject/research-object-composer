@@ -9,13 +9,16 @@
       "type": "string"
     },
     "md5": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
     },
     "sha256": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
     },
     "sha512": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^[0-9a-f]{128}$"
     },
     "url": {
       "type": "string",
