@@ -23,7 +23,7 @@ public class ResearchObjectValidator {
         try {
             getSchemaWrapper().getObjectSchema().validate(content);
         } catch (ValidationException e) {
-            throw new ProfileValidationException(e.toJSON());
+            throw new ProfileValidationException(e, getSchemaWrapper());
         }
     }
 
@@ -35,7 +35,7 @@ public class ResearchObjectValidator {
         try {
             getSchemaWrapper().getFieldSchema(field).validate(convertValueForValidate(value));
         } catch (ValidationException e) {
-            throw new ProfileValidationException(e.toJSON());
+            throw new ProfileValidationException(e, getSchemaWrapper());
         }
     }
 
@@ -43,7 +43,7 @@ public class ResearchObjectValidator {
         try {
             getSchemaWrapper().getListFieldItemSchema(field).validate(convertValueForValidate(value));
         } catch (ValidationException e) {
-            throw new ProfileValidationException(e.toJSON());
+            throw new ProfileValidationException(e, getSchemaWrapper());
         }
     }
 

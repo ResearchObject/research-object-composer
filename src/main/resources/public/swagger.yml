@@ -467,7 +467,7 @@ definitions:
           - $ref: "#/definitions/JSONPointer"
           - description: "In the case of `move` and `copy` operations, a pointer to the source value."
   ValidationErrorDocument:
-    description: "A document detailing errors that occurred when trying to validate the Research Object, or a field on that Research Object."
+    description: "A document detailing an error that occurred when trying to validate the Research Object, or a field on that Research Object."
     required:
     - "schemaLocation"
     - "pointerToViolation"
@@ -476,7 +476,7 @@ definitions:
       schemaLocation:
         allOf:
           - $ref: "#/definitions/JSONPointer"
-          - description: "A pointer to the schema that was violated by this error."
+          - description: "A pointer to the rule in the schema that was violated by this error."
       pointerToViolation:
         allOf:
           - $ref: "#/definitions/JSONPointer"
@@ -485,7 +485,7 @@ definitions:
         type: "array"
         items:
           $ref: "#/definitions/ValidationErrorDocument"
-        description: "Nested exceptions"
+        description: "Nested errors."
       keyword:
         type: "string"
         description: "The property of the schema that was violated."

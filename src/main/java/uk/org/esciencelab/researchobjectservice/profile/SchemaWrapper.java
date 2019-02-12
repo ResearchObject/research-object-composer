@@ -19,8 +19,10 @@ import java.util.Set;
 
 public class SchemaWrapper {
     private ObjectSchema objectSchema;
+    private String schemaPath;
 
     public SchemaWrapper(String schemaPath) {
+        this.schemaPath = schemaPath;
         InputStream is = getClass().getClassLoader().getResourceAsStream("public" + schemaPath);
         JSONObject schemaJson = new JSONObject(new JSONTokener(is));
         this.objectSchema = (ObjectSchema) SchemaLoader.builder()
@@ -85,5 +87,9 @@ public class SchemaWrapper {
     public JsonNode toJsonNode() throws IOException {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(getObjectSchema().toString(), JsonNode.class);
+    }
+
+    public String getSchemaPath() {
+        return this.schemaPath;
     }
 }
