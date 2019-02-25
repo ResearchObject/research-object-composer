@@ -100,7 +100,8 @@ public class ResearchObjectTest {
         assertEquals(1, data.size());
         ObjectNode importantDoc = (ObjectNode) data.get(0);
         assertEquals("important_doc.pdf", importantDoc.get("filename").asText());
-        assertEquals("a131b5e2cb03fbeae9ba608b2912b27d73540a53562dcc752d43a499541e948682158c432cd1dcb55542d0fc84d9164963a8b6d7d6838f8e033cfe4449d1dd4c", importantDoc.get("sha512").asText());
+        assertEquals("a131b5e2cb03fbeae9ba608b2912b27d73540a53562dcc752d43a499541e948682158c432cd1dcb55542d0fc84d9164963a8b6d7d6838f8e033cfe4449d1dd4c",
+                importantDoc.get("checksums").get(0).get("checksum").asText());
         assertEquals(123, importantDoc.get("length").asInt());
     }
 
@@ -128,14 +129,14 @@ public class ResearchObjectTest {
         ResearchObject ro = new ResearchObject(dataBundleProfile);
 
         try {
-            // Missing SHA-512
-            ObjectNode missingSha512 = (ObjectNode) dataBundleContent.get(0);
-            missingSha512.remove("sha512");
-            ro.appendToField("data", missingSha512);
-            fail("RO validation should fail due to missing SHA-512 checksum");
+            // Missing checksum
+            ObjectNode missingChecksum = (ObjectNode) dataBundleContent.get(0);
+            missingChecksum.remove("checksums");
+            ro.appendToField("data", missingChecksum);
+            fail("RO validation should fail due to missing checksums");
         } catch (ProfileValidationException e) {
             JsonNode errorReport = e.toJsonNode();
-            assertEquals("required key [sha512] not found", errorReport.get("message").asText());
+            assertEquals("#: required key [checksums] not found", errorReport.get("message").asText());
             assertEquals("#", errorReport.get("pointerToViolation").asText());
         }
     }
@@ -148,13 +149,13 @@ public class ResearchObjectTest {
         ro.setField("data", dataBundleContent);
 
         try {
-            // Missing SHA-512
-            ((ObjectNode) dataBundleContent.get(0)).remove("sha512");
+            // Missing checksums
+            ((ObjectNode) dataBundleContent.get(0)).remove("checksums");
             ro.setField("data", dataBundleContent);
-            fail("RO validation should fail due to missing SHA-512 checksum");
+            fail("RO validation should fail due to missing checksums");
         } catch (ProfileValidationException e) {
             JsonNode errorReport = e.toJsonNode();
-            assertEquals("required key [sha512] not found", errorReport.get("message").asText());
+            assertEquals("#/0: required key [checksums] not found", errorReport.get("message").asText());
             assertEquals("#/0", errorReport.get("pointerToViolation").asText());
         }
     }
@@ -165,13 +166,13 @@ public class ResearchObjectTest {
 
         try {
             // Bad SHA-512
-            ((ObjectNode) dataBundleContent.get(0)).put("sha512", "banana");
+            ((ObjectNode) dataBundleContent.get(0).get("checksums").get(0)).put("checksum", "banana");
             ro.setField("data", dataBundleContent);
             fail("RO validation should fail due to malformed SHA-512 checksum");
         } catch (ProfileValidationException e) {
             JsonNode errorReport = e.toJsonNode();
-            assertEquals("string [banana] does not match pattern ^[0-9a-f]{128}$", errorReport.get("message").asText());
-            assertEquals("#/0/sha512", errorReport.get("pointerToViolation").asText());
+            assertEquals("#/0/checksums/0: #: 0 subschemas matched instead of one", errorReport.get("message").asText());
+            assertEquals("#/0/checksums/0", errorReport.get("pointerToViolation").asText());
         }
     }
 
@@ -180,16 +181,16 @@ public class ResearchObjectTest {
         ResearchObject ro = new ResearchObject(dataBundleProfile);
 
         try {
-            // Missing SHA-512
+            // Unrecognized checksum type
             ObjectMapper mapper = new ObjectMapper();
             JsonNode dataBundleBadPatch = mapper.readTree(
                     getClass().getClassLoader().getResourceAsStream("researchobject/data_bundle_invalid_patch.json"));
             ro.patchContent(dataBundleBadPatch);
-            fail("RO validation should fail due to missing SHA-512 checksum");
+            fail("RO validation should fail due to invalid checksum");
         } catch (ProfileValidationException e) {
             JsonNode errorReport = e.toJsonNode();
-            assertEquals("required key [sha512] not found", errorReport.get("message").asText());
-            assertEquals("#/data/0", errorReport.get("pointerToViolation").asText());
+            assertEquals("#/data/0/checksums/0: #: 0 subschemas matched instead of one", errorReport.get("message").asText());
+            assertEquals("#/data/0/checksums/0", errorReport.get("pointerToViolation").asText());
         }
     }
 }

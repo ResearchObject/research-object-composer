@@ -8,22 +8,76 @@
     "filename": {
       "type": "string"
     },
-    "md5": {
-      "type": "string",
-      "pattern": "^[0-9a-f]{32}$"
-    },
-    "sha256": {
-      "type": "string",
-      "pattern": "^[0-9a-f]{64}$"
-    },
-    "sha512": {
-      "type": "string",
-      "pattern": "^[0-9a-f]{128}$"
+    "checksums": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Checksum"
+      },
+      "minItems": 1
     },
     "url": {
       "type": "string",
       "format": "uri"
     }
   },
-  "required" : ["length", "filename", "url", "sha512"]
+  "required": [
+    "length",
+    "filename",
+    "url",
+    "checksums"
+  ],
+  "definitions": {
+    "Checksum": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/md5sum"
+        },
+        {
+          "$ref": "#/definitions/sha256sum"
+        },
+        {
+          "$ref": "#/definitions/sha512sum"
+        }
+      ]
+    },
+    "md5sum": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "md5"
+        },
+        "checksum": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        }
+      }
+    },
+    "sha256sum": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "sha256"
+        },
+        "checksum": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "sha512sum": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "sha512"
+        },
+        "checksum": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{128}$"
+        }
+      }
+    }
+  }
 }

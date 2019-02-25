@@ -5,7 +5,13 @@
     "value": {
       "length": 123,
       "filename": "important_doc.pdf",
-      "url": "http://example.com/important_doc.pdf"
+      "url": "http://example.com/important_doc.pdf",
+      "checksums": [
+        {
+          "type": "sha224",
+          "checksum": "647a88f576387afa4c5973f8899d57802def8a42c8c751430eb7d94c"
+        }
+      ]
     }
   }
 ]

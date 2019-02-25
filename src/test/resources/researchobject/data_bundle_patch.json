@@ -10,7 +10,12 @@
     "value": {
       "length": 123,
       "filename": "another_important_doc.pdf",
-      "sha512": "a131b5e2cb03fbeae9ba608b2912b27d73540a53562dcc752d43a499541e948682158c432cd1dcb55542d0fc84d9164963a8b6d7d6838f8e033cfe4449d1dd4c",
+      "checksums": [
+        {
+          "type": "sha512",
+          "checksum": "a131b5e2cb03fbeae9ba608b2912b27d73540a53562dcc752d43a499541e948682158c432cd1dcb55542d0fc84d9164963a8b6d7d6838f8e033cfe4449d1dd4c"
+        }
+      ],
       "url": "http://example.com/another_important_doc.pdf"
     }
   }
