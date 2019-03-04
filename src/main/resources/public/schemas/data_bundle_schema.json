@@ -5,7 +5,7 @@
     "data": {
       "type": "array",
       "items": {
-        "$ref": "/schemas/minid_metadata_schema.json"
+        "$ref": "/schemas/base_metadata_schema.json#/definitions/RemoteItem"
       }
     }
   }

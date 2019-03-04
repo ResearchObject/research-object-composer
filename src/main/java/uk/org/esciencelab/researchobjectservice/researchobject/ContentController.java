@@ -19,6 +19,10 @@ public class ContentController {
         ResearchObject researchObject = getResearchObject(id);
         checkField(researchObject, field);
 
+        System.out.println(researchObject.getProfile().getSchemaWrapper().getListFieldItemSchema("data").getId());
+        System.out.println(researchObject.getProfile().getSchemaWrapper().getListFieldItemSchema("data").getTitle());
+        System.out.println(researchObject.getProfile().getSchemaWrapper().getListFieldItemSchema("data").getSchemaLocation());
+
         return ResponseEntity.ok(researchObject.getField(field));
     }
 

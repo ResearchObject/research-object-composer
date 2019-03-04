@@ -1,15 +1,12 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
-import org.apache.taverna.robundle.Bundle;
-import org.apache.taverna.robundle.Bundles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.org.esciencelab.researchobjectservice.bagit.ResearchObjectBaggerService;
 
 import java.io.OutputStream;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 @Service
 public class ResearchObjectBundlerService {
