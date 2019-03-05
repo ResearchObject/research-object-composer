@@ -70,6 +70,11 @@ public class ResearchObject {
         this.content = obj;
     }
 
+    public void setAndValidateContent(ObjectNode obj) {
+        getValidator().validate(obj);
+        setContent(obj);
+    }
+
     public JsonNode getField(String name) {
         return getContent().get(name);
     }

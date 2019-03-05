@@ -1,6 +1,7 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.JsonPatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -76,6 +77,14 @@ public class ContentController {
     @GetMapping(value="/research_objects/{id}/content", produces="application/json")
     public ResponseEntity<Object> getResearchObjectContent(@PathVariable Long id) {
         ResearchObject researchObject = getResearchObject(id);
+        return ResponseEntity.ok(researchObject.getContent());
+    }
+
+    @PutMapping(value="/research_objects/{id}/content", produces="application/json")
+    public ResponseEntity<Object> getResearchObjectContent(@PathVariable Long id, @RequestBody JsonNode content) {
+        ResearchObject researchObject = getResearchObject(id);
+        researchObject.setAndValidateContent((ObjectNode) content);
+        researchObjectRepository.save(researchObject);
         return ResponseEntity.ok(researchObject.getContent());
     }
 

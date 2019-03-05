@@ -348,6 +348,38 @@ paths:
             type: "object"
         404:
           description: "Research object not found"
+    put:
+      tags:
+      - "research_object"
+      summary: "Set Research Object content"
+      description: "Replace the Research Object's content with the given JSON"
+      operationId: "setResearchObjectContent"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "The new content of the Research Object"
+        schema:
+          type: "object"
+      - in: "path"
+        name: "id"
+        type: "integer"
+        description: "The numeric ID of the Research Object"
+        required: true
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "object"
+        404:
+          description: "Research object not found"
+        400:
+          description: "The Research Object content violated the profile."
+          schema:
+            $ref: "#/definitions/ValidationErrorDocument"
 definitions:
   ProfileList:
     allOf:
