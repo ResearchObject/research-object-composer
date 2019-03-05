@@ -1,24 +1,22 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "type" : "object",
-  "properties" : {
-    "workflow" : {
-      "$ref" : "#/definitions/Guid"
+  "type": "object",
+  "$baggable": {
+    "workflow" : "/workflow",
+    "input" : "/input"
+  },
+  "properties": {
+    "workflow": {
+      "$ref": "/schemas/base_metadata_schema.json#/definitions/RemoteItem"
     },
-    "input" : {
+    "input": {
       "type": "array",
       "items": {
-        "$ref" : "#/definitions/Guid"
+        "$ref": "/schemas/base_metadata_schema.json#/definitions/RemoteItem"
       }
     },
-    "workflow_params" : {
-      "type" : "object"
-    }
-  },
-  "definitions" : {
-    "Guid" : {
-      "type" : "string",
-      "format" : "uri"
+    "workflow_params": {
+      "type": "object"
     }
   }
 }

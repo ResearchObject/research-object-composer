@@ -58,4 +58,8 @@ public class BagEntry {
     public FetchItem getFetchItem() {
         return new FetchItem(url, length, getFilepath());
     }
+
+    public String toString() {
+        return "[BagEntry: (" + filename + " @ " + url + " (" + length + ") " + basePath + "]";
+    }
 }

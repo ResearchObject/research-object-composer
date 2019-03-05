@@ -1,5 +1,38 @@
 {
-  "workflow" : "ark://xyz.123",
-  "input" : ["ark://abc.123", "ark://abc.456"],
+  "workflow" : {
+    "length": 1000,
+    "filename": "workflow.cwl",
+    "checksums": [
+      {
+        "type": "md5",
+        "checksum": "df3e129a722a865cc3539b4e69507bad"
+      }
+    ],
+    "url": "https://www.myexperiment.org/workflows/5044"
+  },
+  "input" : [
+    {
+      "length": 999,
+      "filename": "a.xml",
+      "checksums": [
+        {
+          "type": "sha256",
+          "checksum": "87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7"
+        }
+      ],
+      "url": "https://www.example.com/data/a"
+    },
+    {
+      "length": 888,
+      "filename": "b.json",
+      "checksums": [
+        {
+          "type": "sha256",
+          "checksum": "0263829989b6fd954f72baaf2fc64bc2e2f01d692d4de72986ea808f6e99813f"
+        }
+      ],
+      "url": "https://www.example.com/data/b"
+    }
+  ],
   "workflow_params" : { "x" : 123 }
 }

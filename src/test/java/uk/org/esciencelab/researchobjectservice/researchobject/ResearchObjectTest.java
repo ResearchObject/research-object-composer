@@ -12,9 +12,7 @@ import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationExcep
 import java.io.IOException;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class ResearchObjectTest {
     private static ResearchObjectProfile draftTaskProfile;
@@ -56,9 +54,9 @@ public class ResearchObjectTest {
         ObjectNode fields = ro.getContent();
         ArrayNode input = (ArrayNode) fields.get("input");
         assertEquals(2, input.size());
-        assertEquals("ark://abc.123", input.get(0).asText());
-        assertEquals("ark://abc.456", input.get(1).asText());
-        assertEquals("ark://xyz.123", fields.get("workflow").asText());
+        assertEquals("a.xml", input.get(0).get("filename").asText());
+        assertEquals("b.json", input.get(1).get("filename").asText());
+        assertEquals("workflow.cwl", fields.get("workflow").get("filename").asText());
         assertEquals(123, fields.get("workflow_params").get("x").asInt());
 
         ro.clearField("workflow");
@@ -83,7 +81,7 @@ public class ResearchObjectTest {
 
         ro.appendToField("input", draftTaskContent.get("input").get(0));
 
-        assertEquals("[\"ark://abc.123\"]", ro.getField("input").toString());
+        assertEquals("[{\"length\":999,\"filename\":\"a.xml\",\"checksums\":[{\"type\":\"sha256\",\"checksum\":\"87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7\"}],\"url\":\"https://www.example.com/data/a\"}]", ro.getField("input").toString());
     }
 
     @Test
