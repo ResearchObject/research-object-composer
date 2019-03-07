@@ -22,8 +22,8 @@ public class ResearchObjectTest {
 
     @Before
     public void setUp() throws IOException {
-        draftTaskProfile = new ResearchObjectProfile("draft_task", "/schemas/draft_task_schema.json");
-        dataBundleProfile = new ResearchObjectProfile("data_bundle", "/schemas/data_bundle_schema.json");
+        draftTaskProfile = new ResearchObjectProfile("draft_task", "/schemas/draft_task.schema.json");
+        dataBundleProfile = new ResearchObjectProfile("data_bundle", "/schemas/data_bundle.schema.json");
 
         ObjectMapper mapper = new ObjectMapper();
         draftTaskContent = mapper.readTree(getClass().getClassLoader().getResourceAsStream("researchobject/draft_task_content.json"));

@@ -7,12 +7,12 @@
   },
   "properties": {
     "workflow": {
-      "$ref": "/schemas/base_metadata_schema.json#/definitions/RemoteItem"
+      "$ref": "/schemas/_base.schema.json#/definitions/RemoteItem"
     },
     "input": {
       "type": "array",
       "items": {
-        "$ref": "/schemas/base_metadata_schema.json#/definitions/RemoteItem"
+        "$ref": "/schemas/_base.schema.json#/definitions/RemoteItem"
       }
     },
     "workflow_params": {

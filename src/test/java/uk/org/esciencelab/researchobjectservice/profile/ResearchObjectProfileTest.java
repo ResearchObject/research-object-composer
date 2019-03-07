@@ -6,7 +6,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class ResearchObjectProfileTest {
-    private static final String draftTaskSchema = "/schemas/draft_task_schema.json";
+    private static final String draftTaskSchema = "/schemas/draft_task.schema.json";
 
     @Test
     public void createProfile() {
