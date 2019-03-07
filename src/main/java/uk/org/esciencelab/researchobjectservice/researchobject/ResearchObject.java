@@ -29,7 +29,7 @@ public class ResearchObject {
 
     @JsonIgnore
     @ManyToOne(optional = false)
-    @JoinColumn(name = "profile_name")
+    @JoinColumn(name = "profile_name", referencedColumnName = "name")
     private ResearchObjectProfile profile;
 
     @Type(type = "jsonb")

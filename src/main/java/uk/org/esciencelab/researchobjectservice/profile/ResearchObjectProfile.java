@@ -2,6 +2,7 @@ package uk.org.esciencelab.researchobjectservice.profile;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.hibernate.annotations.NaturalId;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
 import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidator;
 
@@ -15,9 +16,10 @@ public class ResearchObjectProfile {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
-    @OneToMany(targetEntity=ResearchObject.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_name")
-    private List<ResearchObject> researchObjects;
+//    @OneToMany(targetEntity=ResearchObject.class, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "profile_name", referencedColumnName = "name")
+//    private List<ResearchObject> researchObjects;
+    @NaturalId
     @Column(unique=true)
     private String name;
     private String schemaPath;
