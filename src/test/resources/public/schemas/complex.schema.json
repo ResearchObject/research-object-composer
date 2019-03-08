@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "$baggable": {
+    "shared_data": "/shared_data"
+  },
+  "properties": {
+    "info" : {
+      "type" : "object",
+      "$baggable" : {
+        "policy": "/policy"
+      },
+      "properties" : {
+        "title" : {
+          "type" : "string"
+        },
+        "policy": {
+          "$ref": "/schemas/_base.schema.json#/definitions/RemoteItem"
+        }
+      }
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "$baggable": {
+          "data": "/group_data"
+        },
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "$ref": "/schemas/_base.schema.json#/definitions/RemoteItem"
+            }
+          },
+          "members" : {
+            "type" : "array",
+            "items" : {
+              "$ref": "#/definitions/Person"
+            }
+          }
+        }
+      }
+    },
+    "shared_data" : {
+      "type" : "array",
+      "items" : {
+        "$ref": "/schemas/_base.schema.json#/definitions/RemoteItem"
+      }
+    },
+    "pi" : {
+      "$ref": "#/definitions/Person"
+    }
+  },
+  "definitions": {
+    "Person" : {
+      "type" : "object",
+      "properties" : {
+        "given_name" : {
+          "type" : "string"
+        },
+        "family_name" : {
+          "type" : "string"
+        },
+        "orcid" : {
+          "type" : "string",
+          "pattern" : "^[0-9]{4}-[0-9]{4}-[0-9]{4}-([0-9]{3}X|[0-9]{4})$"
+        }
+      }
+    }
+  }
+}

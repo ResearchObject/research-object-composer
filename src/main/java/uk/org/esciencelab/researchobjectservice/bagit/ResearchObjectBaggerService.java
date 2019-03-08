@@ -48,8 +48,8 @@ public class ResearchObjectBaggerService {
         Bag bag = BagCreator.bagInPlace(bagLocation, checksumMap.keySet(), false);
 
         // Traverse through the RO content and gather up all the remote files that are to be referenced in fetch.txt
-        ArrayList<BagEntry> entries = gatherBagEntries(new ArrayList<>(), bagLocation,
-                researchObject.getContent(),
+        ArrayList<BagEntry> entries = new ArrayList<>();
+        gatherBagEntries(entries, bagLocation, researchObject.getContent(),
                 researchObject.getProfile().getSchemaWrapper().getObjectSchema(), null);
 
         // For each remote file found, check which checksums are used and add to the respective map
@@ -121,32 +121,33 @@ public class ResearchObjectBaggerService {
     }
 
     // A recursive method to traverse a JSON object
-    public ArrayList<BagEntry> gatherBagEntries(ArrayList<BagEntry> entries, Path basePath, JsonNode json, Schema schema, String bagPath) {
+    public void gatherBagEntries(ArrayList<BagEntry> entries, Path basePath, JsonNode json, Schema schema, String bagPath) {
         HashMap<String, String> baggableMap = (HashMap<String, String>) schema.getUnprocessedProperties().get("$baggable");
 
         if (json.isArray()) {
             Schema itemSchema = ((ArraySchema) schema).getAllItemSchema();
             for (JsonNode child : json) {
                 if (child.isContainerNode()) {
-                    if (baggableMap != null) {
-                        try {
-                            entries.add(buildBagEntry(basePath.resolve(bagPath), child));
-                        } catch (MalformedURLException e) {
-                            System.err.println("Bad URL:");
-                            System.err.println(child);
-                        }
-                    }
-
                     gatherBagEntries(entries, basePath, child, itemSchema, bagPath);
                 }
             }
         } else if (json.isObject()) {
+            // Bag this thing if bagPath was set!
+            if (bagPath != null) {
+                try {
+                    entries.add(new BagEntry(basePath.resolve(bagPath), json));
+                } catch (MalformedURLException e) {
+                    System.err.println("Bad URL:");
+                    System.err.println(json);
+                }
+            }
             Iterator<Map.Entry<String, JsonNode>> i = json.fields();
             while (i.hasNext()) {
                 Map.Entry<String, JsonNode> entry = i.next();
                 if (entry.getValue().isContainerNode()) {
                     Schema propertySchema = ((ObjectSchema) resolveSchema(schema)).getPropertySchemas().get(entry.getKey());
 
+                    // If this property has an entry in the $baggable map, set up bagPath.
                     String newBagPath = null;
                     if (baggableMap != null) {
                         newBagPath = baggableMap.get(entry.getKey());
@@ -157,32 +158,7 @@ public class ResearchObjectBaggerService {
                     gatherBagEntries(entries, basePath, entry.getValue(), propertySchema, newBagPath);
                 }
             }
-            if (bagPath != null) {
-                try {
-                    entries.add(buildBagEntry(basePath.resolve(bagPath), json));
-                } catch (MalformedURLException e) {
-                    System.err.println("Bad URL:");
-                    System.err.println(json);
-                }
-            }
         }
-
-        return entries;
-    }
-
-    private BagEntry buildBagEntry(Path basePath, JsonNode json) throws MalformedURLException {
-        BagEntry b = new BagEntry(basePath, json);
-        for (JsonNode checksumNode : json.get("checksums")) {
-            if (checksumNode.get("type").asText().equals("md5")) {
-                b.setChecksum(StandardSupportedAlgorithms.MD5, checksumNode.get("checksum").asText());
-            } else if (checksumNode.get("type").asText().equals("sha256")) {
-                b.setChecksum(StandardSupportedAlgorithms.SHA256, checksumNode.get("checksum").asText());
-            } else if (checksumNode.get("type").asText().equals("sha512")) {
-                b.setChecksum(StandardSupportedAlgorithms.SHA512, checksumNode.get("checksum").asText());
-            }
-        }
-
-        return b;
     }
 
     private Schema resolveSchema(Schema schema) {

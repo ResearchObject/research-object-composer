@@ -1,0 +1,136 @@
+{
+  "info" : {
+    "title" : "A project",
+    "policy" : {
+      "length": 999,
+      "filename": "usage_policy.docx",
+      "checksums": [
+        {
+          "type": "sha256",
+          "checksum": "87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7"
+        }
+      ],
+      "url": "https://www.example.com/project/docs/usage_policy.docx"
+    }
+  },
+  "pi" : {
+    "given_name" : "John",
+    "family_name" : "Smith",
+    "orcid" : "0000-0002-3843-3472"
+  },
+  "shared_data" : [
+    {
+      "length": 634634,
+      "filename": "coordinates.csv",
+      "checksums": [
+        {
+          "type": "md5",
+          "checksum": "e08e4506d2e3f370a5e8ab79647df309"
+        }
+      ],
+      "url": "https://www.example.com/project/data/coordinates.csv"
+    },
+    {
+      "length": 351141,
+      "filename": "sop.txt",
+      "checksums": [
+        {
+          "type": "sha512",
+          "checksum": "6c3aaa5f369d7546f30f36bc327772bd3307d84b822c81ee485dd025b22be2b6f05d4e192c20518a1d514fd8d713791157479f84ef21ad47ef7198f735a8fa6e"
+        }
+      ],
+      "url": "https://www.example.com/project/docs/sop.txt"
+    }
+  ],
+  "groups" : [
+    {
+      "name" : "Team Alpha",
+      "members" : [
+        {
+          "given_name" : "Bob",
+          "family_name" : "Smith",
+          "orcid" : "0000-0002-1825-0097"
+        },
+        {
+          "given_name" : "Jane",
+          "family_name" : "Smith",
+          "orcid" : "0000-0002-1825-0097"
+        }
+      ],
+      "data" : [
+        {
+          "length": 975371,
+          "filename": "alpha_final.csv",
+          "checksums": [
+            {
+              "type": "sha512",
+              "checksum": "8aabb208f0c7dad4216a2a5398ed176d51c473fb98eae8c16c11dc23a7c0ab4c7959f2bb57877386bc54d3cd1869c30b1a5b4373df5836e2122412306e67c56c"
+            }
+          ],
+          "url": "https://www.example.com/project/data/alpha/alpha_final.csv"
+        },
+        {
+          "length": 78416,
+          "filename": "data.zip",
+          "checksums": [
+            {
+              "type": "sha512",
+              "checksum": "85f01fbcdb819db8d5238e4b08d77b796a63b29ca7d17797cf8198d6be40a7c9078a794251c2dfecec5f25ab61b883ee760ebc82a2e5f3701c6c184e462e9f7b"
+            }
+          ],
+          "url": "https://www.example.com/project/data/alpha/data.zip"
+        }
+      ]
+    },
+    {
+      "name" : "Team Bravo",
+      "members" : [
+        {
+          "given_name" : "Sarah",
+          "family_name" : "Jones",
+          "orcid" : "0000-0002-1825-0097"
+        },
+        {
+          "given_name" : "Tom",
+          "family_name" : "Jones",
+          "orcid" : "0000-0002-1825-0097"
+        }
+      ],
+      "data" : [
+        {
+          "length": 763361,
+          "filename": "bravo_final.csv",
+          "checksums": [
+            {
+              "type": "sha256",
+              "checksum": "9cc3c920d7757191bf487b9c6a41b9da828f067406f0634b687f4323147e95ab"
+            }
+          ],
+          "url": "https://www.example.com/project/data/bravo/bravo_final.csv"
+        },
+        {
+          "length": 11005,
+          "filename": "data.zip",
+          "checksums": [
+            {
+              "type": "sha256",
+              "checksum": "5c038e640edd52e39cfa71e88f0721ca7fe8f12bfbe074512a40414aa2260535"
+            }
+          ],
+          "url": "https://www.example.com/project/data/bravo/data.zip"
+        },
+        {
+          "length": 5167,
+          "filename": "readme.txt",
+          "checksums": [
+            {
+              "type": "sha256",
+              "checksum": "1abbf2fc2bcadcbb6c0badbd0b8f34fbb0ac1cba2faf7da63e4dc3fa67857614"
+            }
+          ],
+          "url": "https://www.example.com/project/data/bravo/readme.txt"
+        }
+      ]
+    }
+  ]
+}

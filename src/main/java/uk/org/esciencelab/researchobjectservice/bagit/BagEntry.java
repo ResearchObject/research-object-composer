@@ -2,6 +2,7 @@ package uk.org.esciencelab.researchobjectservice.bagit;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import gov.loc.repository.bagit.domain.FetchItem;
+import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import gov.loc.repository.bagit.hash.SupportedAlgorithm;
 
 import java.net.MalformedURLException;
@@ -29,6 +30,16 @@ public class BagEntry {
                 new URL(entryNode.get("url").asText()),
                 entryNode.get("filename").asText(),
                 entryNode.get("length").asLong());
+
+        for (JsonNode checksumNode : entryNode.get("checksums")) {
+            if (checksumNode.get("type").asText().equals("md5")) {
+                this.setChecksum(StandardSupportedAlgorithms.MD5, checksumNode.get("checksum").asText());
+            } else if (checksumNode.get("type").asText().equals("sha256")) {
+                this.setChecksum(StandardSupportedAlgorithms.SHA256, checksumNode.get("checksum").asText());
+            } else if (checksumNode.get("type").asText().equals("sha512")) {
+                this.setChecksum(StandardSupportedAlgorithms.SHA512, checksumNode.get("checksum").asText());
+            }
+        }
     }
 
     public URL getUrl() {
