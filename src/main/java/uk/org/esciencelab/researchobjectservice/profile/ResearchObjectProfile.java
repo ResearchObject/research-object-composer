@@ -3,16 +3,16 @@ package uk.org.esciencelab.researchobjectservice.profile;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hibernate.annotations.NaturalId;
-import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
 import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidator;
 
 import javax.persistence.*;
-import java.util.List;
+import java.io.Serializable;
 
 import static uk.org.esciencelab.researchobjectservice.util.JsonUnifier.jsonNode;
 
 @Entity
-public class ResearchObjectProfile {
+// Need to implement Serializable here because of https://hibernate.atlassian.net/browse/HHH-7668
+public class ResearchObjectProfile implements Serializable {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
