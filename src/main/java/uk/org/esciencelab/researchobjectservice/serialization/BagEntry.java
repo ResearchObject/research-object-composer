@@ -1,9 +1,12 @@
-package uk.org.esciencelab.researchobjectservice.bagit;
+package uk.org.esciencelab.researchobjectservice.serialization;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.domain.FetchItem;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import gov.loc.repository.bagit.hash.SupportedAlgorithm;
+import org.apache.taverna.robundle.manifest.PathMetadata;
+import org.apache.taverna.robundle.manifest.Proxy;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -11,13 +14,15 @@ import java.nio.file.Path;
 import java.util.HashMap;
 
 public class BagEntry {
+    private Bag bag;
     private Path basePath;
     private URL url;
     private String filename;
     private Long length;
     private HashMap<SupportedAlgorithm, String> checksums;
 
-    public BagEntry(Path basePath, URL url, String filename, Long length) {
+    public BagEntry(Bag bag, Path basePath, URL url, String filename, Long length) {
+        this.bag = bag;
         this.basePath = basePath;
         this.url = url;
         this.filename = filename;
@@ -25,11 +30,12 @@ public class BagEntry {
         this.checksums = new HashMap<>(3);
     }
 
-    public BagEntry(Path basePath, JsonNode entryNode) throws MalformedURLException {
-        this(basePath,
-                new URL(entryNode.get("url").asText()),
-                entryNode.get("filename").asText(),
-                entryNode.get("length").asLong());
+    public BagEntry(Bag bag, Path basePath, JsonNode entryNode) throws MalformedURLException {
+        this(bag,
+            basePath,
+            new URL(entryNode.get("url").asText()),
+            entryNode.get("filename").asText(),
+            entryNode.get("length").asLong());
 
         for (JsonNode checksumNode : entryNode.get("checksums")) {
             if (checksumNode.get("type").asText().equals("md5")) {
@@ -50,10 +56,6 @@ public class BagEntry {
         return filename;
     }
 
-    public Long getLength() {
-        return length;
-    }
-
     public String getChecksum(SupportedAlgorithm alg) {
         return this.checksums.get(alg);
     }
@@ -68,6 +70,15 @@ public class BagEntry {
 
     public FetchItem getFetchItem() {
         return new FetchItem(url, length, getFilepath());
+    }
+
+    public PathMetadata getPathMetadata() {
+        PathMetadata pm = new PathMetadata(url.toString());
+        Proxy bundledAs = pm.getOrCreateBundledAs();
+        bundledAs.setFilename(this.filename);
+        bundledAs.setFolder(bag.getRootDir().resolve("metadata").relativize(basePath));
+
+        return pm;
     }
 
     public String toString() {

@@ -7,7 +7,7 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.org.esciencelab.researchobjectservice.bagit.ResearchObjectBaggerService;
+import uk.org.esciencelab.researchobjectservice.serialization.BagItROService;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileNotFoundException;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileRepository;
@@ -34,7 +34,7 @@ public class ResearchObjectController {
     @Autowired
     private ResearchObjectBundlerService researchObjectBundlerService;
     @Autowired
-    private ResearchObjectBaggerService researchObjectBaggerService;
+    private BagItROService bagItROService;
 
     @GetMapping("/research_objects")
     public Resources<Resource<ResearchObjectSummary>> all() {
@@ -102,7 +102,7 @@ public class ResearchObjectController {
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.addHeader("Content-Disposition", "attachment; filename=\"+" + id + "+.zip\"");
-        researchObjectBaggerService.bagToZip(researchObject, response.getOutputStream());
+        bagItROService.bagToZip(researchObject, response.getOutputStream());
     }
 
     private ResearchObject getResearchObject(Long id) {

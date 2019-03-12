@@ -2,7 +2,7 @@ package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.org.esciencelab.researchobjectservice.bagit.ResearchObjectBaggerService;
+import uk.org.esciencelab.researchobjectservice.serialization.BagItROService;
 
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -11,7 +11,7 @@ import java.nio.file.Path;
 @Service
 public class ResearchObjectBundlerService {
     @Autowired
-    private ResearchObjectBaggerService researchObjectBaggerService;
+    private BagItROService bagItROService;
 
     public void bundle(ResearchObject researchObject, OutputStream outputStream) throws Exception {
 //        Bundle bundle = Bundles.createBundle();

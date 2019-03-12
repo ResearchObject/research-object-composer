@@ -1,10 +1,11 @@
-package uk.org.esciencelab.researchobjectservice.bagit;
+package uk.org.esciencelab.researchobjectservice.serialization;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.loc.repository.bagit.creator.BagCreator;
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.domain.Manifest;
+import gov.loc.repository.bagit.hash.Hasher;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import gov.loc.repository.bagit.hash.SupportedAlgorithm;
 import gov.loc.repository.bagit.writer.BagWriter;
@@ -18,21 +19,31 @@ import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Service
-public class ResearchObjectBaggerService {
+public class BagItROService {
 
     public Path bag(ResearchObject researchObject) throws Exception {
         // Create a (unique) temp directory to hold the various BagIt files
         Path bagLocation = Files.createTempDirectory("bag");
 
-        // Write the RO's JSON content into the temp dir
+        // directory to hold the RO manifest
+        Path roMetadataLocation = bagLocation.resolve("manifest");
+        BagItROManifest roManifest = new BagItROManifest(roMetadataLocation);
+        roManifest.setId(URI.create("../"));
+
+        // Write the RO's JSON content into the temp dir, so it will be automatically bagged by the BagCreator
         ObjectMapper mapper = new ObjectMapper();
         Files.write(bagLocation.resolve("content.json"),
                 mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(researchObject.getContent()));
@@ -49,7 +60,7 @@ public class ResearchObjectBaggerService {
 
         // Traverse through the RO content and gather up all the remote files that are to be referenced in fetch.txt
         ArrayList<BagEntry> entries = new ArrayList<>();
-        gatherBagEntries(entries, bagLocation, researchObject.getContent(),
+        gatherBagEntries(bag, entries, bagLocation, researchObject.getContent(),
                 researchObject.getProfile().getSchemaWrapper().getObjectSchema(), null);
 
         // For each remote file found, check which checksums are used and add to the respective map
@@ -63,8 +74,7 @@ public class ResearchObjectBaggerService {
         }
 
         // Merge remote file checksums into the existing payload manifests (which should each just contain the one entry for data/content.json)
-        Set<Manifest> manifests = bag.getPayLoadManifests();
-        for (Manifest manifest : manifests) {
+        for (Manifest manifest : bag.getPayLoadManifests()) {
             SupportedAlgorithm alg = manifest.getAlgorithm();
             Map<Path, String> map = checksumMap.get(alg);
             if (map != null && !map.isEmpty()) {
@@ -79,6 +89,20 @@ public class ResearchObjectBaggerService {
 
         // Set the fetch items
         bag.setItemsToFetch(entries.stream().map(BagEntry::getFetchItem).collect(Collectors.toList()));
+
+        // Populate the RO manifest
+        roManifest.setAggregates(entries.stream().map(BagEntry::getPathMetadata).collect(Collectors.toList()));
+        Path roManifestPath = roManifest.writeAsJsonLD();
+
+        // Write the checksums of the RO manifest (metadata/manifest.json) into the respective BagIt tag manifests
+        Map<Manifest, MessageDigest> tagManifestToDigestMap = new HashMap<>();
+        for (Manifest manifest : bag.getTagManifests()) {
+            tagManifestToDigestMap.put(manifest, MessageDigest.getInstance(manifest.getAlgorithm().getMessageDigestName()));
+        }
+
+        // TODO: This code currently assumes there will only be the 1 file (manifest.json) under metadata/ !
+        Hasher.hash(roManifestPath, tagManifestToDigestMap);
+
         // Write everything into the temp dir (payload manifests, tag manifests, fetch file)
         BagWriter.write(bag, bagLocation);
 
@@ -121,21 +145,21 @@ public class ResearchObjectBaggerService {
     }
 
     // A recursive method to traverse a JSON object
-    public void gatherBagEntries(ArrayList<BagEntry> entries, Path basePath, JsonNode json, Schema schema, String bagPath) {
+    public void gatherBagEntries(Bag bag, ArrayList<BagEntry> entries, Path basePath, JsonNode json, Schema schema, String bagPath) {
         HashMap<String, String> baggableMap = (HashMap<String, String>) schema.getUnprocessedProperties().get("$baggable");
 
         if (json.isArray()) {
             Schema itemSchema = ((ArraySchema) schema).getAllItemSchema();
             for (JsonNode child : json) {
                 if (child.isContainerNode()) {
-                    gatherBagEntries(entries, basePath, child, itemSchema, bagPath);
+                    gatherBagEntries(bag, entries, basePath, child, itemSchema, bagPath);
                 }
             }
         } else if (json.isObject()) {
             // Bag this thing if bagPath was set!
             if (bagPath != null) {
                 try {
-                    entries.add(new BagEntry(basePath.resolve(bagPath), json));
+                    entries.add(new BagEntry(bag, basePath.resolve(bagPath + "/"), json));
                 } catch (MalformedURLException e) {
                     System.err.println("Bad URL:");
                     System.err.println(json);
@@ -155,7 +179,7 @@ public class ResearchObjectBaggerService {
                             newBagPath = "data" + newBagPath;
                         }
                     }
-                    gatherBagEntries(entries, basePath, entry.getValue(), propertySchema, newBagPath);
+                    gatherBagEntries(bag, entries, basePath, entry.getValue(), propertySchema, newBagPath);
                 }
             }
         }
