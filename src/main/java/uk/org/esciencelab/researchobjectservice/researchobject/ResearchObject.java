@@ -47,6 +47,11 @@ public class ResearchObject {
     }
 
     @JsonIgnore
+    public String getFriendlyId() {
+        return getProfileName() + "-" + getId();
+    }
+
+    @JsonIgnore
     public Long getProfileId() {
         return getProfile().getId();
     }

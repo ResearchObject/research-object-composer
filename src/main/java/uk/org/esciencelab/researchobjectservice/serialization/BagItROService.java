@@ -39,7 +39,7 @@ public class BagItROService {
         Path bagLocation = Files.createTempDirectory("bag");
 
         // directory to hold the RO manifest
-        Path roMetadataLocation = bagLocation.resolve("manifest");
+        Path roMetadataLocation = bagLocation.resolve("metadata");
         BagItROManifest roManifest = new BagItROManifest(roMetadataLocation);
         roManifest.setId(URI.create("../"));
 
@@ -50,7 +50,7 @@ public class BagItROService {
 
         // Create a map of maps (checksum type -> (file -> checksum)), to hold the checksums of the remote files referenced
         //  by the RO, grouped by checksum type.
-        Map<SupportedAlgorithm, Map<Path, String>> checksumMap = new HashMap<>();
+        Map<SupportedAlgorithm, Map<Path, String>> checksumMap = new HashMap<>(3);
         checksumMap.put(StandardSupportedAlgorithms.MD5, new HashMap<>());
         checksumMap.put(StandardSupportedAlgorithms.SHA256, new HashMap<>());
         checksumMap.put(StandardSupportedAlgorithms.SHA512, new HashMap<>());
@@ -60,7 +60,7 @@ public class BagItROService {
 
         // Traverse through the RO content and gather up all the remote files that are to be referenced in fetch.txt
         ArrayList<BagEntry> entries = new ArrayList<>();
-        gatherBagEntries(bag, entries, bagLocation, researchObject.getContent(),
+        gatherBagEntries(entries, bagLocation, researchObject.getContent(),
                 researchObject.getProfile().getSchemaWrapper().getObjectSchema(), null);
 
         // For each remote file found, check which checksums are used and add to the respective map
@@ -115,7 +115,7 @@ public class BagItROService {
 
         // TODO: Got to be a better way of doing this path manipulation
         Files.walk(bagLocation)
-                .forEach(source -> zipTo(source, researchObject.getId() + "/" + bagLocation.relativize(source).toString(), zipOutputStream));
+                .forEach(source -> zipTo(source, researchObject.getFriendlyId() + "/" + bagLocation.relativize(source).toString(), zipOutputStream));
         zipOutputStream.flush();
         zipOutputStream.close();
     }
@@ -145,21 +145,21 @@ public class BagItROService {
     }
 
     // A recursive method to traverse a JSON object
-    public void gatherBagEntries(Bag bag, ArrayList<BagEntry> entries, Path basePath, JsonNode json, Schema schema, String bagPath) {
+    public void gatherBagEntries(ArrayList<BagEntry> entries, Path bagRoot, JsonNode json, Schema schema, String bagPath) {
         HashMap<String, String> baggableMap = (HashMap<String, String>) schema.getUnprocessedProperties().get("$baggable");
 
         if (json.isArray()) {
             Schema itemSchema = ((ArraySchema) schema).getAllItemSchema();
             for (JsonNode child : json) {
                 if (child.isContainerNode()) {
-                    gatherBagEntries(bag, entries, basePath, child, itemSchema, bagPath);
+                    gatherBagEntries(entries, bagRoot, child, itemSchema, bagPath);
                 }
             }
         } else if (json.isObject()) {
             // Bag this thing if bagPath was set!
             if (bagPath != null) {
                 try {
-                    entries.add(new BagEntry(bag, basePath.resolve(bagPath + "/"), json));
+                    entries.add(new BagEntry(bagRoot, bagRoot.relativize(bagRoot.resolve(bagPath + "/")), json));
                 } catch (MalformedURLException e) {
                     System.err.println("Bad URL:");
                     System.err.println(json);
@@ -179,7 +179,7 @@ public class BagItROService {
                             newBagPath = "data" + newBagPath;
                         }
                     }
-                    gatherBagEntries(bag, entries, basePath, entry.getValue(), propertySchema, newBagPath);
+                    gatherBagEntries(entries, bagRoot, entry.getValue(), propertySchema, newBagPath);
                 }
             }
         }

@@ -7,10 +7,10 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.org.esciencelab.researchobjectservice.serialization.BagItROService;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileNotFoundException;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileRepository;
+import uk.org.esciencelab.researchobjectservice.serialization.BagItROService;
 
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
@@ -31,8 +31,6 @@ public class ResearchObjectController {
     private ResearchObjectResourceAssembler assembler;
     @Autowired
     private ResearchObjectSummaryResourceAssembler summaryAssembler;
-    @Autowired
-    private ResearchObjectBundlerService researchObjectBundlerService;
     @Autowired
     private BagItROService bagItROService;
 
@@ -84,16 +82,6 @@ public class ResearchObjectController {
         ResearchObject savedResearchObject = researchObjectRepository.save(researchObject);
         Resource<ResearchObject> resource = assembler.toResource(savedResearchObject);
         return ResponseEntity.created(URI.create(resource.getLink("self").getHref())).body(resource);
-    }
-
-    @PostMapping(value="/research_objects/{id}/bundle", produces="application/zip")
-    public void mintResearchObject(@PathVariable Long id, HttpServletResponse response) throws Exception {
-        ResearchObject researchObject = getResearchObject(id);
-
-        researchObject.validate();
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.addHeader("Content-Disposition", "attachment; filename=\""+ id +".bundle.zip\"");
-        researchObjectBundlerService.bundle(researchObject, response.getOutputStream());
     }
 
     @PostMapping(value="/research_objects/{id}/bag", produces="application/zip")

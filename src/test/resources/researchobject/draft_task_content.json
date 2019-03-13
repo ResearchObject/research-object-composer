@@ -27,6 +27,10 @@
       "filename": "b.json",
       "checksums": [
         {
+          "type": "md5",
+          "checksum": "3b5d5c3712955042212316173ccf37be"
+        },
+        {
           "type": "sha256",
           "checksum": "0263829989b6fd954f72baaf2fc64bc2e2f01d692d4de72986ea808f6e99813f"
         }
