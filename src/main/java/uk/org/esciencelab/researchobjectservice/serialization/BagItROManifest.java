@@ -2,6 +2,8 @@ package uk.org.esciencelab.researchobjectservice.serialization;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
+import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import org.apache.taverna.robundle.manifest.Manifest;
 
 import java.io.IOException;
@@ -33,13 +35,20 @@ public class BagItROManifest extends Manifest {
         createDirectories(jsonld.getParent());
         if (!getManifest().contains(jsonld))
             getManifest().add(0, this.root.relativize(jsonld));
+
+        // This is to fix a bug where folders do not have trailing slashes
+        SerializerFactory serializerFactory = BeanSerializerFactory.instance
+                .withSerializerModifier(new ProxySerializerModifier());
+
         ObjectMapper om = new ObjectMapper()
                 .addMixIn(Path.class, PathMixin.class)
                 .addMixIn(FileTime.class, FileTimeMixin.class)
                 .enable(INDENT_OUTPUT)
                 .disable(FAIL_ON_EMPTY_BEANS)
                 .setSerializationInclusion(Include.NON_NULL)
-                .setSerializationInclusion(Include.NON_EMPTY);
+                .setSerializationInclusion(Include.NON_EMPTY)
+                .setSerializerFactory(serializerFactory);
+
         try (Writer w = newBufferedWriter(jsonld, Charset.forName("UTF-8"),
                 WRITE, TRUNCATE_EXISTING, CREATE)) {
             om.writeValue(w, this);
