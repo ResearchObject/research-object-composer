@@ -21,6 +21,9 @@ import java.util.stream.Collectors;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
+/**
+ * A simple controller to handle viewing, listing, deleting, creating and bagging research objects.
+ */
 @RestController
 public class ResearchObjectController {
     @Autowired
@@ -54,7 +57,7 @@ public class ResearchObjectController {
 
     @DeleteMapping("/research_objects/{id}")
     public ResponseEntity<?> deleteResearchObject(@PathVariable Long id) {
-        ResearchObject researchObject = getResearchObject(id); // This is here to check the RO exists, throwing a 404 otherwise.
+        getResearchObject(id); // This is here to check the RO exists, throwing a 404 otherwise.
 
         researchObjectRepository.deleteById(id);
         return ResponseEntity.noContent().build();

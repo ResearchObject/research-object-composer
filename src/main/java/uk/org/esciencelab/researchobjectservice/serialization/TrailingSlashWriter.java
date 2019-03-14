@@ -7,6 +7,9 @@ import org.apache.taverna.robundle.manifest.Proxy;
 
 import java.nio.file.Path;
 
+/**
+ * A class to add a trailing slash to an ROBundle Proxy's folder path.
+ */
 public class TrailingSlashWriter extends BeanPropertyWriter {
     BeanPropertyWriter _writer;
 

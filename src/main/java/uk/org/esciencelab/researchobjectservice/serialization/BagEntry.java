@@ -12,6 +12,9 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.HashMap;
 
+/**
+ * A remote resource to be bagged.
+ */
 public class BagEntry {
     private Path bagRoot;
     private Path folder;
@@ -20,6 +23,14 @@ public class BagEntry {
     private Long length;
     private HashMap<SupportedAlgorithm, String> checksums;
 
+    /**
+     *
+     * @param bagRoot A path to the root of the bag.
+     * @param folder A relative path within the bag where this resource will be bagged. Should start with "data".
+     * @param filename The filename of this resource.
+     * @param url The URL from which this resource should be fetched/
+     * @param length The length in bytes of the resource.
+     */
     public BagEntry(Path bagRoot, Path folder, String filename, URL url, Long length) {
         this.bagRoot = bagRoot;
         this.folder = folder;
@@ -29,6 +40,14 @@ public class BagEntry {
         this.checksums = new HashMap<>(3);
     }
 
+    /**
+     *
+     * @param bagRoot A path to the root of the bag.
+     * @param folder A relative path within the bag where this resource will be bagged. Should start with "data".
+     * @param entryNode A JSON object conforming to `/schemas/_base.schema.json#/definitions/RemoteItem`, containing
+     *                  information on the filename, URL, length and checksums of this resource.
+     * @throws MalformedURLException
+     */
     public BagEntry(Path bagRoot, Path folder, JsonNode entryNode) throws MalformedURLException {
         this(bagRoot, folder,
                 entryNode.get("filename").asText(),
@@ -70,10 +89,18 @@ public class BagEntry {
         return bagRoot.resolve(folder).resolve(getFilename());
     }
 
+    /**
+     * Create a FetchItem entry for this resource, used to populate fetch.txt in the BagIt bag.
+     * @return The FetchItem entry.
+     */
     public FetchItem getFetchItem() {
         return new FetchItem(url, length, getFilepath());
     }
 
+    /**
+     * Create a PathMetadata entry for this resource, used to populate the "aggregates" section of the RO's manifest.json.
+     * @return The PathMetadata entry.
+     */
     public PathMetadata getPathMetadata() {
         PathMetadata pm = new PathMetadata(url.toString());
         Proxy bundledAs = pm.getOrCreateBundledAs();

@@ -31,9 +31,18 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * A service for creating a BagIt RO folder (or Zip file) from a given ResearchObject.
+ */
 @Service
 public class BagItROService {
 
+    /**
+     * Create a BagIt RO folder.
+     * @param researchObject The research object to bag.
+     * @return The path to the folder.
+     * @throws Exception
+     */
     public Path bag(ResearchObject researchObject) throws Exception {
         // Create a (unique) temp directory to hold the various BagIt files
         Path bagLocation = Files.createTempDirectory("bag");
@@ -109,6 +118,12 @@ public class BagItROService {
         return bagLocation;
     }
 
+    /**
+     * Bag the given research object, then Zip it to the given output stream.
+     * @param researchObject The RO to bag.
+     * @param outputStream The stream to zip to.
+     * @throws Exception
+     */
     public void bagToZip(ResearchObject researchObject, OutputStream outputStream) throws Exception {
         Path bagLocation = bag(researchObject);
         ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
@@ -144,7 +159,17 @@ public class BagItROService {
         }
     }
 
-    // A recursive method to traverse a JSON object
+    /**
+     * A recursive method to traverse a JSON object, discovering and gathering a list of BagEntry objects that should
+     * be bagged in the BagIt RO.
+     *
+     * @param entries The list of entries to be populated.
+     * @param bagRoot A path to the root of the bag.
+     * @param json The JSON object to traverse.
+     * @param schema A schema for the JSON object.
+     * @param bagPath The path (relative to bagRoot) where to bag the next JSON object that is discovered.
+     *                Should be null to start with.
+     */
     public void gatherBagEntries(ArrayList<BagEntry> entries, Path bagRoot, JsonNode json, Schema schema, String bagPath) {
         HashMap<String, String> baggableMap = (HashMap<String, String>) schema.getUnprocessedProperties().get("$baggable");
 

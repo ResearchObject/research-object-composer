@@ -10,6 +10,17 @@ import org.springframework.web.server.MethodNotAllowedException;
 
 import java.io.IOException;
 
+/**
+ * A controller to handle manipulation of a ResearchObject's content.
+ * Allows:
+ * <ul>
+ *     <li>GET/PUT of the entire JSON structure.</li>
+ *     <li>GET/PUT/POST/DELETE on individual, top-level fields in the JSON.</li>
+ *     <li>PATCH using JSON-Patch to alter any part of the JSON.</li>
+ * </ul>
+ *
+ * Appropriate validation is performed for each request.
+ */
 @RestController
 public class ContentController {
     @Autowired

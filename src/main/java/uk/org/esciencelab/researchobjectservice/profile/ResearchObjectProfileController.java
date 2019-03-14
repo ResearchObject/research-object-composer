@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
+/**
+ * A simple controller to handle RO profile GET requests (index and view).
+ */
 @RestController
 public class ResearchObjectProfileController {
     @Autowired

@@ -1,4 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
-public class ResearchObjectProfileNotFoundException extends RuntimeException {
-}
+/**
+ * Exception thrown when client tries to query a non-existent profile.
+ */
+public class ResearchObjectProfileNotFoundException extends RuntimeException { }
