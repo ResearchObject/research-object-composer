@@ -58,12 +58,12 @@ public class BagEntryTest {
     public void testPathMetadata() {
         PathMetadata inputMeta = inputEntry.getPathMetadata();
         assertEquals("https://www.example.com/data/a", inputMeta.getUri().toString());
-        assertEquals("../data/input/", inputMeta.getBundledAs().getFolder().toString());
+        assertEquals("../data/input", inputMeta.getBundledAs().getFolder().toString());
         assertEquals("a.xml", inputMeta.getBundledAs().getFilename());
 
-        PathMetadata workflowMeta = inputEntry.getPathMetadata();
+        PathMetadata workflowMeta = workflowEntry.getPathMetadata();
         assertEquals("https://www.myexperiment.org/workflows/5044", workflowMeta.getUri().toString());
-        assertEquals("../data/deep/folder/", workflowMeta.getBundledAs().getFolder().toString());
+        assertEquals("../data/workflows/deep/folder", workflowMeta.getBundledAs().getFolder().toString());
         assertEquals("workflow.cwl", workflowMeta.getBundledAs().getFilename());
     }
 }
