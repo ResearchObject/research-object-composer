@@ -76,11 +76,12 @@ public class ResearchObjectController {
     }
 
     @PostMapping("/profiles/{profileName}/research_objects")
-    public ResponseEntity<Object> createResearchObject(@PathVariable String profileName, @RequestBody JsonNode content) {
+    public ResponseEntity<Object> createResearchObject(@PathVariable String profileName, @RequestBody(required=false) JsonNode content) {
         ResearchObject researchObject = new ResearchObject(getResearchObjectProfile(profileName));
 
-        researchObject.setContent((ObjectNode) content);
-        researchObject.validate();
+        if (content != null) {
+            researchObject.setAndValidateContent((ObjectNode) content);
+        }
 
         ResearchObject savedResearchObject = researchObjectRepository.save(researchObject);
         Resource<ResearchObject> resource = assembler.toResource(savedResearchObject);
