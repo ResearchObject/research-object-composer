@@ -60,14 +60,30 @@ public class SchemaWrapper {
         Map<String, Schema> schemaMap = getObjectSchema().getPropertySchemas();
         JSONObject o = new JSONObject();
         for (Map.Entry<String, Schema> entry : schemaMap.entrySet()) {
-            o.put(entry.getKey(), getBlankValue(entry.getValue().getClass()));
+            o.put(entry.getKey(), getDefaultValue(entry.getValue()));
         }
 
         return o;
     }
 
     /**
-     * Return the default "blank" value for the schema type.
+     * Get the default value for fields of the given schema. If no default value is explicitly provided by the schema,
+     * a default blank value will be used ([], {} or null).
+     * @param schema
+     * @return
+     */
+    public Object getDefaultValue(Schema schema) {
+        Object defaultValue = schema.getUnprocessedProperties().get("default");
+
+        if (defaultValue == null) {
+            defaultValue = getBlankValue(schema.getClass());
+        }
+
+        return defaultValue;
+    }
+
+    /**
+     * Return the "blank" value to use for fields of the for given schema class.
      * For an array: [], for an object: {}, for anything else: null
      * @param schemaClass The schema class to check.
      * @return

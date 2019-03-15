@@ -7,6 +7,9 @@
   "properties": {
     "info" : {
       "type" : "object",
+      "default" : {
+        "title" : "A new project"
+      },
       "$baggable" : {
         "policy": "/policy"
       },

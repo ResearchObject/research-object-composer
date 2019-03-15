@@ -17,6 +17,7 @@ import static org.junit.Assert.*;
 public class ResearchObjectTest {
     private static ResearchObjectProfile draftTaskProfile;
     private static ResearchObjectProfile dataBundleProfile;
+    private static ResearchObjectProfile complexProfile;
     private static JsonNode draftTaskContent;
     private static JsonNode dataBundleContent;
 
@@ -24,6 +25,7 @@ public class ResearchObjectTest {
     public void setUp() throws IOException {
         draftTaskProfile = new ResearchObjectProfile("draft_task", "/schemas/draft_task.schema.json");
         dataBundleProfile = new ResearchObjectProfile("data_bundle", "/schemas/data_bundle.schema.json");
+        complexProfile = new ResearchObjectProfile("complex", "/schemas/complex.schema.json");
 
         ObjectMapper mapper = new ObjectMapper();
         draftTaskContent = mapper.readTree(getClass().getClassLoader().getResourceAsStream("researchobject/draft_task_content.json"));
@@ -190,5 +192,11 @@ public class ResearchObjectTest {
             assertEquals("#/data/0/checksums/0: #: 0 subschemas matched instead of one", errorReport.get("message").asText());
             assertEquals("#/data/0/checksums/0", errorReport.get("pointerToViolation").asText());
         }
+    }
+
+    @Test
+    public void getsDefaultValues() {
+        ResearchObject ro = new ResearchObject(complexProfile);
+        assertEquals("A new project", ro.getContent().get("info").get("title").asText());
     }
 }
