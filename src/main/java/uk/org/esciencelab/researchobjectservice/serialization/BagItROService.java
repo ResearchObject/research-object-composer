@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,38 +126,15 @@ public class BagItROService {
      * @throws Exception
      */
     public void bagToZip(ResearchObject researchObject, OutputStream outputStream) throws Exception {
-        Path bagLocation = bag(researchObject);
-        ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
-
-        // TODO: Got to be a better way of doing this path manipulation
-        Files.walk(bagLocation)
-                .forEach(source -> zipTo(source, researchObject.getFriendlyId() + "/" + bagLocation.relativize(source).toString(), zipOutputStream));
+        Path bagLocation = bag(researchObject); // Create the bag
+        ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream); // Prep the stream
+        Path base = Paths.get(researchObject.getFriendlyId()); // The top-level folder in the Zip file that serves as the bag.
+        // Zip each file in the bag
+        Files.walk(bagLocation).forEach(
+                source -> zipTo(source, base.resolve(bagLocation.relativize(source)), zipOutputStream)
+        );
         zipOutputStream.flush();
         zipOutputStream.close();
-    }
-
-    private void zipTo(Path source, String entryName, ZipOutputStream zipOutputStream) {
-        try {
-            if (source.toFile().isDirectory()) {
-                return;
-            }
-            InputStream inputStream = Files.newInputStream(source);
-
-            ZipEntry zipEntry = new ZipEntry(entryName);
-
-            zipOutputStream.putNextEntry(zipEntry);
-
-            byte[] bytes = new byte[1024];
-            int length;
-
-            while ((length = inputStream.read(bytes)) >= 0) {
-                zipOutputStream.write(bytes, 0, length);
-            }
-            zipOutputStream.closeEntry();
-            inputStream.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
     }
 
     /**
@@ -184,7 +162,7 @@ public class BagItROService {
             // Bag this thing if bagPath was set!
             if (bagPath != null) {
                 try {
-                    entries.add(new BagEntry(bagRoot, bagRoot.relativize(bagRoot.resolve(bagPath + "/")), json));
+                    entries.add(new BagEntry(bagRoot, bagPath, json));
                 } catch (MalformedURLException e) {
                     System.err.println("Bad URL:");
                     System.err.println(json);
@@ -200,13 +178,35 @@ public class BagItROService {
                     String newBagPath = null;
                     if (baggableMap != null) {
                         newBagPath = baggableMap.get(entry.getKey());
-                        if (newBagPath != null) {
-                            newBagPath = "data" + newBagPath;
-                        }
                     }
                     gatherBagEntries(entries, bagRoot, entry.getValue(), propertySchema, newBagPath);
                 }
             }
+        }
+    }
+
+
+    private void zipTo(Path sourceFile, Path zipDestination, ZipOutputStream zipOutputStream) {
+        try {
+            if (sourceFile.toFile().isDirectory()) {
+                return;
+            }
+            InputStream inputStream = Files.newInputStream(sourceFile);
+
+            ZipEntry zipEntry = new ZipEntry(zipDestination.toString());
+
+            zipOutputStream.putNextEntry(zipEntry);
+
+            byte[] bytes = new byte[1024];
+            int length;
+
+            while ((length = inputStream.read(bytes)) >= 0) {
+                zipOutputStream.write(bytes, 0, length);
+            }
+            zipOutputStream.closeEntry();
+            inputStream.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 

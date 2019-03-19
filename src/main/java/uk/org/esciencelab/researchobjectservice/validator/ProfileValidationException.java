@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.everit.json.schema.ValidationException;
-import uk.org.esciencelab.researchobjectservice.profile.SchemaWrapper;
+import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,15 +17,15 @@ import java.util.stream.Collectors;
 public class ProfileValidationException extends RuntimeException {
 
     private ValidationException ve;
-    private SchemaWrapper schemaWrapper;
+    private ResearchObjectProfile profile;
 
     /**
      * @param e The original ValidationException thrown by the JSON schema validator.
-     * @param schemaWrapper The schema wrapper object for the profile that was violated.
+     * @param profile The profile that was violated.
      */
-    public ProfileValidationException(ValidationException e, SchemaWrapper schemaWrapper) {
+    public ProfileValidationException(ValidationException e, ResearchObjectProfile profile) {
         this.ve = e;
-        this.schemaWrapper = schemaWrapper;
+        this.profile = profile;
     }
 
     /**
@@ -49,7 +49,7 @@ public class ProfileValidationException extends RuntimeException {
             node.put("message", ve.getMessage());
         }
         List<JsonNode> causeJsons = ve.getCausingExceptions().stream()
-                .map(e -> new ProfileValidationException(e, this.schemaWrapper).toJsonNode())
+                .map(e -> new ProfileValidationException(e, this.profile).toJsonNode())
                 .collect(Collectors.toList());
         ArrayNode causingExceptions = node.putArray("causingExceptions");
         causingExceptions.addAll(causeJsons);
@@ -60,7 +60,7 @@ public class ProfileValidationException extends RuntimeException {
             actualSchemaLocation = actualSchemaLocation.replaceFirst("classpath://public", "");
             if (actualSchemaLocation.charAt(0) == '#') {
                 // Add the schema path if there was none specified.
-                actualSchemaLocation = actualSchemaLocation.replaceFirst("#", this.schemaWrapper.getSchemaPath() + "#");
+                actualSchemaLocation = actualSchemaLocation.replaceFirst("#", this.profile.getSchemaWrapper().getSchemaPath() + "#");
             }
 
             node.put("schemaLocation", actualSchemaLocation);

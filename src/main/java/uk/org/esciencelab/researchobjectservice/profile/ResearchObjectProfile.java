@@ -82,6 +82,15 @@ public class ResearchObjectProfile implements Serializable { // Need to implemen
         return false;
     }
 
+    /**
+     * Can this field have values appended to it? (is it a list?)
+     * @param field The name of the field.
+     * @return
+     */
+    public boolean canAppend(String field) {
+        return getSchemaWrapper().canAppend(field);
+    }
+
     @JsonIgnore
     public ResearchObjectValidator getValidator() {
         return new ResearchObjectValidator(this);

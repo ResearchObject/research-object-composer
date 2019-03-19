@@ -3,7 +3,6 @@ package uk.org.esciencelab.researchobjectservice.serialization;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
-import org.apache.taverna.robundle.manifest.PathMetadata;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,7 +29,7 @@ public class BagItROServiceTest {
     private static ResearchObjectProfile complexProfile;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         draftTaskProfile = new ResearchObjectProfile("draft_task", "/schemas/draft_task.schema.json");
         dataBundleProfile = new ResearchObjectProfile("data_bundle", "/schemas/data_bundle.schema.json");
         complexProfile = new ResearchObjectProfile("complex", "/schemas/complex.schema.json");

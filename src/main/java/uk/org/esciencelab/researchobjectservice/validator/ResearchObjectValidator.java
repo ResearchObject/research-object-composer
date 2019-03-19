@@ -44,7 +44,7 @@ public class ResearchObjectValidator {
         try {
             getSchemaWrapper().getObjectSchema().validate(content);
         } catch (ValidationException e) {
-            throw new ProfileValidationException(e, getSchemaWrapper());
+            throw new ProfileValidationException(e, this.profile);
         }
     }
 
@@ -58,7 +58,7 @@ public class ResearchObjectValidator {
         try {
             getSchemaWrapper().getFieldSchema(field).validate(objectFromJsonNode(value));
         } catch (ValidationException e) {
-            throw new ProfileValidationException(e, getSchemaWrapper());
+            throw new ProfileValidationException(e, this.profile);
         }
     }
 
@@ -72,7 +72,7 @@ public class ResearchObjectValidator {
         try {
             getSchemaWrapper().getListFieldItemSchema(field).validate(objectFromJsonNode(value));
         } catch (ValidationException e) {
-            throw new ProfileValidationException(e, getSchemaWrapper());
+            throw new ProfileValidationException(e, this.profile);
         }
     }
 

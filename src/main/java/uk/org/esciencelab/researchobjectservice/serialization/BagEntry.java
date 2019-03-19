@@ -10,6 +10,7 @@ import org.apache.taverna.robundle.manifest.Proxy;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 /**
@@ -26,7 +27,7 @@ public class BagEntry {
     /**
      *
      * @param bagRoot A path to the root of the bag.
-     * @param folder A relative path within the bag where this resource will be bagged. Should start with "data".
+     * @param folder A relative path where this resource will be bagged (within `_bag_root_/data`).
      * @param filename The filename of this resource.
      * @param url The URL from which this resource should be fetched/
      * @param length The length in bytes of the resource.
@@ -43,13 +44,15 @@ public class BagEntry {
     /**
      *
      * @param bagRoot A path to the root of the bag.
-     * @param folder A relative path within the bag where this resource will be bagged. Should start with "data".
+     * @param folder A string containing an absolute path of a folder in which to bag this resource. The root ("/") of
+     *               the path is `_bag_root_/data`, so `/foo` would be bagged at `_bag_root_/data/foo` and `/` would be
+     *               bagged at `_bag_root_/data`.
      * @param entryNode A JSON object conforming to `/schemas/_base.schema.json#/definitions/RemoteItem`, containing
      *                  information on the filename, URL, length and checksums of this resource.
      * @throws MalformedURLException
      */
-    public BagEntry(Path bagRoot, Path folder, JsonNode entryNode) throws MalformedURLException {
-        this(bagRoot, folder,
+    public BagEntry(Path bagRoot, String folder, JsonNode entryNode) throws MalformedURLException {
+        this(bagRoot, Paths.get("/").relativize(Paths.get(folder)),
                 entryNode.get("filename").asText(),
                 new URL(entryNode.get("url").asText()),
                 entryNode.get("length").asLong());
@@ -85,8 +88,12 @@ public class BagEntry {
         this.checksums.put(alg, value);
     }
 
+    public Path getFullFolderPath() {
+        return bagRoot.resolve("data").resolve(folder);
+    }
+
     public Path getFilepath() {
-        return bagRoot.resolve(folder).resolve(getFilename());
+        return getFullFolderPath().resolve(getFilename());
     }
 
     /**
@@ -105,7 +112,8 @@ public class BagEntry {
         PathMetadata pm = new PathMetadata(url.toString());
         Proxy bundledAs = pm.getOrCreateBundledAs();
         bundledAs.setFilename(this.filename);
-        bundledAs.setFolder(bagRoot.resolve("metadata").relativize(bagRoot.resolve(folder)));
+        // Folder path should be relative to the `_bag_root_/metadata` directory (e.g. `../data/foo`).
+        bundledAs.setFolder(bagRoot.resolve("metadata").relativize(getFullFolderPath()));
 
         return pm;
     }

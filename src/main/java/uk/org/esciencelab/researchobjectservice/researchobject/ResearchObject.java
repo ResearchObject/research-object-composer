@@ -163,7 +163,7 @@ public class ResearchObject {
      * @return
      */
     public boolean supportsAppend(String field) {
-        return getProfile().getSchemaWrapper().canAppend(field);
+        return getProfile().canAppend(field);
     }
 
     /**
