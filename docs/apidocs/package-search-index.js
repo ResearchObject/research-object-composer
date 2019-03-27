@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"uk.org.esciencelab.researchobjectservice"},{"l":"uk.org.esciencelab.researchobjectservice.profile"},{"l":"uk.org.esciencelab.researchobjectservice.researchobject"},{"l":"uk.org.esciencelab.researchobjectservice.serialization"},{"l":"uk.org.esciencelab.researchobjectservice.util"},{"l":"uk.org.esciencelab.researchobjectservice.validator"}]
