@@ -1,4 +1,4 @@
-FROM maven:3.6-jdk-8-slim
+FROM maven:3.6-jdk-11-slim
 MAINTAINER Stian Soiland-Reyes <stain@apache.org>
 
 
