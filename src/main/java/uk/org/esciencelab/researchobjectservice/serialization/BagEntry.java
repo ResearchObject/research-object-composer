@@ -21,7 +21,7 @@ public class BagEntry {
     private Path folder;
     private String filename;
     private URL url;
-    private Long length;
+    private long length;
     private HashMap<SupportedAlgorithm, String> checksums;
 
     /**
@@ -32,7 +32,7 @@ public class BagEntry {
      * @param url The URL from which this resource should be fetched/
      * @param length The length in bytes of the resource.
      */
-    public BagEntry(Path bagRoot, Path folder, String filename, URL url, Long length) {
+    public BagEntry(Path bagRoot, Path folder, String filename, URL url, long length) {
         this.bagRoot = bagRoot;
         this.folder = folder;
         this.filename = filename;
@@ -76,7 +76,7 @@ public class BagEntry {
         return filename;
     }
 
-    public Long getLength() {
+    public long getLength() {
         return length;
     }
 

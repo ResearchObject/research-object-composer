@@ -19,7 +19,7 @@ import static uk.org.esciencelab.researchobjectservice.util.JsonUnifier.jsonNode
 public class ResearchObjectProfile implements Serializable { // Need to implement Serializable here because of https://hibernate.atlassian.net/browse/HHH-7668
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id;
+    private long id;
 //    @OneToMany(targetEntity=ResearchObject.class, fetch = FetchType.LAZY)
 //    @JoinColumn(name = "profile_name", referencedColumnName = "name")
 //    private List<ResearchObject> researchObjects;
@@ -40,7 +40,7 @@ public class ResearchObjectProfile implements Serializable { // Need to implemen
         this.schemaPath = schemaPath;
     }
 
-    public Long getId() {
+    public long getId() {
         return this.id;
     }
 

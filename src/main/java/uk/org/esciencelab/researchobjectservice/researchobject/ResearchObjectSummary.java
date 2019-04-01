@@ -7,7 +7,7 @@ import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
  * A sparse "summary" version of a research object, to be used to serialize ROs on index views.
  */
 public class ResearchObjectSummary {
-    private Long id;
+    private long id;
     @JsonIgnore
     private ResearchObjectProfile profile;
 
@@ -16,7 +16,7 @@ public class ResearchObjectSummary {
         this.profile = researchObject.getProfile();
     }
 
-    public Long getId() { return id; }
+    public long getId() { return id; }
 
     public ResearchObjectProfile getProfile() {
         return profile;

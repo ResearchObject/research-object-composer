@@ -49,14 +49,14 @@ public class ResearchObjectController {
     }
 
     @GetMapping("/research_objects/{id}")
-    public Resource<ResearchObject> one(@PathVariable Long id) {
+    public Resource<ResearchObject> one(@PathVariable long id) {
         ResearchObject researchObject = getResearchObject(id);
 
         return assembler.toResource(researchObject);
     }
 
     @DeleteMapping("/research_objects/{id}")
-    public ResponseEntity<?> deleteResearchObject(@PathVariable Long id) {
+    public ResponseEntity<?> deleteResearchObject(@PathVariable long id) {
         getResearchObject(id); // This is here to check the RO exists, throwing a 404 otherwise.
 
         researchObjectRepository.deleteById(id);
@@ -89,7 +89,7 @@ public class ResearchObjectController {
     }
 
     @PostMapping(value="/research_objects/{id}/bag", produces="application/zip")
-    public void mintBag(@PathVariable Long id, HttpServletResponse response) throws Exception {
+    public void mintBag(@PathVariable long id, HttpServletResponse response) throws Exception {
         ResearchObject researchObject = getResearchObject(id);
 
         response.setStatus(HttpServletResponse.SC_OK);
@@ -97,7 +97,7 @@ public class ResearchObjectController {
         bagItROService.bagToZip(researchObject, response.getOutputStream());
     }
 
-    private ResearchObject getResearchObject(Long id) {
+    private ResearchObject getResearchObject(long id) {
         return researchObjectRepository.findById(id).orElseThrow(ResearchObjectNotFoundException::new);
     }
 

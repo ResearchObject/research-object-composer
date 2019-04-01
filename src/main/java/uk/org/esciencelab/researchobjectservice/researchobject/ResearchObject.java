@@ -31,7 +31,7 @@ import java.io.IOException;
 public class ResearchObject {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id;
+    private long id;
 
     @JsonIgnore
     @ManyToOne(optional = false)
@@ -52,7 +52,7 @@ public class ResearchObject {
         setProfile(profile);
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 

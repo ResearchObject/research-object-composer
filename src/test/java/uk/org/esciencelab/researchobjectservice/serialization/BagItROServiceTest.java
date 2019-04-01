@@ -56,7 +56,7 @@ public class BagItROServiceTest {
                 .filter(x -> "https://www.myexperiment.org/workflows/5044".equals(x.getUrl().toString()))
                 .findFirst().get();
         assertEquals(bagLocation.toString() + "/data/workflow/workflow.cwl", workflowEntry.getFilepath().toString());
-        assertEquals(new Long(1000), workflowEntry.getLength());
+        assertEquals(1000, workflowEntry.getLength());
         assertEquals("df3e129a722a865cc3539b4e69507bad", workflowEntry.getChecksum(StandardSupportedAlgorithms.MD5));
         assertEquals(null, workflowEntry.getChecksum(StandardSupportedAlgorithms.SHA256));
         assertEquals(null, workflowEntry.getChecksum(StandardSupportedAlgorithms.SHA224));
@@ -66,7 +66,7 @@ public class BagItROServiceTest {
                 .filter(x -> "https://www.example.com/data/a".equals(x.getUrl().toString()))
                 .findFirst().get();
         assertEquals(bagLocation.toString() + "/data/input/a.xml", xmlEntry.getFilepath().toString());
-        assertEquals(new Long(999), xmlEntry.getLength());
+        assertEquals(999, xmlEntry.getLength());
         assertEquals(null, xmlEntry.getChecksum(StandardSupportedAlgorithms.MD5));
         assertEquals("87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7", xmlEntry.getChecksum(StandardSupportedAlgorithms.SHA256));
 
@@ -74,7 +74,7 @@ public class BagItROServiceTest {
                 .filter(x -> "https://www.example.com/data/b".equals(x.getUrl().toString()))
                 .findFirst().get();
         assertEquals(bagLocation.toString() + "/data/input/b.json", jsonEntry.getFilepath().toString());
-        assertEquals(new Long(888), jsonEntry.getLength());
+        assertEquals(888, jsonEntry.getLength());
         assertEquals("3b5d5c3712955042212316173ccf37be", jsonEntry.getChecksum(StandardSupportedAlgorithms.MD5));
         assertEquals("0263829989b6fd954f72baaf2fc64bc2e2f01d692d4de72986ea808f6e99813f", jsonEntry.getChecksum(StandardSupportedAlgorithms.SHA256));
     }
@@ -101,12 +101,12 @@ public class BagItROServiceTest {
 
         assertEquals(8, entries.size());
 
-        Long groupDataCount = entries.stream()
+        long groupDataCount = entries.stream()
                 .filter(x -> x.getFilepath().startsWith(bagLocation.resolve("data/group_data"))).count();
-        assertEquals(new Long(5), groupDataCount);
+        assertEquals(5, groupDataCount);
 
-        Long sharedDataCount = entries.stream()
+        long sharedDataCount = entries.stream()
                 .filter(x -> x.getFilepath().startsWith(bagLocation.resolve("data/shared_data"))).count();
-        assertEquals(new Long(2), sharedDataCount);
+        assertEquals(2, sharedDataCount);
     }
 }
