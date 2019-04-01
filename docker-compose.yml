@@ -1,0 +1,22 @@
+version: '3.2'
+volumes:
+  pgdata:
+services:
+  spring:
+    build: .
+    ports:
+     - "8080:8080"
+    links:
+     - postgres
+    environment:
+      - "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/ro_composer"
+  postgres:
+    image: postgres:11 
+    volumes:
+      - type: volume
+        source: pgdata
+        target: /var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=ro 
+      - POSTGRES_PASSWORD=ro 
+      - POSTGRES_DB=ro_composer
