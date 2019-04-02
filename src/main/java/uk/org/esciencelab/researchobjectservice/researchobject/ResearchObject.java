@@ -1,7 +1,9 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.JsonPatch;
@@ -16,7 +18,12 @@ import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationExcep
 import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidator;
 
 import javax.persistence.*;
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
+import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
 
 /**
  * A representation of a RO produced by the composer.
@@ -41,6 +48,17 @@ public class ResearchObject {
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")
     private ObjectNode content;
+
+    enum State {
+        OPEN,
+        VALIDATED,
+        DEPOSITED
+    }
+    private State state = State.OPEN;
+
+    private String contentSha256;
+
+    private URL depositionUrl;
 
     public ResearchObject() { }
 
@@ -95,6 +113,29 @@ public class ResearchObject {
     public void setAndValidateContent(ObjectNode content) throws ProfileValidationException {
         getValidator().validate(content);
         setContent(content);
+    }
+
+    public String getContentSha256() { return this.contentSha256; }
+
+    public String computeContentSha256() throws NoSuchAlgorithmException, JsonProcessingException {
+        ObjectMapper om = new ObjectMapper();
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        digest.update(om.writeValueAsBytes(getContent()));
+        byte[] bytes = digest.digest();
+
+        return DatatypeConverter.printHexBinary(bytes);
+    }
+
+    public void updateContentSha256() throws NoSuchAlgorithmException, JsonProcessingException {
+        this.contentSha256 = this.computeContentSha256();
+    }
+
+    public boolean contentHasChanged() {
+        try {
+            return this.contentSha256.equals(this.computeContentSha256());
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     /**
