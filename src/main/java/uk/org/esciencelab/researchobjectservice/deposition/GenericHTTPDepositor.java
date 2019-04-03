@@ -16,6 +16,7 @@ import java.util.Map;
 @Component
 public class GenericHTTPDepositor implements Depositor {
 
+    @Autowired
     private GenericHTTPDepositorConfig config;
 
     private final String USER_AGENT = "Java/Research Object Composer";
@@ -50,10 +51,5 @@ public class GenericHTTPDepositor implements Depositor {
         http.connect();
 
         return new URI("hello://world");
-    }
-
-    @Autowired
-    public void setConfig(GenericHTTPDepositorConfig config) {
-        this.config = config;
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.org.esciencelab.researchobjectservice.deposition.GenericHTTPDepositor;
+import uk.org.esciencelab.researchobjectservice.deposition.*;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileNotFoundException;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileRepository;
@@ -38,7 +38,7 @@ public class ResearchObjectController {
     @Autowired
     private BagItROService bagItROService;
     @Autowired
-    private GenericHTTPDepositor depositor;
+    private DepositorService depositorService;
 
     @GetMapping("/research_objects")
     public Resources<Resource<ResearchObjectSummary>> all() {
@@ -104,12 +104,12 @@ public class ResearchObjectController {
         return researchObjectRepository.findById(id).orElseThrow(ResearchObjectNotFoundException::new);
     }
 
+    @PostMapping(value="/research_objects/{id}/deposit", produces="text/plain")
     public String deposit(@PathVariable long id, HttpServletResponse response) throws Exception {
         ResearchObject researchObject = getResearchObject(id);
 
         response.setStatus(HttpServletResponse.SC_OK);
-        response.addHeader("Content-Disposition", "attachment; filename=\"+" + id + "+.zip\"");
-        return depositor.deposit(researchObject).toString();
+        return depositorService.deposit(researchObject).toString();
     }
 
     private ResearchObjectProfile getResearchObjectProfile(String name) {
