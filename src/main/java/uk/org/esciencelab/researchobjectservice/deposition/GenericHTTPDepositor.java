@@ -1,5 +1,7 @@
 package uk.org.esciencelab.researchobjectservice.deposition;
 
+import org.apache.http.client.fluent.Request;
+import org.apache.http.client.fluent.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
@@ -26,30 +28,34 @@ public class GenericHTTPDepositor implements Depositor {
 
     public GenericHTTPDepositor() { }
 
-    public URI deposit(ResearchObject researchObject) throws Exception {
-        System.out.println(config.getUrl());
-        URL url = new URL(config.getUrl());
-        HttpURLConnection http;
-        if (url.getProtocol().equals("https")) {
-            http = (HttpsURLConnection) url.openConnection();
-        } else {
-            http = (HttpURLConnection) url.openConnection();
-        }
+    public URI deposit(ResearchObject researchObject) throws DepositionException {
+        try {
+            URL url = new URL(config.getUrl());
+            HttpURLConnection http;
+            if (url.getProtocol().equals("https")) {
+                http = (HttpsURLConnection) url.openConnection();
+            } else {
+                http = (HttpURLConnection) url.openConnection();
+            }
 
-        http.setRequestMethod("POST");
-        http.setDoOutput(true);
-        // Apply headers
-        Iterator<Map.Entry<String, String>> i = config.getHeaders().entrySet().iterator();
-        while (i.hasNext()) {
-            Map.Entry<String, String> headerPair = i.next();
-            http.setRequestProperty(headerPair.getKey(), headerPair.getValue());
-        }
-        http.setRequestProperty("User-Agent", USER_AGENT);
-        http.setRequestProperty("Content-Type", "application/zip");
-        OutputStream os = http.getOutputStream();
-        bagItROService.bagToZip(researchObject, os);
-        http.connect();
+            http.setRequestMethod("POST");
+            http.setDoOutput(true);
+            // Apply headers
+            Iterator<Map.Entry<String, String>> i = config.getHeaders().entrySet().iterator();
+            while (i.hasNext()) {
+                Map.Entry<String, String> headerPair = i.next();
+                http.setRequestProperty(headerPair.getKey(), headerPair.getValue());
+            }
+            http.setRequestProperty("User-Agent", USER_AGENT);
+            http.setRequestProperty("Content-Type", "application/zip");
+            OutputStream os = http.getOutputStream();
+            bagItROService.bagToZip(researchObject, os);
+            http.connect();
 
-        return new URI("hello://world");
+            // FIXME: Return Location header on 201 status
+            return new URI("hello://world");
+        } catch (Exception e) {
+            throw new DepositionException(e);
+        }
     }
 }
