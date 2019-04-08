@@ -14,8 +14,8 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
-import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationException;
-import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidator;
+import uk.org.esciencelab.researchobjectservice.validation.ProfileValidationException;
+import uk.org.esciencelab.researchobjectservice.validation.ResearchObjectValidator;
 
 import javax.persistence.*;
 import javax.xml.bind.DatatypeConverter;
@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Calendar;
 
 /**
  * A representation of a RO produced by the composer.

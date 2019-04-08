@@ -3,7 +3,7 @@ package uk.org.esciencelab.researchobjectservice.profile;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hibernate.annotations.NaturalId;
-import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidator;
+import uk.org.esciencelab.researchobjectservice.validation.ResearchObjectValidator;
 
 import javax.persistence.*;
 import java.io.Serializable;

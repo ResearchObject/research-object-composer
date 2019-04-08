@@ -1,4 +1,4 @@
-package uk.org.esciencelab.researchobjectservice.validator;
+package uk.org.esciencelab.researchobjectservice.validation;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.everit.json.schema.ValidationException;
