@@ -1,7 +1,5 @@
 package uk.org.esciencelab.researchobjectservice.deposition;
 
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.fluent.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
@@ -29,9 +27,9 @@ public class GenericHTTPDepositor implements Depositor {
     public GenericHTTPDepositor() { }
 
     public URI deposit(ResearchObject researchObject) throws DepositionException {
+        HttpURLConnection http;
         try {
             URL url = new URL(config.getUrl());
-            HttpURLConnection http;
             if (url.getProtocol().equals("https")) {
                 http = (HttpsURLConnection) url.openConnection();
             } else {
@@ -51,9 +49,17 @@ public class GenericHTTPDepositor implements Depositor {
             OutputStream os = http.getOutputStream();
             bagItROService.bagToZip(researchObject, os);
             http.connect();
-
-            // FIXME: Return Location header on 201 status
-            return new URI("hello://world");
+            int code = http.getResponseCode();
+            String loc = http.getHeaderField("Location");
+            if (code == 200 || code == 201) {
+                if (loc != null) {
+                    return new URI(loc);
+                } else {
+                    throw new DepositionException("No Location header provided!");
+                }
+            } else {
+                throw new DepositionException(code, null);
+            }
         } catch (Exception e) {
             throw new DepositionException(e);
         }

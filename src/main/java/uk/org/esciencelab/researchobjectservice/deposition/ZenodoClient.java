@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.entity.ContentType;
@@ -13,6 +12,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 
@@ -28,20 +28,16 @@ public class ZenodoClient {
         this.accessToken = accessToken;
     }
 
-    public JsonNode createDeposition(String metadata) throws Exception {
-        Response response = Request.Post(depositionUrl())
-                .addHeader("User-Agent", USER_AGENT)
-                .bodyString(metadata, ContentType.APPLICATION_JSON).execute();
-        Content content = response.returnContent();
+    public JsonNode createDeposition(JsonNode metadata) throws Exception {
+        Request req = Request.Post(depositionUrl())
+                .bodyString(metadata.toString(), ContentType.APPLICATION_JSON);
 
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.readTree(content.asString());
-
-        return json;
+        return performRequest(req);
     }
 
     public JsonNode createDeposition() throws Exception {
-        return createDeposition("{}");
+        ObjectMapper mapper = new ObjectMapper();
+        return createDeposition(mapper.createObjectNode());
     }
 
     public JsonNode createDepositionFile(File file, int depositionId, String filename) throws Exception {
@@ -52,18 +48,27 @@ public class ZenodoClient {
                 .addTextBody("name", filename)
                 .build();
 
-        Response response = Request.Post(depositionFileUrl(depositionId))
-                .addHeader("User-Agent", USER_AGENT)
-                .body(entity).execute();
+        Request req = Request.Post(depositionFileUrl(depositionId))
+                .body(entity);
 
+        return performRequest(req);
+    }
+
+    private JsonNode performRequest(Request request) throws IOException, DepositionException {
+        Response response = request
+                .addHeader("User-Agent", USER_AGENT)
+                .execute();
         HttpResponse r = response.returnResponse();
         StringWriter writer = new StringWriter();
         IOUtils.copy(r.getEntity().getContent(), writer, Charset.forName("UTF-8"));
-        String theString = writer.toString();
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode json = mapper.readTree(theString);
 
-        return json;
+        if (r.getStatusLine().getStatusCode() >= 400) {
+            JsonNode node = mapper.readTree(writer.toString());
+            throw new DepositionException(r.getStatusLine().getStatusCode(), node);
+        }
+
+        return mapper.readTree(writer.toString());
     }
 
     private String depositionUrl() {
