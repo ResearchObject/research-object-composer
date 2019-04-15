@@ -15,10 +15,6 @@ public class DepositionExceptionAdvice {
     JsonNode depositionExceptionHandler(DepositionException ex) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        if (ex.getError() != null) {
-            return mapper.convertValue(ex, JsonNode.class);
-        } else {
-            return mapper.createObjectNode();
-        }
+        return mapper.convertValue(ex, JsonNode.class);
     }
 }

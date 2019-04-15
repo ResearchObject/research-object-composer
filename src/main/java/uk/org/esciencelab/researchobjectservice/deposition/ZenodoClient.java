@@ -28,19 +28,19 @@ public class ZenodoClient {
         this.accessToken = accessToken;
     }
 
-    public JsonNode createDeposition(JsonNode metadata) throws Exception {
+    public JsonNode createDeposition(JsonNode metadata) throws IOException {
         Request req = Request.Post(depositionUrl())
                 .bodyString(metadata.toString(), ContentType.APPLICATION_JSON);
 
         return performRequest(req);
     }
 
-    public JsonNode createDeposition() throws Exception {
+    public JsonNode createDeposition() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         return createDeposition(mapper.createObjectNode());
     }
 
-    public JsonNode createDepositionFile(File file, int depositionId, String filename) throws Exception {
+    public JsonNode createDepositionFile(File file, int depositionId, String filename) throws IOException {
         HttpEntity entity = MultipartEntityBuilder.create()
                 .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
                 .setCharset(Charset.forName("UTF-8"))
@@ -54,10 +54,11 @@ public class ZenodoClient {
         return performRequest(req);
     }
 
-    private JsonNode performRequest(Request request) throws IOException, DepositionException {
+    private JsonNode performRequest(Request request) throws IOException {
         Response response = request
                 .addHeader("User-Agent", USER_AGENT)
                 .execute();
+
         HttpResponse r = response.returnResponse();
         StringWriter writer = new StringWriter();
         IOUtils.copy(r.getEntity().getContent(), writer, Charset.forName("UTF-8"));

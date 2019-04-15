@@ -1,10 +1,8 @@
 package uk.org.esciencelab.researchobjectservice.deposition;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import de.upb.cs.swt.zenodo.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,19 +52,18 @@ public class ZenodoDepositor implements Depositor {
     }
 
     private JsonNode buildMetadata(ResearchObject researchObject) throws Exception {
-        Metadata metadata = new Metadata(Metadata.UploadType.DATASET,
-                new Date(),
-                researchObject.getFriendlyId(),
-                "new ro",
-                researchObject.getContentSha256(),
-                Metadata.AccessRight.CLOSED);
+        ObjectNode meta = (ObjectNode) researchObject.getField("_metadata");
+        if (meta == null)
+            throw new DepositionException("No '_metadata' field provided!");
 
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+        meta.put("upload_type", "dataset");
+        meta.put("version", researchObject.computeContentSha256());
+        meta.put("access_right", "closed");
+        meta.put("publication_date", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
 
         ObjectNode node = mapper.createObjectNode();
-        node.set("metadata", mapper.valueToTree(metadata));
+        node.set("metadata", meta);
 
         return node;
     }

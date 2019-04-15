@@ -3,7 +3,7 @@ package uk.org.esciencelab.researchobjectservice.deposition;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 
-@JsonIgnoreProperties({ "cause", "stackTrace", "message", "suppressed", "localizedMessage" })
+@JsonIgnoreProperties({ "cause", "stackTrace", "suppressed", "localizedMessage" })
 public class DepositionException extends RuntimeException {
     private JsonNode error;
     private int status;

@@ -6,6 +6,9 @@
     "input" : "/input"
   },
   "properties": {
+    "_metadata" : {
+      "$ref": "/schemas/_base.schema.json#/definitions/Metadata"
+    },
     "workflow": {
       "$ref": "/schemas/_base.schema.json#/definitions/RemoteItem"
     },
