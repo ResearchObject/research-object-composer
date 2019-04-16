@@ -54,7 +54,7 @@ public class ZenodoClient {
         return performRequest(req);
     }
 
-    private JsonNode performRequest(Request request) throws IOException {
+    private JsonNode performRequest(Request request) throws IOException, DepositionException {
         Response response = request
                 .addHeader("User-Agent", USER_AGENT)
                 .execute();
