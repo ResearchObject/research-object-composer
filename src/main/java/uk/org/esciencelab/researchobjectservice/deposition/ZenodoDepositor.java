@@ -2,6 +2,7 @@ package uk.org.esciencelab.researchobjectservice.deposition;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,20 +31,25 @@ public class ZenodoDepositor implements Depositor {
 
     public URI deposit(ResearchObject researchObject) throws DepositionException {
         try {
-            ZenodoClient client = new ZenodoClient(config.getApiUrl(), config.getAccessToken());
-            logger.info("Creating Zenodo deposition.");
-            JsonNode depositionResponse = client.createDeposition(buildMetadata(researchObject));
-
             File tempFile = File.createTempFile("zenodo-payload", ".zip");
             FileOutputStream os = new FileOutputStream(tempFile);
             bagItROService.bagToZip(researchObject, os);
 
+            ZenodoClient client = new ZenodoClient(config.getApiUrl(), config.getAccessToken());
+            logger.info("Creating Zenodo deposition.");
+            JsonNode depositionResponse = client.createDeposition(buildMetadata(researchObject));
+            int depositionId = depositionResponse.get("id").asInt();
+            URI depositionUrl = new URI(depositionResponse.get("links").get("self").asText());
+
             logger.info("Uploading Zenodo deposition file.");
-            JsonNode depositionFileResponse = client.createDepositionFile(tempFile,
-                    depositionResponse.get("id").asInt(),
+            JsonNode depositionFileResponse = client.createDepositionFile(tempFile, depositionId,
                     researchObject.getFriendlyId() + ".zip");
 
-            return new URI(depositionFileResponse.get("links").get("self").asText());
+            logger.info("Publishing deposition.");
+            JsonNode pubRes = client.publishDeposition(depositionId);
+            System.out.println(pubRes);
+
+            return depositionUrl;
         } catch (DepositionException e) { // Don't double wrap
             throw e;
         } catch (Exception e) {
@@ -52,11 +58,24 @@ public class ZenodoDepositor implements Depositor {
     }
 
     private JsonNode buildMetadata(ResearchObject researchObject) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+
         ObjectNode meta = (ObjectNode) researchObject.getField("_metadata");
         if (meta == null)
             throw new DepositionException("No '_metadata' field provided!");
 
-        ObjectMapper mapper = new ObjectMapper();
+        // Zenodo doesn't like the full URI in ORCIDs
+        ArrayNode creators = (ArrayNode) meta.get("creators");
+        if (creators != null) {
+            for (JsonNode jcreator : creators) {
+                ObjectNode creator = (ObjectNode) jcreator;
+                if (creator.has("orcid")) {
+                    String strippedOrcid = creator.get("orcid").asText().replaceAll("https?://orcid\\.org/", "");
+                    creator.put("orcid", strippedOrcid);
+                }
+            }
+        }
+
         meta.put("upload_type", "dataset");
         meta.put("version", researchObject.computeContentSha256());
         meta.put("access_right", "closed");

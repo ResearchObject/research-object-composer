@@ -54,6 +54,12 @@ public class ZenodoClient {
         return performRequest(req);
     }
 
+    public JsonNode publishDeposition(int depositionId) throws IOException {
+        Request req = Request.Post(publishDepositionUrl(depositionId));
+
+        return performRequest(req);
+    }
+
     private JsonNode performRequest(Request request) throws IOException, DepositionException {
         Response response = request
                 .addHeader("User-Agent", USER_AGENT)
@@ -78,6 +84,10 @@ public class ZenodoClient {
 
     private String depositionFileUrl(int depositionId) {
         return buildUrl(DEPOSITIONS_BASE + "/" + depositionId + "/files");
+    }
+
+    private String publishDepositionUrl(int depositionId) {
+        return buildUrl(DEPOSITIONS_BASE + "/" + depositionId + "/actions/publish");
     }
 
     private String buildUrl(String path) {
