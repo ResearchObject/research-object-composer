@@ -65,8 +65,8 @@ public class ZenodoDepositor implements Depositor {
             throw new DepositionException("No '_metadata' field provided!");
 
         // Zenodo doesn't like the full URI in ORCIDs
-        ArrayNode creators = (ArrayNode) meta.get("creators");
-        if (creators != null) {
+        if (meta.has("creators")) {
+            ArrayNode creators = (ArrayNode) meta.get("creators");
             for (JsonNode jcreator : creators) {
                 ObjectNode creator = (ObjectNode) jcreator;
                 if (creator.has("orcid")) {
@@ -78,8 +78,10 @@ public class ZenodoDepositor implements Depositor {
 
         meta.put("upload_type", "dataset");
         meta.put("version", researchObject.computeContentSha256());
-        meta.put("access_right", "closed");
         meta.put("publication_date", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        if (!meta.has("access_right")) {
+            meta.put("access_right", "closed");
+        }
 
         ObjectNode node = mapper.createObjectNode();
         node.set("metadata", meta);
