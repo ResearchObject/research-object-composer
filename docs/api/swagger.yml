@@ -9,7 +9,7 @@ info:
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "cspool55.cs.man.ac.uk:8080"
+host: "openphacts.cs.man.ac.uk:8080"
 basePath: "/"
 tags:
 - name: "profile"
