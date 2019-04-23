@@ -20,5 +20,6 @@ conda create -n rocomposer jupyter
 conda activate rocomposer
 pip install -r requirements.txt
 conda activate rocomposer
-
+jupyter notebook
 ```
+
