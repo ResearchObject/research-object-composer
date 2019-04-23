@@ -13,13 +13,12 @@ docker-compose up -d
 
 To run the [Jupyter Notebook](https://jupyter.org/) tutorial:
 
-1. Install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3 variant)
-2. Create a new Conda environment for the RO Composer and start Jupyter Notebook
+1. Download this git repository or the [introduction.ipynb](introduction.ipynb) file from GitHub
+2. Install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3 variant)
+3. In the Anaconda Prompt or Terminal, create a new Conda environment for the RO Composer and start Jupyter Notebook 
 ```
-conda create -n rocomposer jupyter
+conda create -n rocomposer jupyter unzip
 conda activate rocomposer
-pip install -r requirements.txt
-conda activate rocomposer
-jupyter notebook
+jupyter notebook introduction.ipynb
 ```
 
