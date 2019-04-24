@@ -17,7 +17,7 @@ To run the [Jupyter Notebook](https://jupyter.org/) tutorial:
 2. Install [Anaconda](https://docs.anaconda.com/anaconda/install/) (Python 3 variant)
 3. In the Anaconda Prompt or Terminal, create a new Conda environment for the RO Composer and start Jupyter Notebook 
 ```
-conda create -n rocomposer jupyter unzip
+conda create -n rocomposer jupyter
 conda activate rocomposer
 jupyter notebook introduction.ipynb
 ```
