@@ -39,7 +39,7 @@ public class ZenodoDepositor implements Depositor {
             logger.info("Creating Zenodo deposition.");
             JsonNode depositionResponse = client.createDeposition(buildMetadata(researchObject));
             int depositionId = depositionResponse.get("id").asInt();
-            URI depositionUrl = new URI(depositionResponse.get("links").get("self").asText());
+            URI depositionUrl = new URI(depositionResponse.get("links").get("record").asText());
 
             logger.info("Uploading Zenodo deposition file.");
             JsonNode depositionFileResponse = client.createDepositionFile(tempFile, depositionId,
