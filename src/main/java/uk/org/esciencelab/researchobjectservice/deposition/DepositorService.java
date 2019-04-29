@@ -22,10 +22,11 @@ public class DepositorService {
      * Deposit a research object in a remote repository.
      * @param researchObject The research object to deposit.
      * @return The URI of the deposited resource in the target repository.
-     * @throws Exception
      */
-    public URI deposit(ResearchObject researchObject) throws Exception {
-        return getDepositor().deposit(researchObject);
+    public URI deposit(ResearchObject researchObject) {
+        URI depositionUri = getDepositor().deposit(researchObject);
+
+        return depositionUri;
     }
 
     private Depositor getDepositor() {

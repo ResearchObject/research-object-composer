@@ -20,7 +20,7 @@ import uk.org.esciencelab.researchobjectservice.validation.ResearchObjectValidat
 import javax.persistence.*;
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -57,7 +57,7 @@ public class ResearchObject {
 
     private String contentSha256;
 
-    private URL depositionUrl;
+    private URI depositionUrl;
 
     public ResearchObject() { }
 
@@ -125,8 +125,12 @@ public class ResearchObject {
         return DatatypeConverter.printHexBinary(bytes);
     }
 
-    public void updateContentSha256() throws NoSuchAlgorithmException, JsonProcessingException {
-        this.contentSha256 = this.computeContentSha256();
+    public void updateContentSha256() {
+        try {
+            this.contentSha256 = this.computeContentSha256();
+        } catch (NoSuchAlgorithmException e) {
+        } catch (JsonProcessingException e) {
+        }
     }
 
     public boolean contentHasChanged() {
@@ -211,6 +215,22 @@ public class ResearchObject {
      */
     public void validate() {
         getValidator().validate(getContent());
+        this.updateContentSha256();
+        this.state = State.VALIDATED;
+    }
+
+    @JsonIgnore
+    public URI getDepositionUrl() {
+        return this.depositionUrl;
+    }
+
+    public void setDepositionUrl(URI depositionUrl) {
+        this.depositionUrl = depositionUrl;
+        this.state = State.DEPOSITED;
+    }
+
+    public boolean isMutable() {
+        return this.state != State.DEPOSITED;
     }
 
     private ResearchObjectValidator getValidator() {

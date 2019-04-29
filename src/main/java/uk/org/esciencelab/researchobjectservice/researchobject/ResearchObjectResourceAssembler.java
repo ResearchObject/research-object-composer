@@ -1,5 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,8 @@ public class ResearchObjectResourceAssembler implements ResourceAssembler<Resear
                 linkTo(methodOn(ResearchObjectProfileController.class).one(researchObject.getProfileName())).withRel("profile"));
 
         resource.add(linkTo(methodOn(ContentController.class).getResearchObjectContent(researchObject.getId())).withRel("content"));
+        if (researchObject.getDepositionUrl() != null)
+            resource.add(new Link(researchObject.getDepositionUrl().toString(), "deposition"));
         Iterator<String> i = researchObject.getContent().fieldNames();
         while(i.hasNext()) {
             String field = i.next();

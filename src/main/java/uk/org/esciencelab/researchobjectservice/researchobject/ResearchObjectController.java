@@ -107,9 +107,12 @@ public class ResearchObjectController {
     @PostMapping(value="/research_objects/{id}/deposit", produces="text/plain")
     public String deposit(@PathVariable long id, HttpServletResponse response) throws Exception {
         ResearchObject researchObject = getResearchObject(id);
+        URI depositionUri = depositorService.deposit(researchObject);
+        researchObject.setDepositionUrl(depositionUri);
+        researchObjectRepository.save(researchObject);
 
         response.setStatus(HttpServletResponse.SC_OK);
-        return depositorService.deposit(researchObject).toString();
+        return depositionUri.toString();
     }
 
     private ResearchObjectProfile getResearchObjectProfile(String name) {

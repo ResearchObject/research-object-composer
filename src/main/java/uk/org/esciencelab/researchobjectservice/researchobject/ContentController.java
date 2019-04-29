@@ -37,6 +37,7 @@ public class ContentController {
     @PutMapping(value="/research_objects/{id}/content/{field}", produces="application/json")
     public ResponseEntity<Object> updateResearchObjectField(@PathVariable long id, @PathVariable String field, @RequestBody JsonNode value) {
         ResearchObject researchObject = getResearchObject(id);
+        checkMutable(researchObject);
         checkField(researchObject, field);
 
         researchObject.setField(field, value);
@@ -47,6 +48,7 @@ public class ContentController {
     @PostMapping(value="/research_objects/{id}/content/{field}", produces="application/json")
     public ResponseEntity<Object> appendToResearchObjectField(@PathVariable long id, @PathVariable String field, @RequestBody JsonNode value) {
         ResearchObject researchObject = getResearchObject(id);
+        checkMutable(researchObject);
         checkField(researchObject, field);
         if (!(researchObject.supportsAppend(field))) {
             throw new MethodNotAllowedException("POST", null);
@@ -60,6 +62,7 @@ public class ContentController {
     @DeleteMapping(value="/research_objects/{id}/content/{field}", produces="application/json")
     public ResponseEntity<Object> clearResearchObjectField(@PathVariable long id, @PathVariable String field) {
         ResearchObject researchObject = getResearchObject(id);
+        checkMutable(researchObject);
         checkField(researchObject, field);
 
         researchObject.clearField(field);
@@ -70,6 +73,7 @@ public class ContentController {
     @PatchMapping(value="/research_objects/{id}/content", produces="application/json")
     public ResponseEntity<Object> patchResearchObjectContent(@PathVariable long id, @RequestBody JsonNode jsonPatch) {
         ResearchObject researchObject = getResearchObject(id);
+        checkMutable(researchObject);
         try {
             researchObject.patchContent(jsonPatch);
             researchObjectRepository.save(researchObject);
@@ -90,6 +94,7 @@ public class ContentController {
     @PutMapping(value="/research_objects/{id}/content", produces="application/json")
     public ResponseEntity<Object> getResearchObjectContent(@PathVariable long id, @RequestBody JsonNode content) {
         ResearchObject researchObject = getResearchObject(id);
+        checkMutable(researchObject);
         researchObject.setAndValidateContent((ObjectNode) content);
         researchObjectRepository.save(researchObject);
         return ResponseEntity.ok(researchObject.getContent());
@@ -102,6 +107,12 @@ public class ContentController {
     private void checkField(ResearchObject researchObject, String field) {
         if (!researchObject.getProfile().hasField(field)) {
             throw new FieldNotFoundException(field);
+        }
+    }
+
+    private void checkMutable(ResearchObject researchObject) {
+        if (!researchObject.isMutable()) {
+            throw new ImmutableResearchObjectException();
         }
     }
 }
