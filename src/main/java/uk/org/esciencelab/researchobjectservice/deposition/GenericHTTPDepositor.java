@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  * An example implementation of a Depositor, that performs a simple HTTP POST of a zipped BagIt-RO serialization
- * of a research object to a configured URL, with some optional configured HTTP headers.
+ * of a Research Object to a configured URL, with some optional configured HTTP headers.
  */
 @Component
 public class GenericHTTPDepositor implements Depositor {

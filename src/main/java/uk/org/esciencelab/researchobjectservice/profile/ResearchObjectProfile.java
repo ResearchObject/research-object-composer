@@ -52,7 +52,7 @@ public class ResearchObjectProfile implements Serializable { // Need to implemen
     }
 
     /**
-     * Get a skeleton JSON object, to be applied to new research objects that use this profile.
+     * Get a skeleton JSON object, to be applied to new Research Objects that use this profile.
      * @return The template JSON object.
      */
     @JsonIgnore

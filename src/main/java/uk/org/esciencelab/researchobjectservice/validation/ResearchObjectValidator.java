@@ -10,7 +10,7 @@ import static uk.org.esciencelab.researchobjectservice.util.JsonUnifier.jsonObje
 import static uk.org.esciencelab.researchobjectservice.util.JsonUnifier.objectFromJsonNode;
 
 /**
- * A class for validating a research objects using a provided ResearchObjectProfile,
+ * A class for validating a Research Objects using a provided ResearchObjectProfile,
  * raising a ProfileValidationException if the given content is not valid.
  *
  * @see ProfileValidationException

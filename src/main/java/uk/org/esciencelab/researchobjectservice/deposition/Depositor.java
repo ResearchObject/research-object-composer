@@ -5,7 +5,7 @@ import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
 import java.net.URI;
 
 /**
- * Interface for depositors of research objects into external repositories.
+ * Interface for depositors of Research Objects into external repositories.
  */
 public interface Depositor {
     /**

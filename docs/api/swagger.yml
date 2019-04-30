@@ -178,7 +178,7 @@ paths:
           schema:
             $ref: "#/definitions/ResearchObject"
         404:
-          description: "Research object not found"
+          description: "Research Object not found"
   /research_objects/{id}/content/{field}:
     get:
       tags:
@@ -205,7 +205,7 @@ paths:
         200:
           description: "successful operation"
         404:
-          description: "Research object not found"
+          description: "Research Object not found"
         400:
           description: "The given field is not present on the Research Object"
     put:
@@ -233,7 +233,7 @@ paths:
         200:
           description: "successful operation"
         404:
-          description: "Research object not found"
+          description: "Research Object not found"
         400:
           description: "The value being set violated the profile."
           schema:
@@ -263,7 +263,7 @@ paths:
         200:
           description: "successful operation"
         404:
-          description: "Research object not found"
+          description: "Research Object not found"
         400:
           description: "The value being appended violated the profile."
           schema:
@@ -293,7 +293,7 @@ paths:
         200:
           description: "successful operation"
         404:
-          description: "Research object not found"
+          description: "Research Object not found"
   /research_objects/{id}/content:
     patch:
       tags:
@@ -322,7 +322,7 @@ paths:
           schema:
             type: "object"
         404:
-          description: "Research object not found"
+          description: "Research Object not found"
         400:
           description: "The patched Research Object content violated the profile."
           schema:
@@ -347,7 +347,7 @@ paths:
           schema:
             type: "object"
         404:
-          description: "Research object not found"
+          description: "Research Object not found"
     put:
       tags:
       - "research_object"
@@ -375,7 +375,7 @@ paths:
           schema:
             type: "object"
         404:
-          description: "Research object not found"
+          description: "Research Object not found"
         400:
           description: "The Research Object content violated the profile."
           schema:

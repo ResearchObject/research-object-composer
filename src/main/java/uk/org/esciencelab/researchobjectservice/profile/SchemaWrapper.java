@@ -53,7 +53,7 @@ public class SchemaWrapper {
     }
 
     /**
-     * Get a skeleton JSON object, to be applied to new research objects that use this schema.
+     * Get a skeleton JSON object, to be applied to new Research Objects that use this schema.
      * @return The template JSON object.
      */
     public JSONObject getTemplate() {

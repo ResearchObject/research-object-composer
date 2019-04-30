@@ -12,13 +12,13 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 /**
- * An assembler to control how a research object is serialized as a HAL+JSON document.
+ * An assembler to control how a Research Object is serialized as a HAL+JSON document.
  */
 @Component
 public class ResearchObjectResourceAssembler implements ResourceAssembler<ResearchObject, Resource<ResearchObject>> {
 
     /**
-     * Create a research object "resource" which consists of a serialized ResearchObject bean, and various links where
+     * Create a Research Object "resource" which consists of a serialized ResearchObject bean, and various links where
      * additional requests can be performed, including a link to the profile, a link to get the content as plain JSON in isolation,
      * and links to each top-level field in the content.
      * @param researchObject

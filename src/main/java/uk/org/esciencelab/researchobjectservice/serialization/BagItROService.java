@@ -43,12 +43,12 @@ public class BagItROService {
 
     /**
      * Create a BagIt RO folder.
-     * @param researchObject The research object to bag.
+     * @param researchObject The Research Object to bag.
      * @return The path to the folder.
      * @throws Exception
      */
     public Path bag(ResearchObject researchObject) throws Exception {
-        logger.info("Bagging research object.");
+        logger.info("Bagging Research Object.");
         // Create a (unique) temp directory to hold the various BagIt files
         Path bagLocation = Files.createTempDirectory("bag");
 
@@ -124,14 +124,14 @@ public class BagItROService {
     }
 
     /**
-     * Bag the given research object, then Zip it to the given output stream.
+     * Bag the given Research Object, then Zip it to the given output stream.
      * @param researchObject The RO to bag.
      * @param outputStream The stream to zip to.
      * @throws Exception
      */
     public void bagToZip(ResearchObject researchObject, OutputStream outputStream) throws Exception {
         Path bagLocation = bag(researchObject); // Create the bag
-        logger.info("Zipping research object.");
+        logger.info("Zipping Research Object.");
         ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream); // Prep the stream
         Path base = Paths.get(researchObject.getFriendlyId()); // The top-level folder in the Zip file that serves as the bag.
         // Zip each file in the bag

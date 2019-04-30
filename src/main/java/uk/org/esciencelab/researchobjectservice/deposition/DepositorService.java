@@ -20,8 +20,8 @@ public class DepositorService {
     private String depositorBeanName;
 
     /**
-     * Deposit a research object in a remote repository.
-     * @param researchObject The research object to deposit.
+     * Deposit a Research Object in a remote repository.
+     * @param researchObject The Research Object to deposit.
      * @return The URI of the deposited resource in the target repository.
      */
     public URI deposit(ResearchObject researchObject) {

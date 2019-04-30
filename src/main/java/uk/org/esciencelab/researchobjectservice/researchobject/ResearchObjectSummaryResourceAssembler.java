@@ -8,7 +8,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 /**
- * An assembler to serialize a research object in a minimal "summary" HAL+JSON document.
+ * An assembler to serialize a Research Object in a minimal "summary" HAL+JSON document.
  */
 @Component
 public class ResearchObjectSummaryResourceAssembler implements ResourceAssembler<ResearchObject, Resource<ResearchObjectSummary>> {

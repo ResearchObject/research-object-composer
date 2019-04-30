@@ -23,7 +23,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 /**
- * A simple controller to handle viewing, listing, deleting, creating and bagging research objects.
+ * A simple controller to handle viewing, listing, deleting, creating and bagging Research Objects.
  */
 @RestController
 public class ResearchObjectController {

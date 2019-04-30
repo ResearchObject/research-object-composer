@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * A Depositor to deposit a zipped BagIt-RO serialization of a research object into Zenodo through the depositions API.
+ * A Depositor to deposit a zipped BagIt-RO serialization of a Research Object into Zenodo through the depositions API.
  */
 @Component
 public class ZenodoDepositor implements Depositor {
