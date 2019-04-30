@@ -16,6 +16,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 
+/**
+ * A very basic client to interact with Zenodo's REST API.
+ * Only a very limited set of operations are supported.
+ */
 public class ZenodoClient {
     private String baseUrl;
     private String accessToken;
@@ -28,6 +32,12 @@ public class ZenodoClient {
         this.accessToken = accessToken;
     }
 
+    /**
+     * Create a Zenodo Deposition.
+     * @param metadata A JSON document containing required metadata (see: https://developers.zenodo.org/#representation )
+     * @return A Zenodo deposition resource, as JSON.
+     * @throws IOException
+     */
     public JsonNode createDeposition(JsonNode metadata) throws IOException {
         Request req = Request.Post(depositionUrl())
                 .bodyString(metadata.toString(), ContentType.APPLICATION_JSON);
@@ -35,11 +45,24 @@ public class ZenodoClient {
         return performRequest(req);
     }
 
+    /**
+     * Create a Zenodo Deposition with blank metadata.
+     * @return A Zenodo Deposition resource, as JSON.
+     * @throws IOException
+     */
     public JsonNode createDeposition() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         return createDeposition(mapper.createObjectNode());
     }
 
+    /**
+     * Create a file within an existing Deposition.
+     * @param file The File to upload.
+     * @param depositionId The ID of the Deposition to upload to.
+     * @param filename The filename to use.
+     * @return A Zenodo DepositionFile resource, as JSON.
+     * @throws IOException
+     */
     public JsonNode createDepositionFile(File file, int depositionId, String filename) throws IOException {
         HttpEntity entity = MultipartEntityBuilder.create()
                 .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
@@ -54,6 +77,12 @@ public class ZenodoClient {
         return performRequest(req);
     }
 
+    /**
+     * Publish the specified Deposition, so it can be publicly accessed.
+     * @param depositionId The ID of the Deposition to publish.
+     * @return The published Zenodo deposition resource, as JSON.
+     * @throws IOException
+     */
     public JsonNode publishDeposition(int depositionId) throws IOException {
         Request req = Request.Post(publishDepositionUrl(depositionId));
 

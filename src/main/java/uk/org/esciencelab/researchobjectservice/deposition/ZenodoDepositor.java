@@ -17,6 +17,9 @@ import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * A Depositor to deposit a zipped BagIt-RO serialization of a research object into Zenodo through the depositions API.
+ */
 @Component
 public class ZenodoDepositor implements Depositor {
     private static final Logger logger = LoggerFactory.getLogger(ZenodoDepositor.class);

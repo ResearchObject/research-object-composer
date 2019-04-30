@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Class for deciding how the server should respond when a DepositionException occurs.
+ */
 @ControllerAdvice
 @RequestMapping(produces = "application/json")
 public class DepositionExceptionAdvice {

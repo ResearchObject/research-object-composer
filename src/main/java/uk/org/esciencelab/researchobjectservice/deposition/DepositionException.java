@@ -3,6 +3,9 @@ package uk.org.esciencelab.researchobjectservice.deposition;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 
+/**
+ * Exception thrown when an error occurs during the deposition process.
+ */
 @JsonIgnoreProperties({ "cause", "stackTrace", "suppressed", "localizedMessage" })
 public class DepositionException extends RuntimeException {
     private JsonNode error;
@@ -31,10 +34,16 @@ public class DepositionException extends RuntimeException {
         this.error = nestedErrorDoc;
     }
 
+    /**
+     * A JSON error document that the external repository responded with, if applicable.
+     */
     public JsonNode getError() {
         return error;
     }
 
+    /**
+     * The HTTP status code that the external repository responded with, if applicable.
+     */
     public int getStatus() {
         return status;
     }

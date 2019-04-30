@@ -8,6 +8,9 @@ import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
 
 import java.net.URI;
 
+/**
+ * A service to load the appropriate Depositor bean and perform the deposition action.
+ */
 @Service
 public class DepositorService {
     @Autowired
