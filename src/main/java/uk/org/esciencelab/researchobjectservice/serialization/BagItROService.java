@@ -13,6 +13,8 @@ import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.ObjectSchema;
 import org.everit.json.schema.ReferenceSchema;
 import org.everit.json.schema.Schema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
 
@@ -37,6 +39,7 @@ import java.util.zip.ZipOutputStream;
  */
 @Service
 public class BagItROService {
+    private static final Logger logger = LoggerFactory.getLogger(BagItROService.class);
 
     /**
      * Create a BagIt RO folder.
@@ -45,6 +48,7 @@ public class BagItROService {
      * @throws Exception
      */
     public Path bag(ResearchObject researchObject) throws Exception {
+        logger.info("Bagging research object.");
         // Create a (unique) temp directory to hold the various BagIt files
         Path bagLocation = Files.createTempDirectory("bag");
 
@@ -127,6 +131,7 @@ public class BagItROService {
      */
     public void bagToZip(ResearchObject researchObject, OutputStream outputStream) throws Exception {
         Path bagLocation = bag(researchObject); // Create the bag
+        logger.info("Zipping research object.");
         ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream); // Prep the stream
         Path base = Paths.get(researchObject.getFriendlyId()); // The top-level folder in the Zip file that serves as the bag.
         // Zip each file in the bag

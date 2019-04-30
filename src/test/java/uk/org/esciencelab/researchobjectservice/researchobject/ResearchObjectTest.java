@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Before;
 import org.junit.Test;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
-import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationException;
+import uk.org.esciencelab.researchobjectservice.validation.ProfileValidationException;
 
 import java.io.IOException;
 

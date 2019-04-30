@@ -7,6 +7,7 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.org.esciencelab.researchobjectservice.deposition.*;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileNotFoundException;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileRepository;
@@ -36,6 +37,8 @@ public class ResearchObjectController {
     private ResearchObjectSummaryResourceAssembler summaryAssembler;
     @Autowired
     private BagItROService bagItROService;
+    @Autowired
+    private DepositorService depositorService;
 
     @GetMapping("/research_objects")
     public Resources<Resource<ResearchObjectSummary>> all() {
@@ -99,6 +102,17 @@ public class ResearchObjectController {
 
     private ResearchObject getResearchObject(long id) {
         return researchObjectRepository.findById(id).orElseThrow(ResearchObjectNotFoundException::new);
+    }
+
+    @PostMapping(value="/research_objects/{id}/deposit", produces="text/plain")
+    public String deposit(@PathVariable long id, HttpServletResponse response) throws Exception {
+        ResearchObject researchObject = getResearchObject(id);
+        URI depositionUri = depositorService.deposit(researchObject);
+        researchObject.setDepositionUrl(depositionUri);
+        researchObjectRepository.save(researchObject);
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        return depositionUri.toString();
     }
 
     private ResearchObjectProfile getResearchObjectProfile(String name) {
