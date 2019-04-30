@@ -1,14 +1,12 @@
 package uk.org.esciencelab.researchobjectservice.deposition;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
-@PropertySource("classpath:depositor.properties")
-@ConfigurationProperties(prefix = "http")
+@ConfigurationProperties(prefix = "depositor.http")
 public class GenericHTTPDepositorConfig {
     private String url;
     private Map<String, String> headers;
