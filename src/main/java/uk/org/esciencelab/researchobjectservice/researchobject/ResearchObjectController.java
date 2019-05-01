@@ -60,7 +60,8 @@ public class ResearchObjectController {
 
     @DeleteMapping("/research_objects/{id}")
     public ResponseEntity<?> deleteResearchObject(@PathVariable long id) {
-        getResearchObject(id); // This is here to check the RO exists, throwing a 404 otherwise.
+        ResearchObject researchObject = getResearchObject(id);
+        checkMutable(researchObject);
 
         researchObjectRepository.deleteById(id);
         return ResponseEntity.noContent().build();
@@ -107,6 +108,7 @@ public class ResearchObjectController {
     @PostMapping(value="/research_objects/{id}/deposit", produces="text/plain")
     public String deposit(@PathVariable long id, HttpServletResponse response) throws Exception {
         ResearchObject researchObject = getResearchObject(id);
+        checkMutable(researchObject);
         URI depositionUri = depositorService.deposit(researchObject);
         researchObject.setDepositionUrl(depositionUri);
         researchObjectRepository.save(researchObject);
@@ -117,5 +119,11 @@ public class ResearchObjectController {
 
     private ResearchObjectProfile getResearchObjectProfile(String name) {
         return researchObjectProfileRepository.findByName(name).orElseThrow(ResearchObjectProfileNotFoundException::new);
+    }
+
+    private void checkMutable(ResearchObject researchObject) {
+        if (!researchObject.isMutable()) {
+            throw new ImmutableResearchObjectException();
+        }
     }
 }

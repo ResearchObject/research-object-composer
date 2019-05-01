@@ -179,6 +179,29 @@ paths:
             $ref: "#/definitions/ResearchObject"
         404:
           description: "Research Object not found"
+    delete:
+      tags:
+      - "research_object"
+      summary: "Delete Research Object"
+      description: "Delete a Research Object."
+      operationId: "deleteResearchObject"
+      parameters:
+      - in: "path"
+        name: "id"
+        type: "integer"
+        description: "The numeric ID of the Research Object"
+        required: true
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        204:
+          description: "successful operation"
+        404:
+          description: "Research Object not found"
+        405:
+          description: "The Research Object cannot be modified (it was already deposited?)."
   /research_objects/{id}/content/{field}:
     get:
       tags:
@@ -238,6 +261,8 @@ paths:
           description: "The value being set violated the profile."
           schema:
             $ref: "#/definitions/ValidationErrorDocument"
+        405:
+          description: "The Research Object cannot be modified (it was already deposited?)."
     post:
       tags:
       - "research_object"
@@ -268,6 +293,8 @@ paths:
           description: "The value being appended violated the profile."
           schema:
             $ref: "#/definitions/ValidationErrorDocument"
+        405:
+          description: "The Research Object cannot be modified (it was already deposited?)."
     delete:
       tags:
       - "research_object"
@@ -294,6 +321,8 @@ paths:
           description: "successful operation"
         404:
           description: "Research Object not found"
+        405:
+          description: "The Research Object cannot be modified (it was already deposited?)."
   /research_objects/{id}/content:
     patch:
       tags:
@@ -327,6 +356,8 @@ paths:
           description: "The patched Research Object content violated the profile."
           schema:
             $ref: "#/definitions/ValidationErrorDocument"
+        405:
+          description: "The Research Object cannot be modified (it was already deposited?)."
     get:
       tags:
       - "research_object"
@@ -380,6 +411,36 @@ paths:
           description: "The Research Object content violated the profile."
           schema:
             $ref: "#/definitions/ValidationErrorDocument"
+        405:
+          description: "The Research Object cannot be modified (it was already deposited?)."
+  /research_objects/{id}/deposit:
+    post:
+      tags:
+      - "research_object"
+      summary: "Deposit a Research Object"
+      description: "Deposit the Research Object into the configured repository."
+      operationId: "depositResearchObject"
+      parameters:
+      - in: "path"
+        name: "id"
+        type: "integer"
+        description: "The numeric ID of the Research Object"
+        required: true
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "object"
+        404:
+          description: "Research Object not found"
+        400:
+          description: "An error occurred whilst depositing the Research Object."
+          schema:
+            $ref: "#/definitions/DepositionErrorDocument"
+        405:
+          description: "The Research Object cannot be modified (it was already deposited?)."
 definitions:
   ProfileList:
     allOf:
@@ -436,12 +497,23 @@ definitions:
         type: "string"
       content:
         type: "object"
+      mutable:
+        type: "boolean"
+        description: "Can the Research Object be modified?"
+      checksum:
+        type: "string"
+        description: "A SHA256 checksum of the Research Object's content."
       _links:
         allOf:
         - $ref: "#/definitions/Links"
         - type: "object"
           properties:
             profile:
+              description: "The Research Object's Profile."
+              type: "string"
+              format: "uri"
+            deposition:
+              description: "The URL at which the Research Object is deposited, if applicable."
               type: "string"
               format: "uri"
   ResearchObjectSummary:
@@ -524,6 +596,18 @@ definitions:
       message:
         type: "string"
         description: "A human-readable error message."
+  DepositionErrorDocument:
+    description: "A document detailing an error that occurred when deposit the Research Object"
+    required:
+    - "status"
+    - "error"
+    properties:
+      status:
+        type: "integer"
+        description: "The HTTP status code returned by the external service when trying to deposit, if applicable."
+      error:
+        type: "object"
+        description: "The JSON error document returned by the external service when trying to deposit, if applicable."
   JSONSchemaDraft7:
     type: "object"
     description: "A schema conforming to the JSON schema (Draft 7) spec. https://json-schema.org/specification-links.html#draft-7"
