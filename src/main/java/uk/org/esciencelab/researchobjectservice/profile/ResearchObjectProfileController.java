@@ -1,5 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
@@ -40,5 +41,12 @@ public class ResearchObjectProfileController {
         ResearchObjectProfile profile = researchObjectProfileRepository.findByName(name).orElseThrow(ResearchObjectProfileNotFoundException::new);
 
         return assembler.toResource(profile);
+    }
+
+    @GetMapping(value="/profiles/{name}/template", produces="application/json")
+    public ObjectNode template(@PathVariable String name) {
+        ResearchObjectProfile profile = researchObjectProfileRepository.findByName(name).orElseThrow(ResearchObjectProfileNotFoundException::new);
+
+        return profile.getTemplate();
     }
 }

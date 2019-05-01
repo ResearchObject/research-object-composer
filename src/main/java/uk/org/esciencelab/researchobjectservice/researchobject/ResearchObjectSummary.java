@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 
 /**
- * A sparse "summary" version of a research object, to be used to serialize ROs on index views.
+ * A sparse "summary" version of a Research Object, to be used to serialize ROs on index views.
  */
 public class ResearchObjectSummary {
     private long id;

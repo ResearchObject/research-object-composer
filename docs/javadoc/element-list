@@ -1,6 +1,7 @@
 uk.org.esciencelab.researchobjectservice
+uk.org.esciencelab.researchobjectservice.deposition
 uk.org.esciencelab.researchobjectservice.profile
 uk.org.esciencelab.researchobjectservice.researchobject
 uk.org.esciencelab.researchobjectservice.serialization
 uk.org.esciencelab.researchobjectservice.util
-uk.org.esciencelab.researchobjectservice.validator
+uk.org.esciencelab.researchobjectservice.validation

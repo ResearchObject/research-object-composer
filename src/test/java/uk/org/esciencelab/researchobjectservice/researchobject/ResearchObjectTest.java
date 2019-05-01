@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Before;
 import org.junit.Test;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
-import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationException;
+import uk.org.esciencelab.researchobjectservice.validation.ProfileValidationException;
 
 import java.io.IOException;
 
@@ -39,7 +39,7 @@ public class ResearchObjectTest {
         assertEquals("draft_task", ro.getProfile().getName());
 
         ObjectNode fields = ro.getContent();
-        assertEquals(3, fields.size());
+        assertEquals(4, fields.size());
         assertEquals("[]", fields.get("input").toString());
         assertEquals("null", fields.get("workflow").toString());
         assertEquals("{}", fields.get("workflow_params").toString());
@@ -94,7 +94,7 @@ public class ResearchObjectTest {
 
         assertEquals("[]", ro.getField("data").toString());
 
-        ro.appendToField("data", dataBundleContent.get(0));
+        ro.appendToField("data",dataBundleContent.get("data").get(0));
 
         ArrayNode data = (ArrayNode) ro.getField("data");
         assertEquals(1, data.size());
@@ -108,7 +108,7 @@ public class ResearchObjectTest {
     @Test
     public void patchContent() throws Exception {
         ResearchObject ro = new ResearchObject(dataBundleProfile);
-        ro.appendToField("data", dataBundleContent.get(0));
+        ro.setContent((ObjectNode) dataBundleContent);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode dataBundlePatch = mapper.readTree(getClass().getClassLoader().getResourceAsStream("researchobject/data_bundle_patch.json"));
@@ -130,7 +130,7 @@ public class ResearchObjectTest {
 
         try {
             // Missing checksum
-            ObjectNode missingChecksum = (ObjectNode) dataBundleContent.get(0);
+            ObjectNode missingChecksum = (ObjectNode) dataBundleContent.get("data").get(0);
             missingChecksum.remove("checksums");
             ro.appendToField("data", missingChecksum);
             fail("RO validation should fail due to missing checksums");
@@ -146,12 +146,12 @@ public class ResearchObjectTest {
         ResearchObject ro = new ResearchObject(dataBundleProfile);
 
         // SHA-512
-        ro.setField("data", dataBundleContent);
+        ro.setField("data", dataBundleContent.get("data"));
 
         try {
             // Missing checksums
-            ((ObjectNode) dataBundleContent.get(0)).remove("checksums");
-            ro.setField("data", dataBundleContent);
+            ((ObjectNode)dataBundleContent.get("data").get(0)).remove("checksums");
+            ro.setField("data", dataBundleContent.get("data"));
             fail("RO validation should fail due to missing checksums");
         } catch (ProfileValidationException e) {
             JsonNode errorReport = e.toJsonNode();
@@ -166,8 +166,8 @@ public class ResearchObjectTest {
 
         try {
             // Bad SHA-512
-            ((ObjectNode) dataBundleContent.get(0).get("checksums").get(0)).put("checksum", "banana");
-            ro.setField("data", dataBundleContent);
+            ((ObjectNode) dataBundleContent.get("data").get(0).get("checksums").get(0)).put("checksum", "banana");
+            ro.setField("data", dataBundleContent.get("data"));
             fail("RO validation should fail due to malformed SHA-512 checksum");
         } catch (ProfileValidationException e) {
             JsonNode errorReport = e.toJsonNode();
@@ -179,6 +179,8 @@ public class ResearchObjectTest {
     @Test
     public void validatesWhenPatching() throws Exception {
         ResearchObject ro = new ResearchObject(dataBundleProfile);
+        ro.setAndValidateContent((ObjectNode) dataBundleContent);
+        ro.clearField("data");
 
         try {
             // Unrecognized checksum type

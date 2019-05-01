@@ -6,11 +6,11 @@ import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 import java.util.List;
 
 /**
- * A repository to handle fetching of research objects from the database.
+ * A repository to handle fetching of Research Objects from the database.
  */
 public interface ResearchObjectRepository extends PagingAndSortingRepository<ResearchObject, Long> {
     /**
-     * Get a list of research objects that conform to the given profile.
+     * Get a list of Research Objects that conform to the given profile.
      * @param profile
      * @return
      */

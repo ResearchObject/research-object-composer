@@ -1,7 +1,10 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.JsonPatch;
@@ -12,11 +15,15 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
-import uk.org.esciencelab.researchobjectservice.validator.ProfileValidationException;
-import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidator;
+import uk.org.esciencelab.researchobjectservice.validation.ProfileValidationException;
+import uk.org.esciencelab.researchobjectservice.validation.ResearchObjectValidator;
 
 import javax.persistence.*;
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
+import java.net.URI;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * A representation of a RO produced by the composer.
@@ -41,6 +48,17 @@ public class ResearchObject {
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")
     private ObjectNode content;
+
+    enum State {
+        OPEN,
+        VALIDATED,
+        DEPOSITED
+    }
+    private State state = State.OPEN;
+
+    private String contentSha256;
+
+    private URI depositionUrl;
 
     public ResearchObject() { }
 
@@ -95,6 +113,34 @@ public class ResearchObject {
     public void setAndValidateContent(ObjectNode content) throws ProfileValidationException {
         getValidator().validate(content);
         setContent(content);
+    }
+
+    @JsonProperty("checksum")
+    public String getContentSha256() { return this.contentSha256; }
+
+    public String computeContentSha256() throws NoSuchAlgorithmException, JsonProcessingException {
+        ObjectMapper om = new ObjectMapper();
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        digest.update(om.writeValueAsBytes(getContent()));
+        byte[] bytes = digest.digest();
+
+        return DatatypeConverter.printHexBinary(bytes);
+    }
+
+    public void updateContentSha256() {
+        try {
+            this.contentSha256 = this.computeContentSha256();
+        } catch (NoSuchAlgorithmException e) {
+        } catch (JsonProcessingException e) {
+        }
+    }
+
+    public boolean contentHasChanged() {
+        try {
+            return this.contentSha256.equals(this.computeContentSha256());
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     /**
@@ -171,6 +217,22 @@ public class ResearchObject {
      */
     public void validate() {
         getValidator().validate(getContent());
+        this.updateContentSha256();
+        this.state = State.VALIDATED;
+    }
+
+    @JsonIgnore
+    public URI getDepositionUrl() {
+        return this.depositionUrl;
+    }
+
+    public void setDepositionUrl(URI depositionUrl) {
+        this.depositionUrl = depositionUrl;
+        this.state = State.DEPOSITED;
+    }
+
+    public boolean isMutable() {
+        return this.state != State.DEPOSITED;
     }
 
     private ResearchObjectValidator getValidator() {

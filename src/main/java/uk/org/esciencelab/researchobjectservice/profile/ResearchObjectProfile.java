@@ -3,7 +3,7 @@ package uk.org.esciencelab.researchobjectservice.profile;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hibernate.annotations.NaturalId;
-import uk.org.esciencelab.researchobjectservice.validator.ResearchObjectValidator;
+import uk.org.esciencelab.researchobjectservice.validation.ResearchObjectValidator;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -17,6 +17,7 @@ import static uk.org.esciencelab.researchobjectservice.util.JsonUnifier.jsonNode
  */
 @Entity
 public class ResearchObjectProfile implements Serializable { // Need to implement Serializable here because of https://hibernate.atlassian.net/browse/HHH-7668
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private long id;
@@ -52,7 +53,7 @@ public class ResearchObjectProfile implements Serializable { // Need to implemen
     }
 
     /**
-     * Get a skeleton JSON object, to be applied to new research objects that use this profile.
+     * Get a skeleton JSON object, to be applied to new Research Objects that use this profile.
      * @return The template JSON object.
      */
     @JsonIgnore

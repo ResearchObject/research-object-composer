@@ -1,7 +1,5 @@
 package uk.org.esciencelab.researchobjectservice.profile;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.ObjectSchema;
 import org.everit.json.schema.ReferenceSchema;
@@ -12,7 +10,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +50,7 @@ public class SchemaWrapper {
     }
 
     /**
-     * Get a skeleton JSON object, to be applied to new research objects that use this schema.
+     * Get a skeleton JSON object, to be applied to new Research Objects that use this schema.
      * @return The template JSON object.
      */
     public JSONObject getTemplate() {
@@ -73,7 +70,7 @@ public class SchemaWrapper {
      * @return
      */
     public Object getDefaultValue(Schema schema) {
-        Object defaultValue = schema.getUnprocessedProperties().get("default");
+        Object defaultValue = resolveSchema(schema).getUnprocessedProperties().get("default");
 
         if (defaultValue == null) {
             defaultValue = getBlankValue(schema.getClass());
@@ -136,8 +133,11 @@ public class SchemaWrapper {
         return getFieldSchema(field) instanceof ArraySchema;
     }
 
-    public JsonNode toJsonNode() throws IOException {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(getObjectSchema().toString(), JsonNode.class);
+    private Schema resolveSchema(Schema schema) {
+        while (schema instanceof ReferenceSchema) {
+            schema = ((ReferenceSchema) schema).getReferredSchema();
+        }
+
+        return schema;
     }
 }

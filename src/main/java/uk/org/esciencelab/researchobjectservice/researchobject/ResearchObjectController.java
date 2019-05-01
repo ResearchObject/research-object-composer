@@ -7,6 +7,7 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.org.esciencelab.researchobjectservice.deposition.DepositorService;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileNotFoundException;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileRepository;
@@ -22,7 +23,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 /**
- * A simple controller to handle viewing, listing, deleting, creating and bagging research objects.
+ * A simple controller to handle viewing, listing, deleting, creating and bagging Research Objects.
  */
 @RestController
 public class ResearchObjectController {
@@ -36,6 +37,8 @@ public class ResearchObjectController {
     private ResearchObjectSummaryResourceAssembler summaryAssembler;
     @Autowired
     private BagItROService bagItROService;
+    @Autowired
+    private DepositorService depositorService;
 
     @GetMapping("/research_objects")
     public Resources<Resource<ResearchObjectSummary>> all() {
@@ -57,7 +60,8 @@ public class ResearchObjectController {
 
     @DeleteMapping("/research_objects/{id}")
     public ResponseEntity<?> deleteResearchObject(@PathVariable long id) {
-        getResearchObject(id); // This is here to check the RO exists, throwing a 404 otherwise.
+        ResearchObject researchObject = getResearchObject(id);
+        checkMutable(researchObject);
 
         researchObjectRepository.deleteById(id);
         return ResponseEntity.noContent().build();
@@ -101,7 +105,25 @@ public class ResearchObjectController {
         return researchObjectRepository.findById(id).orElseThrow(ResearchObjectNotFoundException::new);
     }
 
+    @PostMapping(value="/research_objects/{id}/deposit", produces="text/plain")
+    public String deposit(@PathVariable long id, HttpServletResponse response) throws Exception {
+        ResearchObject researchObject = getResearchObject(id);
+        checkMutable(researchObject);
+        URI depositionUri = depositorService.deposit(researchObject);
+        researchObject.setDepositionUrl(depositionUri);
+        researchObjectRepository.save(researchObject);
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        return depositionUri.toString();
+    }
+
     private ResearchObjectProfile getResearchObjectProfile(String name) {
         return researchObjectProfileRepository.findByName(name).orElseThrow(ResearchObjectProfileNotFoundException::new);
+    }
+
+    private void checkMutable(ResearchObject researchObject) {
+        if (!researchObject.isMutable()) {
+            throw new ImmutableResearchObjectException();
+        }
     }
 }

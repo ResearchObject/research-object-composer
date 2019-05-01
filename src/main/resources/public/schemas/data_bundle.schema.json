@@ -5,11 +5,17 @@
     "data" : "/"
   },
   "properties" : {
+    "_metadata" : {
+      "$ref": "/schemas/_base.schema.json#/definitions/Metadata"
+    },
     "data": {
       "type": "array",
       "items": {
         "$ref": "/schemas/_base.schema.json#/definitions/RemoteItem"
       }
     }
-  }
+  },
+  "required": [
+    "data"
+  ]
 }

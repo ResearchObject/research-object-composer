@@ -1,5 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.stereotype.Component;
@@ -11,13 +12,13 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 /**
- * An assembler to control how a research object is serialized as a HAL+JSON document.
+ * An assembler to control how a Research Object is serialized as a HAL+JSON document.
  */
 @Component
 public class ResearchObjectResourceAssembler implements ResourceAssembler<ResearchObject, Resource<ResearchObject>> {
 
     /**
-     * Create a research object "resource" which consists of a serialized ResearchObject bean, and various links where
+     * Create a Research Object "resource" which consists of a serialized ResearchObject bean, and various links where
      * additional requests can be performed, including a link to the profile, a link to get the content as plain JSON in isolation,
      * and links to each top-level field in the content.
      * @param researchObject
@@ -30,6 +31,8 @@ public class ResearchObjectResourceAssembler implements ResourceAssembler<Resear
                 linkTo(methodOn(ResearchObjectProfileController.class).one(researchObject.getProfileName())).withRel("profile"));
 
         resource.add(linkTo(methodOn(ContentController.class).getResearchObjectContent(researchObject.getId())).withRel("content"));
+        if (researchObject.getDepositionUrl() != null)
+            resource.add(new Link(researchObject.getDepositionUrl().toString(), "deposition"));
         Iterator<String> i = researchObject.getContent().fieldNames();
         while(i.hasNext()) {
             String field = i.next();
