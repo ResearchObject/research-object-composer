@@ -14,5 +14,8 @@
         "$ref": "/schemas/_base.schema.json#/definitions/RemoteItem"
       }
     }
-  }
+  },
+  "required": [
+    "data"
+  ]
 }

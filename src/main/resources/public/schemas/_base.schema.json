@@ -3,6 +3,11 @@
   "definitions": {
     "Metadata": {
       "type": "object",
+      "default" : {
+        "title" : null,
+        "description" : null,
+        "creators" : []
+      },
       "properties": {
         "title": {
           "type": "string",
