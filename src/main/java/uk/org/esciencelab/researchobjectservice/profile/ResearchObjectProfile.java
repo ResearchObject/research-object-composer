@@ -63,6 +63,7 @@ public class ResearchObjectProfile implements Serializable { // Need to implemen
     /**
      * @return An array of top-level field names for this profile.
      */
+    @JsonIgnore
     public String [] getFields() {
         return getSchemaWrapper().getFields();
     }
