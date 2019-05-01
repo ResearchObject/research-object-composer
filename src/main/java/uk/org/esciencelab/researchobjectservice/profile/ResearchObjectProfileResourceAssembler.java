@@ -26,6 +26,7 @@ public class ResearchObjectProfileResourceAssembler implements ResourceAssembler
         return new Resource<>(profile,
                 linkTo(methodOn(ResearchObjectProfileController.class).one(profile.getName())).withSelfRel(),
                 linkToCurrentMapping().slash(profile.getSchemaPath()).withRel("schema"),
+                linkTo(methodOn(ResearchObjectProfileController.class).template(profile.getName())).withRel("template"),
                 linkTo(methodOn(ResearchObjectController.class).allForProfile(profile.getName())).withRel("researchObjects"));
     }
 }

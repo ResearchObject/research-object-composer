@@ -63,6 +63,30 @@ paths:
             $ref: "#/definitions/Profile"
         404:
           description: "Profile not found"
+  /profiles/{name}/template:
+    get:
+      tags:
+      - "profile"
+      summary: "Get Profile's template"
+      description: "Get the template that Research Objects of this Profile will be initialized with"
+      operationId: "getProfileTemplate"
+      parameters:
+      - in: "path"
+        name: "name"
+        type: "string"
+        description: "The unique identifier of the profile"
+        required: true
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "object"
+        404:
+          description: "Profile not found"
   /profiles/{name}/research_objects:
     get:
       tags:

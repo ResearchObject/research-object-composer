@@ -17,6 +17,7 @@ import static uk.org.esciencelab.researchobjectservice.util.JsonUnifier.jsonNode
  */
 @Entity
 public class ResearchObjectProfile implements Serializable { // Need to implement Serializable here because of https://hibernate.atlassian.net/browse/HHH-7668
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private long id;
@@ -63,7 +64,6 @@ public class ResearchObjectProfile implements Serializable { // Need to implemen
     /**
      * @return An array of top-level field names for this profile.
      */
-    @JsonIgnore
     public String [] getFields() {
         return getSchemaWrapper().getFields();
     }
