@@ -19,11 +19,10 @@ import java.util.Map;
  */
 @Component
 public class GenericHTTPDepositor implements Depositor {
+    private static final String USER_AGENT = "Java/Research Object Composer";
 
     @Autowired
     private GenericHTTPDepositorConfig config;
-
-    private final String USER_AGENT = "Java/Research Object Composer";
 
     @Autowired
     private BagItROService bagItROService;

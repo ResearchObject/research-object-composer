@@ -45,8 +45,7 @@ public class ZenodoDepositor implements Depositor {
             URI depositionUrl = new URI(depositionResponse.get("links").get("record").asText());
 
             logger.info("Uploading Zenodo deposition file.");
-            JsonNode depositionFileResponse = client.createDepositionFile(tempFile, depositionId,
-                    researchObject.getFriendlyId() + ".zip");
+            client.createDepositionFile(tempFile, depositionId, researchObject.getFriendlyId() + ".zip");
 
             logger.info("Publishing deposition.");
             JsonNode pubRes = client.publishDeposition(depositionId);

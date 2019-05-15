@@ -25,7 +25,7 @@ public class MendeleyDataClient {
     private String baseUrl;
     private String accessToken;
 
-    private final String USER_AGENT = "Java/Research Object Composer";
+    private static final String USER_AGENT = "Java/Research Object Composer";
 
     public MendeleyDataClient(String baseUrl, String accessToken) {
         this.baseUrl = baseUrl.replaceAll("/$", "");

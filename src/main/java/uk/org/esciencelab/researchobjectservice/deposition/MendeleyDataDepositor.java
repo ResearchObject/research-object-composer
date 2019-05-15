@@ -1,8 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.deposition;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,16 +12,13 @@ import uk.org.esciencelab.researchobjectservice.serialization.BagItROService;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URI;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
- * A Depositor to deposit a zipped BagIt-RO serialization of a Research Object into Mendeley Data through the depositions API.
+ * A Depositor to deposit a zipped BagIt-RO serialization of a Research Object into Mendeley Data through the datasets API.
  */
 @Component
 public class MendeleyDataDepositor implements Depositor {
     private static final Logger logger = LoggerFactory.getLogger(MendeleyDataDepositor.class);
-
     private static final String [] metadataFields = { "name", "description", "publish_date", "categories", "contributors", "data_licence", "articles" };
 
     @Autowired
@@ -52,7 +47,7 @@ public class MendeleyDataDepositor implements Depositor {
             System.out.println(fileContentResponse);
             String fileContentId = fileContentResponse.get("id").asText();
 
-            logger.info("Linking File Content (id: " + fileContentId + ") to Datatset (id: " + datasetId + ").");
+            logger.info("Linking File Content (id: " + fileContentId + ") to Dataset (id: " + datasetId + ").");
             JsonNode patchResponse = client.addFileToDataset(datasetId, fileContentId, researchObject.getFriendlyId() + ".zip", "Research Object");
             System.out.println(patchResponse);
 
@@ -64,7 +59,7 @@ public class MendeleyDataDepositor implements Depositor {
         }
     }
 
-    private JsonNode buildMetadata(ResearchObject researchObject) throws Exception {
+    private JsonNode buildMetadata(ResearchObject researchObject) {
         ObjectNode meta = (ObjectNode) researchObject.getField("_metadata");
         if (meta == null)
             throw new DepositionException("No '_metadata' field provided!");
