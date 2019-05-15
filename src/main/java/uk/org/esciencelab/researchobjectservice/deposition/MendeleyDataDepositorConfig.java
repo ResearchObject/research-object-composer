@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
  * Configuration for a Mendeley Data Depositor
  */
 @Component
-@ConfigurationProperties(prefix = "depositor.mendeleyData")
+@ConfigurationProperties(prefix = "depositor.mendeleydata")
 public class MendeleyDataDepositorConfig {
     private String apiUrl;
     private String accessToken;
