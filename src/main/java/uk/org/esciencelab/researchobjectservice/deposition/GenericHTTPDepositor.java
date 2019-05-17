@@ -29,7 +29,7 @@ public class GenericHTTPDepositor implements Depositor {
 
     public GenericHTTPDepositor() { }
 
-    public URI deposit(ResearchObject researchObject) throws DepositionException {
+    public URI deposit(ResearchObject researchObject, Map<String, String> params) throws DepositionException {
         HttpURLConnection http;
         try {
             URL url = new URL(config.getUrl());

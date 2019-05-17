@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * A Depositor to deposit a zipped BagIt-RO serialization of a Research Object into Zenodo through the depositions API.
@@ -32,7 +33,7 @@ public class ZenodoDepositor implements Depositor {
 
     public ZenodoDepositor() { }
 
-    public URI deposit(ResearchObject researchObject) throws DepositionException {
+    public URI deposit(ResearchObject researchObject, Map<String, String> params) throws DepositionException {
         try {
             File tempFile = File.createTempFile("zenodo-payload", ".zip");
             FileOutputStream os = new FileOutputStream(tempFile);

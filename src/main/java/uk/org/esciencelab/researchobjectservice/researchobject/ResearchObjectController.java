@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -106,10 +107,10 @@ public class ResearchObjectController {
     }
 
     @PostMapping(value="/research_objects/{id}/deposit", produces="text/plain")
-    public String deposit(@PathVariable long id, HttpServletResponse response) throws Exception {
+    public String deposit(@PathVariable long id, HttpServletResponse response, @RequestParam Map<String,String> depositorParams) {
         ResearchObject researchObject = getResearchObject(id);
         checkMutable(researchObject);
-        URI depositionUri = depositorService.deposit(researchObject);
+        URI depositionUri = depositorService.deposit(researchObject, depositorParams);
         researchObject.setDepositionUrl(depositionUri);
         researchObjectRepository.save(researchObject);
 

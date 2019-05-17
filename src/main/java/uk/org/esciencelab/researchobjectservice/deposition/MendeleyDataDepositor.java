@@ -12,6 +12,7 @@ import uk.org.esciencelab.researchobjectservice.serialization.BagItROService;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URI;
+import java.util.Map;
 
 /**
  * A Depositor to deposit a zipped BagIt-RO serialization of a Research Object into Mendeley Data through the datasets API.
@@ -29,13 +30,13 @@ public class MendeleyDataDepositor implements Depositor {
 
     public MendeleyDataDepositor() { }
 
-    public URI deposit(ResearchObject researchObject) throws DepositionException {
+    public URI deposit(ResearchObject researchObject, Map<String, String> params) throws DepositionException {
         try {
             File tempFile = File.createTempFile("md-payload", ".zip");
             FileOutputStream os = new FileOutputStream(tempFile);
             bagItROService.bagToZip(researchObject, os);
 
-            MendeleyDataClient client = new MendeleyDataClient(config.getApiUrl(), config.getAccessToken());
+            MendeleyDataClient client = new MendeleyDataClient(config.getApiUrl(), params.get("accessToken"));
 
             logger.info("Creating Mendeley Data Dataset.");
             JsonNode datasetResponse = client.createDataset(buildMetadata(researchObject));
@@ -64,7 +65,12 @@ public class MendeleyDataDepositor implements Depositor {
         if (meta == null)
             throw new DepositionException("No '_metadata' field provided!");
 
-        meta.set("contributors", meta.remove("creators"));
+        // Rename some fields
+        if (!meta.has("name") && meta.has("title"))
+            meta.set("name", meta.remove("title"));
+
+        if (!meta.has("contributors") && meta.has("creators"))
+            meta.set("contributors", meta.remove("creators"));
 
         return meta.retain(metadataFields);
     }
