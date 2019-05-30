@@ -171,8 +171,7 @@ public class BagItROService {
                 try {
                     entries.add(new BagEntry(bagRoot, bagPath, json));
                 } catch (MalformedURLException e) {
-                    System.err.println("Bad URL:");
-                    System.err.println(json);
+                    logger.error("Could not bag malformed URL: " + json.toString());
                 }
             }
             Iterator<Map.Entry<String, JsonNode>> i = json.fields();
