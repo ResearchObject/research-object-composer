@@ -11,6 +11,9 @@ import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileRep
 
 import java.io.File;
 
+/**
+ * A web service to facilitate the creation of Research Objects, constrained to pre-defined profiles.
+ */
 @SpringBootApplication
 public class ResearchObjectServiceApplication implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(ResearchObjectServiceApplication.class);

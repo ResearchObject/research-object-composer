@@ -450,6 +450,11 @@ paths:
         type: "integer"
         description: "The numeric ID of the Research Object"
         required: true
+      - in: "query"
+        name: "accessToken"
+        type: "string"
+        description: "An OAuth2 access token to provide to the depositor, if required."
+        required: false
       produces:
       - "application/json"
       responses:
