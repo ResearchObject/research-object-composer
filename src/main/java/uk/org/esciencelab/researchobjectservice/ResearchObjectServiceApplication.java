@@ -32,6 +32,14 @@ public class ResearchObjectServiceApplication implements CommandLineRunner {
         logger.info("Discovering schemas...");
         String schemaDir = getClass().getClassLoader().getResource("public/schemas").getPath();
         discoverSchemas(new File(schemaDir), Paths.get("/"));
+
+        // Delete any profiles for schema files that no longer exist
+        for (ResearchObjectProfile profile : profileRepository.findAll()) {
+            if (getClass().getClassLoader().getResource("public" + profile.getSchemaPath()) == null) {
+                logger.info("Schema for profile: " + profile.getName() + " no longer exists, deleting...");
+                profileRepository.delete(profile);
+            }
+        }
     }
 
     private void discoverSchemas(File directory, Path path) {
@@ -47,7 +55,7 @@ public class ResearchObjectServiceApplication implements CommandLineRunner {
                             .substring(1)
                             .replaceAll("[^a-zA-Z0-9_]", "_");
                     String schemaPath = "/schemas" + path.resolve(name).toString();
-                    logger.info("Found schema: " + schemaName + " (in public/" + schemaPath + ")");
+                    logger.info("Found schema: " + schemaName + " (in public" + schemaPath + ")");
                     if (!profileRepository.findByName(schemaName).isPresent()) {
                         logger.info("Creating ResearchObjectProfile for: " + schemaName);
                         profileRepository.save(new ResearchObjectProfile(schemaName, schemaPath));
