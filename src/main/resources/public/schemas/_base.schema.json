@@ -16,15 +16,15 @@
         "description": {
           "type": "string"
         },
+        "license": {
+          "type": "string"
+        },
         "creators": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Author"
           },
           "minItems": 1
-        },
-        "license": {
-          "type": "string"
         }
       },
       "required": [
@@ -67,16 +67,16 @@
         "filename": {
           "type": "string"
         },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
         "checksums": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Checksum"
           },
           "minItems": 1
-        },
-        "url": {
-          "type": "string",
-          "format": "uri"
         }
       },
       "required": [
@@ -100,6 +100,7 @@
       ]
     },
     "md5sum": {
+      "title": "MD5",
       "type": "object",
       "properties": {
         "type": {
@@ -113,6 +114,7 @@
       }
     },
     "sha256sum": {
+      "title": "SHA-256",
       "type": "object",
       "properties": {
         "type": {
@@ -126,6 +128,7 @@
       }
     },
     "sha512sum": {
+      "title": "SHA-512",
       "type": "object",
       "properties": {
         "type": {

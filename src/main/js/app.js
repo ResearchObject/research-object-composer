@@ -13,7 +13,6 @@ class App extends React.Component {
 
     componentDidMount() {
         client({method: 'GET', path: '/profiles'}).done(response => {
-            console.log(response.entity);
             this.setState({profiles: response.entity._embedded.researchObjectProfileList});
         });
     }
@@ -49,7 +48,7 @@ class Profile extends React.Component{
         return (
             <tr>
                 <td>{this.props.profile.name}</td>
-                <td><a href="{this.props.profile._links.schema.href}">{this.props.profile._links.schema.href}</a></td>
+                <td><a href={this.props.profile._links.schema.href} target="_blank">{this.props.profile._links.schema.href}</a></td>
             </tr>
         )
     }
@@ -57,18 +56,21 @@ class Profile extends React.Component{
 
 const cache = {};
 const pendingLoads = {};
-window.cache = cache;
+const schemaCache = {};
 
+window.cache = cache;
+window.schemaCache = schemaCache;
+
+// Deep-load the schema, and any referenced schemas, from the given URL.
 function loadSchema(path) {
     if (pendingLoads[path]) {
         console.log("Load pending:", path);
         return pendingLoads[path];
     }
+    console.log("Loading:", path);
     pendingLoads[path] = fetch(path).then(function(response) {
-        console.log("Loading", path);
         return response.json();
     }).then(function(json) {
-        console.log("Discovering $refs!");
         return discoverRefs(path, json, json).then(function () {
             cache[path] = json;
             return json;
@@ -78,14 +80,11 @@ function loadSchema(path) {
     return pendingLoads[path];
 }
 
-const schemaCache = {};
-window.schemaCache = schemaCache;
 
+// Iterate over every property on the given object, and load any schemas referenced by $refs.
 function discoverRefs(rootPath, root, obj) {
-    console.log("Deferencing", obj);
     const promises = [];
     for (const property in obj) {
-        console.log(property);
         if (property === "$ref") {
             const parts = obj[property].split("#");
             const url = parts[0];
@@ -102,18 +101,14 @@ function discoverRefs(rootPath, root, obj) {
 }
 
 function fetchRef(schemaUrl, pointer) {
-    console.log(schemaUrl + '#' + pointer);
-    console.log(jsonpointer.get(cache[schemaUrl], pointer));
     return jsonpointer.get(cache[schemaUrl], pointer);
 }
 
+// "Flatten" a schema by inlining any $refs.
 function replaceRefs(context, obj) {
-    console.log(context);
-    console.log(obj);
     if (obj["$ref"]) {
         const parts = obj["$ref"].split("#");
         const pointer = parts[1];
-        console.log("attempting deref");
         const innerContext = parts[0] === "" ? context : parts[0];
         return replaceRefs(innerContext, fetchRef(innerContext, pointer, obj["$ref"]));
     }
@@ -134,14 +129,35 @@ function replaceRefs(context, obj) {
     return newObj;
 }
 
+const uiSchema = {
+    _metadata: {
+        'ui:title': 'Metadata',
+        creators: {
+            items : {
+                name: {
+                    'ui:placeholder': 'Name',
+                    classNames: 'creator-name'
+                },
+                orcid: {
+                    'ui:placeholder': 'ORCiD'
+                },
+                affiliation: {
+                    'ui:placeholder': 'Affiliation'
+                }
+            }
+        }
+    },
+    workflow_params: { 'ui:widget': 'textarea', 'ui:options': { rows: 5 } }
+};
+
 loadSchema("/schemas/draft_task.schema.json").then(function (resolved) {
     const replaced = replaceRefs("/schemas/draft_task.schema.json", resolved);
-    console.log(replaced);
-
     const log = (type) => console.log.bind(console, type);
 
     ReactDOM.render(
         <Form schema={replaced}
+              uiSchema={uiSchema}
+              widgets={widgets}
               onChange={log("changed")}
               onSubmit={log("submitted")}
               onError={log("errors")} />
