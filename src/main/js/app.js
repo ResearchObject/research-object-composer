@@ -129,9 +129,31 @@ function replaceRefs(context, obj) {
     return newObj;
 }
 
-const uiSchema = {
+// Create uiSchema
+function buildUiSchema(obj) {
+    const uiSchema = obj['$ui'] || {};
+
+    if (obj.type === 'object' && obj.properties) {
+        for (const property in obj.properties) {
+            const propUiSchema = buildUiSchema(obj.properties[property]);
+            if (Object.keys(propUiSchema).length) {
+                uiSchema[property] = propUiSchema;
+            }
+        }
+    } else if (obj.type === 'array' && obj.items) {
+        const itemSchema = buildUiSchema(obj.items);
+        if (Object.keys(itemSchema).length) {
+            uiSchema.items = itemSchema;
+        }
+    }
+
+    return uiSchema;
+}
+
+const defaultUiSchema = {
     _metadata: {
         'ui:title': 'Metadata',
+        classNames: 'metadata',
         creators: {
             items : {
                 name: {
@@ -150,14 +172,19 @@ const uiSchema = {
     workflow_params: { 'ui:widget': 'textarea', 'ui:options': { rows: 5 } }
 };
 
-loadSchema("/schemas/draft_task.schema.json").then(function (resolved) {
-    const replaced = replaceRefs("/schemas/draft_task.schema.json", resolved);
+window.res = {};
+
+loadSchema("/schemas/draft_task.schema.json").then(function (schema) {
+    const resolved = replaceRefs("/schemas/draft_task.schema.json", schema);
+    const uiSchema = Object.assign(defaultUiSchema, buildUiSchema(resolved));
+    window.resolvedSchema = resolved;
+    window.uiSchema = uiSchema;
+
     const log = (type) => console.log.bind(console, type);
 
     ReactDOM.render(
-        <Form schema={replaced}
+        <Form schema={resolved}
               uiSchema={uiSchema}
-              widgets={widgets}
               onChange={log("changed")}
               onSubmit={log("submitted")}
               onError={log("errors")} />

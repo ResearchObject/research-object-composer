@@ -14,3 +14,23 @@
 #root__metadata_creators .array-item .control-label {
     display: none;
 }
+
+.checksums .field-object legend {
+    display: none;
+}
+
+.checksums .array-item .field-string:first-of-type {
+    display: none;
+}
+
+.metadata {
+    background-color: #ffffcc;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.remote-item {
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 5px;
+}

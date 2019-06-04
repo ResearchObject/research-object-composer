@@ -61,9 +61,6 @@
     "RemoteItem": {
       "type": "object",
       "properties": {
-        "length": {
-          "type": "integer"
-        },
         "filename": {
           "type": "string"
         },
@@ -71,12 +68,18 @@
           "type": "string",
           "format": "uri"
         },
+        "length": {
+          "type": "integer"
+        },
         "checksums": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Checksum"
           },
-          "minItems": 1
+          "minItems": 1,
+          "$ui": {
+            "classNames": "checksums"
+          }
         }
       },
       "required": [
@@ -84,7 +87,10 @@
         "filename",
         "url",
         "checksums"
-      ]
+      ],
+      "$ui": {
+        "classNames": "remote-item"
+      }
     },
     "Checksum": {
       "oneOf": [
