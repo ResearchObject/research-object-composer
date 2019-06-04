@@ -3,6 +3,11 @@ package uk.org.esciencelab.researchobjectservice.researchobject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +20,7 @@ import uk.org.esciencelab.researchobjectservice.serialization.BagItROService;
 
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 /**
  * A simple controller to handle viewing, listing, deleting, creating and bagging Research Objects.
@@ -42,14 +41,12 @@ public class ResearchObjectController {
     private DepositorService depositorService;
 
     @GetMapping("/research_objects")
-    public Resources<Resource<ResearchObjectSummary>> all() {
-        Collection<ResearchObject> all = (Collection) researchObjectRepository.findAll();
-        List<Resource<ResearchObjectSummary>> researchObjectResources = all.stream()
-                .map(summaryAssembler::toResource)
-                .collect(Collectors.toList());
+    public PagedResources<Resource<ResearchObjectSummary>> all(@PageableDefault Pageable pageable,
+                                                               PagedResourcesAssembler pagedAssembler) {
+        Page<ResearchObject> page =
+                researchObjectRepository.findAll(pageable);
 
-        return new Resources<>(researchObjectResources,
-                linkTo(methodOn(ResearchObjectController.class).all()).withSelfRel());
+        return pagedAssembler.toResource(page, summaryAssembler);
     }
 
     @GetMapping("/research_objects/{id}")
@@ -69,15 +66,15 @@ public class ResearchObjectController {
     }
 
     @GetMapping("/profiles/{profileName}/research_objects")
-    public Resources<Resource<ResearchObjectSummary>> allForProfile(@PathVariable String profileName) {
+    public Resources<Resource<ResearchObjectSummary>> allForProfile(@PathVariable String profileName,
+                                                                    @PageableDefault Pageable pageable,
+                                                                    PagedResourcesAssembler pagedAssembler) {
         ResearchObjectProfile profile = getResearchObjectProfile(profileName);
-        List<ResearchObject> allByProfile = researchObjectRepository.findAllByProfile(profile);
-        List<Resource<ResearchObjectSummary>> researchObjectResources = allByProfile.stream()
-                .map(summaryAssembler::toResource)
-                .collect(Collectors.toList());
 
-        return new Resources<>(researchObjectResources,
-                linkTo(methodOn(ResearchObjectController.class).allForProfile(profileName)).withSelfRel());
+        Page<ResearchObject> page =
+                researchObjectRepository.findAllByProfile(pageable, profile);
+
+        return pagedAssembler.toResource(page, summaryAssembler);
     }
 
     @PostMapping("/profiles/{profileName}/research_objects")
