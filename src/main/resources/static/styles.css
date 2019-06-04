@@ -1,8 +1,8 @@
-#form legend, #form .control-label {
+.profile form legend, .profile form .control-label {
     text-transform: capitalize;
 }
 
-#root__metadata_creators .array-item .form-group {
+.metadata .array-item .form-group {
     display: inline-block;
     margin-right: 5px;
 }
@@ -11,7 +11,7 @@
     width: 28.5em;
 }
 
-#root__metadata_creators .array-item .control-label {
+.metadata .array-item .control-label {
     display: none;
 }
 
