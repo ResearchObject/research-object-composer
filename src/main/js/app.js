@@ -75,8 +75,12 @@ class App extends React.Component {
                             this.editResearchObject(researchObject.entity, x.formData);
                         };
 
+                        const title = (researchObject.entity.content &&
+                            researchObject.entity.content._metadata &&
+                            researchObject.entity.content._metadata.title) || ("RO " + researchObject.entity.id);
+
                         this.setState({
-                            form: <ResearchObjectForm title={"Edit RO " + researchObject.id}
+                            form: <ResearchObjectForm title={"Editing: " + title}
                                                       schema={schemas.resolved}
                                                       uiSchema={schemas.uiSchema}
                                                       formData={researchObject.entity.content}
