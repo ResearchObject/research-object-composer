@@ -1,4 +1,3 @@
-require('babel-polyfill');
 const React = require('react');
 const ReactDOM = require('react-dom');
 import Form from "react-jsonschema-form";
@@ -12,6 +11,7 @@ class App extends React.Component {
         this.state = { profiles: [], researchObjects: [], form: null };
         this.loadCreateForm = this.loadCreateForm.bind(this);
         this.loadEditForm = this.loadEditForm.bind(this);
+        this.cancelForm = this.cancelForm.bind(this);
         this.createResearchObject = this.createResearchObject.bind(this);
         this.editResearchObject = this.editResearchObject.bind(this);
         this.deleteResearchObject = this.deleteResearchObject.bind(this);
@@ -48,7 +48,11 @@ class App extends React.Component {
             };
 
             this.setState({
-                form: <ResearchObjectForm schema={resolved} uiSchema={uiSchema} onSubmit={submit}/>
+                form: <ResearchObjectForm title={"New " + profile.name}
+                                          schema={resolved}
+                                          uiSchema={uiSchema}
+                                          onCancel={this.cancelForm}
+                                          onSubmit={submit}/>
             });
         });
     }
@@ -72,14 +76,20 @@ class App extends React.Component {
                         };
 
                         this.setState({
-                            form: <ResearchObjectForm schema={schemas.resolved}
+                            form: <ResearchObjectForm title={"Edit RO " + researchObject.id}
+                                                      schema={schemas.resolved}
                                                       uiSchema={schemas.uiSchema}
                                                       formData={researchObject.entity.content}
+                                                      onCancel={this.cancelForm}
                                                       onSubmit={submit}/>
                         });
                     });
                 });
             });
+    }
+
+    cancelForm() {
+        this.setState({ form: null });
     }
 
     createResearchObject(profile, formData) {
@@ -158,11 +168,11 @@ class Profile extends React.Component{
 
     render() {
         return (
-            <div className="profile clearfix col-sm-4">
+            <div className="profile col-sm-4">
                 <div className="panel panel-default">
-                    <div className="panel-body">
-                        <h4>{this.props.profile.name}</h4>
-                        <div className="btn-group" role="group">
+                    <div className="panel-body clearfix">
+                        <div className="pull-left">{this.props.profile.name}</div>
+                        <div className="btn-group pull-right" role="group">
                             <button className="btn btn-xs btn-success" onClick={this.loadForm} target="_blank">
                                 <i className="glyphicon glyphicon-plus"></i> New RO
                             </button>
@@ -259,16 +269,45 @@ class ResearchObjectSummary extends React.Component{
 }
 
 class ResearchObjectForm extends React.Component{
+    constructor(props) {
+        super(props);
+        this.cancel = this.cancel.bind(this);
+    }
+
     render() {
         return (
-            <Form schema={this.props.schema}
-                  uiSchema={this.props.uiSchema}
-                  formData={this.props.formData}
-                // onChange={log("changed")}
-                  onSubmit={this.props.onSubmit}
-                // onError={log("errors")}
-            />
+            <div className="form-wrapper">
+                <div className="blackout" onClick={this.cancel}></div>
+                <div className="panel panel-default form-panel">
+                    <div className="panel-heading">
+                        { this.props.title }
+                        <button type="button" className="close" aria-label="Close" onClick={this.cancel}>
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div className="panel-body">
+                        <Form schema={this.props.schema}
+                              uiSchema={this.props.uiSchema}
+                              formData={this.props.formData}
+                            //  onChange={this.recordChanges}
+                            // onError={log("errors")}
+                              onSubmit={this.props.onSubmit}>
+                            <div>
+                                <button className="btn btn-primary" type="submit">Submit</button>
+                                &nbsp;
+                                <button className="btn btn-default" type="button" onClick={this.cancel}>Cancel</button>
+                            </div>
+                        </Form>
+                    </div>
+                </div>
+            </div>
         )
+    }
+
+    cancel() {
+        if (confirm("Are you sure you wish to cancel?")) {
+            this.props.onCancel();
+        }
     }
 }
 

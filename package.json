@@ -20,7 +20,6 @@
   },
   "homepage": "https://github.com/ResearchObject/research-object-composer",
   "dependencies": {
-    "babel-polyfill": "^6.26.0",
     "jsonpointer": "^4.0.1",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
