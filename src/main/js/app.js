@@ -9,30 +9,126 @@ const follow = require('./follow');
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { profiles: [], researchObjects: []};
+        this.state = { profiles: [], researchObjects: [], form: null };
+        this.loadCreateForm = this.loadCreateForm.bind(this);
+        this.loadEditForm = this.loadEditForm.bind(this);
+        this.createResearchObject = this.createResearchObject.bind(this);
+        this.editResearchObject = this.editResearchObject.bind(this);
+        this.deleteResearchObject = this.deleteResearchObject.bind(this);
     }
 
     componentDidMount() {
-        this.loadData();
+        this.loadProfiles();
+        this.loadROs();
     }
 
-    loadData() {
+    loadProfiles() {
         // TODO: Refactor API so "/profiles" and "/research_objects" are discoverable from root
-        follow(client, '/profiles', [])
+        return follow(client, '/profiles', [])
             .done(profileCollection => {
                 this.setState({ profiles: profileCollection.entity._embedded.researchObjectProfileList });
             });
-        follow(client, '/research_objects', [])
+    }
+
+    loadROs() {
+        return follow(client, '/research_objects', [])
             .done(researchObjectCollection => {
                 this.setState({ researchObjects: researchObjectCollection.entity._embedded.researchObjectSummaryList });
             });
     }
 
+    loadCreateForm(profile) {
+        const schemaHref = profile._links.schema.href;
+
+        schemaUtil.loadSchema(schemaHref).then((schema) => {
+            const resolved = schemaUtil.resolveSchema(schemaHref, schema);
+            const uiSchema = Object.assign(defaultUiSchema, schemaUtil.buildUiSchema(resolved));
+            const submit = (x) => {
+                this.createResearchObject(profile, x.formData);
+            };
+
+            this.setState({
+                form: <ResearchObjectForm schema={resolved} uiSchema={uiSchema} onSubmit={submit}/>
+            });
+        });
+    }
+
+    loadEditForm(researchObject) {
+        // Load the Profile
+        follow(client, researchObject._links.profile.href, [])
+            .then(profile => {
+                const schemaHref = profile.entity._links.schema.href;
+                // Load the schema to generate the form
+                return schemaUtil.loadSchema(schemaHref).then((schema) => {
+                    const resolved = schemaUtil.resolveSchema(schemaHref, schema);
+                    const uiSchema = Object.assign(defaultUiSchema, schemaUtil.buildUiSchema(resolved));
+
+                    return {uiSchema, resolved};
+                }).then(schemas => {
+                    // Load the RO's content to populate the form
+                    return follow(client, researchObject._links.self.href, []).done(researchObject => {
+                        const submit = (x) => {
+                            this.editResearchObject(researchObject.entity, x.formData);
+                        };
+
+                        this.setState({
+                            form: <ResearchObjectForm schema={schemas.resolved}
+                                                      uiSchema={schemas.uiSchema}
+                                                      formData={researchObject.entity.content}
+                                                      onSubmit={submit}/>
+                        });
+                    });
+                });
+            });
+    }
+
+    createResearchObject(profile, formData) {
+        client({
+            method: 'POST',
+            path: profile._links.researchObjects.href,
+            entity: formData,
+            headers: {'Content-Type': 'application/json'}
+        }).then(response => {
+            this.setState({ form: null });
+            return this.loadROs();
+        });
+    }
+
+    editResearchObject(researchObject, formData) {
+        client({
+            method: 'PUT',
+            path: researchObject._links.content.href,
+            entity: formData,
+            // This request returns plain JSON
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        }).then(response => {
+            this.setState({ form: null });
+            return this.loadROs();
+        });
+    }
+
+    deleteResearchObject(researchObject) {
+        client({
+            method: 'DELETE',
+            path: researchObject._links.self.href,
+            headers: { 'Content-Type': 'application/json' }
+        }).then(response => {
+            return this.loadROs();
+        });
+    }
+
     render() {
         return (
             <div>
-              <ProfileList profiles={this.state.profiles}/>
-              <ResearchObjectList researchObjects={this.state.researchObjects}/>
+                { this.state.form }
+                <ProfileList profiles={this.state.profiles} loadForm={this.loadCreateForm}/>
+                <ResearchObjectList researchObjects={this.state.researchObjects}
+                                    loadForm={this.loadEditForm}
+                                    deleteResearchObject={this.deleteResearchObject}
+                />
             </div>
         )
     }
@@ -41,12 +137,12 @@ class App extends React.Component {
 class ProfileList extends React.Component{
     render() {
         const profiles = this.props.profiles.map(profile =>
-            <Profile key={profile._links.self.href} profile={profile}/>
+            <Profile key={profile._links.self.href} profile={profile} loadForm={this.props.loadForm}/>
         );
         return (
             <div className="profile-list-wrapper">
                 <h2>Available Profiles</h2>
-                <div className="profile-list">
+                <div className="profile-list row">
                     {profiles}
                 </div>
             </div>
@@ -57,41 +153,42 @@ class ProfileList extends React.Component{
 class Profile extends React.Component{
     constructor(props) {
         super(props);
-        this.state = { form: null };
         this.loadForm = this.loadForm.bind(this);
     }
 
     render() {
         return (
-            <div className="profile">
-                <h3 onClick={this.loadForm}>{this.props.profile.name}</h3>
-                <a href={this.props.profile._links.schema.href} target="_blank">{this.props.profile._links.schema.href}</a>
-                {this.state.form}
+            <div className="profile clearfix col-sm-4">
+                <div className="panel panel-default">
+                    <div className="panel-body">
+                        <h4>{this.props.profile.name}</h4>
+                        <div className="btn-group" role="group">
+                            <button className="btn btn-xs btn-success" onClick={this.loadForm} target="_blank">
+                                <i className="glyphicon glyphicon-plus"></i> New RO
+                            </button>
+                            <a className="btn btn-xs btn-default" href={this.props.profile._links.schema.href} target="_blank">
+                                <i className="glyphicon glyphicon-search"></i> View Schema
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         )
     }
 
     loadForm() {
-        const schemaHref = this.props.profile._links.schema.href;
-        schemaUtil.loadSchema(schemaHref).then((schema) => {
-            const resolved = schemaUtil.resolveSchema(schemaHref, schema);
-            const uiSchema = Object.assign(defaultUiSchema, schemaUtil.buildUiSchema(resolved));
-
-            this.setState({
-                form: <ResearchObjectForm schema={resolved} uiSchema={uiSchema} onSubmit={this.onSubmit}/>
-            });
-        });
-    }
-
-    onSubmit(x) {
-        console.log(x);
+        this.props.loadForm(this.props.profile);
     }
 }
 
 class ResearchObjectList extends React.Component{
     render() {
         const researchObjectSummaries = this.props.researchObjects.map(researchObject =>
-            <ResearchObjectSummary key={researchObject._links.self.href} researchObject={researchObject}/>
+            <ResearchObjectSummary key={researchObject._links.self.href}
+                                   researchObject={researchObject}
+                                   loadForm={this.props.loadForm}
+                                   deleteResearchObject={this.props.deleteResearchObject}
+            />
         );
         return (
             <div className="research-object-list-wrapper">
@@ -101,6 +198,8 @@ class ResearchObjectList extends React.Component{
                     <tr>
                         <th>ID</th>
                         <th>Link</th>
+                        <th>Type</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -113,13 +212,49 @@ class ResearchObjectList extends React.Component{
 }
 
 class ResearchObjectSummary extends React.Component{
+    constructor(props) {
+        super(props);
+        this.loadForm = this.loadForm.bind(this);
+        this.deleteResearchObject = this.deleteResearchObject.bind(this);
+    }
+
     render() {
         return (
             <tr>
                 <td>{this.props.researchObject.id}</td>
-                <td><a href={this.props.researchObject._links.self.href} target="_blank">{this.props.researchObject._links.self.href}</a></td>
+                <td>
+                    <a href={this.props.researchObject._links.self.href} target="_blank">
+                        {this.props.researchObject._links.self.href}
+                    </a>
+                </td>
+                <td>{this.props.researchObject.profileName}</td>
+                <td>
+                    <div className="btn-group" role="group">
+                        <button className="btn btn-xs btn-default">
+                            <i className="glyphicon glyphicon-search"></i> View
+                        </button>
+
+                        <button className="btn btn-xs btn-default" onClick={this.loadForm}>
+                            <i className="glyphicon glyphicon-edit"></i> Edit
+                        </button>
+
+                        <button className="btn btn-xs btn-danger" onClick={this.deleteResearchObject}>
+                            <i className="glyphicon glyphicon-trash"></i> Delete
+                        </button>
+                    </div>
+                </td>
             </tr>
         )
+    }
+
+    loadForm() {
+        this.props.loadForm(this.props.researchObject);
+    }
+
+    deleteResearchObject() {
+        if (confirm("Are you sure you want to delete this Research Object?")) {
+            this.props.deleteResearchObject(this.props.researchObject);
+        }
     }
 }
 
@@ -128,9 +263,10 @@ class ResearchObjectForm extends React.Component{
         return (
             <Form schema={this.props.schema}
                   uiSchema={this.props.uiSchema}
-                  // onChange={log("changed")}
+                  formData={this.props.formData}
+                // onChange={log("changed")}
                   onSubmit={this.props.onSubmit}
-                  // onError={log("errors")}
+                // onError={log("errors")}
             />
         )
     }
@@ -143,7 +279,7 @@ const defaultUiSchema = {
         creators: {
             items : {
                 name: {
-                    'ui:placeholder': 'Name',
+                    'ui:placeholder': 'Name*',
                     classNames: 'creator-name'
                 },
                 orcid: {

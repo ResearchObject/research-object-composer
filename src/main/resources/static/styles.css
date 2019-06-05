@@ -1,4 +1,8 @@
-.profile form legend, .profile form .control-label {
+/*.profile-list-wrapper {*/
+    /*max-width: 300px;*/
+/*}*/
+
+#root legend, #root .control-label {
     text-transform: capitalize;
 }
 
@@ -24,7 +28,7 @@
 }
 
 .metadata {
-    background-color: #ffffcc;
+    background-color: #d4dee3;
     padding: 10px;
     border-radius: 5px;
 }
