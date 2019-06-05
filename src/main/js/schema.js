@@ -47,6 +47,9 @@ function fetchRef(schemaUrl, pointer) {
 
 // Fully resolve a schema by inlining any $refs.
 function resolveSchema(context, obj) {
+    if (typeof obj !== 'object')
+        return obj;
+
     if (obj["$ref"]) {
         const parts = obj["$ref"].split("#");
         const pointer = parts[1];
