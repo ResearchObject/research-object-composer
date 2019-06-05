@@ -8,12 +8,13 @@ const follow = require('./follow');
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { profiles: [], researchObjects: [], form: null };
+        this.state = { profiles: [], researchObjects: [], modal: null };
         this.loadCreateForm = this.loadCreateForm.bind(this);
         this.loadEditForm = this.loadEditForm.bind(this);
-        this.cancelForm = this.cancelForm.bind(this);
+        this.cancelModal = this.cancelModal.bind(this);
         this.createResearchObject = this.createResearchObject.bind(this);
-        this.editResearchObject = this.editResearchObject.bind(this);
+        this.readResearchObject = this.readResearchObject.bind(this);
+        this.updateResearchObject = this.updateResearchObject.bind(this);
         this.deleteResearchObject = this.deleteResearchObject.bind(this);
     }
 
@@ -48,11 +49,11 @@ class App extends React.Component {
             };
 
             this.setState({
-                form: <ResearchObjectForm title={"New " + profile.name}
-                                          schema={resolved}
-                                          uiSchema={uiSchema}
-                                          onCancel={this.cancelForm}
-                                          onSubmit={submit}/>
+                modal: <ResearchObjectForm title={"New " + profile.name}
+                                           schema={resolved}
+                                           uiSchema={uiSchema}
+                                           onCancel={this.cancelModal}
+                                           onSubmit={submit}/>
             });
         });
     }
@@ -72,7 +73,7 @@ class App extends React.Component {
                     // Load the RO's content to populate the form
                     return follow(client, researchObject._links.self.href, []).done(researchObject => {
                         const submit = (x) => {
-                            this.editResearchObject(researchObject.entity, x.formData);
+                            this.updateResearchObject(researchObject.entity, x.formData);
                         };
 
                         const title = (researchObject.entity.content &&
@@ -80,20 +81,20 @@ class App extends React.Component {
                             researchObject.entity.content._metadata.title) || ("RO " + researchObject.entity.id);
 
                         this.setState({
-                            form: <ResearchObjectForm title={"Editing: " + title}
-                                                      schema={schemas.resolved}
-                                                      uiSchema={schemas.uiSchema}
-                                                      formData={researchObject.entity.content}
-                                                      onCancel={this.cancelForm}
-                                                      onSubmit={submit}/>
+                            modal: <ResearchObjectForm title={"Editing: " + title}
+                                                       schema={schemas.resolved}
+                                                       uiSchema={schemas.uiSchema}
+                                                       formData={researchObject.entity.content}
+                                                       onCancel={this.cancelModal}
+                                                       onSubmit={submit}/>
                         });
                     });
                 });
             });
     }
 
-    cancelForm() {
-        this.setState({ form: null });
+    cancelModal() {
+        this.setState({ modal: null });
     }
 
     createResearchObject(profile, formData) {
@@ -103,12 +104,22 @@ class App extends React.Component {
             entity: formData,
             headers: {'Content-Type': 'application/json'}
         }).then(response => {
-            this.setState({ form: null });
+            this.setState({ modal: null });
             return this.loadROs();
         });
     }
 
-    editResearchObject(researchObject, formData) {
+    readResearchObject(researchObject) {
+        client({
+            method: 'GET',
+            path: researchObject._links.self.href,
+            headers: {'Content-Type': 'application/json'}
+        }).then(response => {
+            this.setState({ modal: <ResearchObject researchObject={response.entity} onCancel={this.cancelModal}/> });
+        });
+    }
+
+    updateResearchObject(researchObject, formData) {
         client({
             method: 'PUT',
             path: researchObject._links.content.href,
@@ -119,7 +130,7 @@ class App extends React.Component {
                 'Accept': 'application/json'
             }
         }).then(response => {
-            this.setState({ form: null });
+            this.setState({ modal: null });
             return this.loadROs();
         });
     }
@@ -137,10 +148,11 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                { this.state.form }
+                { this.state.modal }
                 <ProfileList profiles={this.state.profiles} loadForm={this.loadCreateForm}/>
                 <ResearchObjectList researchObjects={this.state.researchObjects}
                                     loadForm={this.loadEditForm}
+                                    readResearchObject={this.readResearchObject}
                                     deleteResearchObject={this.deleteResearchObject}
                 />
             </div>
@@ -201,6 +213,7 @@ class ResearchObjectList extends React.Component{
             <ResearchObjectSummary key={researchObject._links.self.href}
                                    researchObject={researchObject}
                                    loadForm={this.props.loadForm}
+                                   readResearchObject={this.props.readResearchObject}
                                    deleteResearchObject={this.props.deleteResearchObject}
             />
         );
@@ -229,6 +242,7 @@ class ResearchObjectSummary extends React.Component{
     constructor(props) {
         super(props);
         this.loadForm = this.loadForm.bind(this);
+        this.readResearchObject = this.readResearchObject.bind(this);
         this.deleteResearchObject = this.deleteResearchObject.bind(this);
     }
 
@@ -244,7 +258,7 @@ class ResearchObjectSummary extends React.Component{
                 <td>{this.props.researchObject.profileName}</td>
                 <td>
                     <div className="btn-group" role="group">
-                        <button className="btn btn-xs btn-default">
+                        <button className="btn btn-xs btn-default" onClick={this.readResearchObject}>
                             <i className="glyphicon glyphicon-search"></i> View
                         </button>
 
@@ -263,6 +277,10 @@ class ResearchObjectSummary extends React.Component{
 
     loadForm() {
         this.props.loadForm(this.props.researchObject);
+    }
+
+    readResearchObject() {
+        this.props.readResearchObject(this.props.researchObject);
     }
 
     deleteResearchObject() {
@@ -311,6 +329,70 @@ class ResearchObjectForm extends React.Component{
     cancel() {
         if (confirm("Are you sure you wish to cancel?")) {
             this.props.onCancel();
+        }
+    }
+}
+
+class ResearchObject extends React.Component{
+    render() {
+        return (
+            <div className="form-wrapper">
+                <div className="blackout" onClick={this.props.onCancel}></div>
+                <div className="panel panel-default form-panel">
+                    <div className="panel-heading">
+                        { this.props.researchObject.id }
+                        <button type="button" className="close" aria-label="Close" onClick={this.props.onCancel}>
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div className="panel-body">
+                        <div className="research-object">
+                            <Metadata metadata={this.props.researchObject.content._metadata}/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+}
+
+class Metadata extends React.Component{
+    render() {
+        const fields = ['title', 'description', 'license'].map((f) => {
+            if (this.props.metadata[f]) {
+                return (
+                    <p key={f}>
+                        <strong>{ (f.charAt(0).toUpperCase() + f.slice(1)) }</strong>: { this.props.metadata[f] }
+                    </p>
+                );
+            }
+        });
+
+        const creators = this.props.metadata.creators.map((c, i) => {
+            return <li key={i}><Creator creator={c}/></li>;
+        });
+
+        return (
+            <div className="research-object-metadata">
+                {fields}
+                <div className="research-object-creators">
+                    <strong>Creators</strong>
+                    <ul>
+                        {creators}
+                    </ul>
+                </div>
+            </div>
+        )
+    }
+}
+
+class Creator extends React.Component {
+    render() {
+        const affiliation = this.props.creator.affiliation ? " (" + this.props.creator.affiliation + ")" : "";
+        if (this.props.creator.orcid) {
+            return <a href={this.props.creator.orcid} target="_blank">{this.props.creator.name + affiliation}</a>;
+        } else {
+            return <span>{ this.props.creator.name + affiliation }</span>;
         }
     }
 }
