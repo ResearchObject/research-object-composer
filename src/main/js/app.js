@@ -182,6 +182,10 @@ class Profile extends React.Component{
         this.loadForm = this.loadForm.bind(this);
     }
 
+    loadForm() {
+        this.props.loadForm(this.props.profile);
+    }
+
     render() {
         return (
             <div className="profile col-sm-4">
@@ -200,10 +204,6 @@ class Profile extends React.Component{
                 </div>
             </div>
         )
-    }
-
-    loadForm() {
-        this.props.loadForm(this.props.profile);
     }
 }
 
@@ -224,8 +224,8 @@ class ResearchObjectList extends React.Component{
                     <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Link</th>
                         <th>Type</th>
+                        <th>URL</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
@@ -246,35 +246,6 @@ class ResearchObjectSummary extends React.Component{
         this.deleteResearchObject = this.deleteResearchObject.bind(this);
     }
 
-    render() {
-        return (
-            <tr>
-                <td>{this.props.researchObject.id}</td>
-                <td>
-                    <a href={this.props.researchObject._links.self.href} target="_blank">
-                        {this.props.researchObject._links.self.href}
-                    </a>
-                </td>
-                <td>{this.props.researchObject.profileName}</td>
-                <td>
-                    <div className="btn-group" role="group">
-                        <button className="btn btn-xs btn-default" onClick={this.readResearchObject}>
-                            <i className="glyphicon glyphicon-search"></i> View
-                        </button>
-
-                        <button className="btn btn-xs btn-default" onClick={this.loadForm}>
-                            <i className="glyphicon glyphicon-edit"></i> Edit
-                        </button>
-
-                        <button className="btn btn-xs btn-danger" onClick={this.deleteResearchObject}>
-                            <i className="glyphicon glyphicon-trash"></i> Delete
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        )
-    }
-
     loadForm() {
         this.props.loadForm(this.props.researchObject);
     }
@@ -288,12 +259,65 @@ class ResearchObjectSummary extends React.Component{
             this.props.deleteResearchObject(this.props.researchObject);
         }
     }
+
+    isMutable() {
+        return !this.props.researchObject._links.deposition;
+    }
+
+    render() {
+        let depositionUrl;
+        const buttons = [
+            <button key="view" className="btn btn-xs btn-default" onClick={this.readResearchObject}>
+                <i className="glyphicon glyphicon-search"></i> View
+            </button>
+        ];
+
+        if (this.isMutable()) {
+            depositionUrl = <span className="muted">n/a</span>
+
+            buttons.push(
+                <button key="edit" className="btn btn-xs btn-default" onClick={this.loadForm}>
+                    <i className="glyphicon glyphicon-edit"></i> Edit
+                </button>
+            );
+            buttons.push(
+                <button key="destroy" className="btn btn-xs btn-danger" onClick={this.deleteResearchObject}>
+                    <i className="glyphicon glyphicon-trash"></i> Delete
+                </button>
+            );
+        } else {
+            depositionUrl = (
+                <a href={this.props.researchObject._links.deposition.href} target="_blank">
+                    {this.props.researchObject._links.deposition.href}
+                </a>
+            );
+        }
+
+        return (
+            <tr>
+                <td>{this.props.researchObject.id}</td>
+                <td>{this.props.researchObject.profileName}</td>
+                <td>{depositionUrl}</td>
+                <td>
+                    <div className="btn-group" role="group">
+                        {buttons}
+                    </div>
+                </td>
+            </tr>
+        )
+    }
 }
 
 class ResearchObjectForm extends React.Component{
     constructor(props) {
         super(props);
         this.cancel = this.cancel.bind(this);
+    }
+
+    cancel() {
+        if (confirm("Are you sure you wish to cancel?")) {
+            this.props.onCancel();
+        }
     }
 
     render() {
@@ -325,16 +349,17 @@ class ResearchObjectForm extends React.Component{
             </div>
         )
     }
-
-    cancel() {
-        if (confirm("Are you sure you wish to cancel?")) {
-            this.props.onCancel();
-        }
-    }
 }
 
 class ResearchObject extends React.Component{
     render() {
+        const content = [];
+        for (const property in this.props.researchObject.content) {
+            if (property !== '_metadata') {
+                content.push(<Property key={property} property={property} value={this.props.researchObject.content[property]}/>);
+            }
+        }
+
         return (
             <div className="form-wrapper">
                 <div className="blackout" onClick={this.props.onCancel}></div>
@@ -348,6 +373,10 @@ class ResearchObject extends React.Component{
                     <div className="panel-body">
                         <div className="research-object">
                             <Metadata metadata={this.props.researchObject.content._metadata}/>
+                            <hr/>
+                            <div className="research-object-content">
+                                {content}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -358,31 +387,35 @@ class ResearchObject extends React.Component{
 
 class Metadata extends React.Component{
     render() {
-        const fields = ['title', 'description', 'license'].map((f) => {
-            if (this.props.metadata[f]) {
-                return (
-                    <p key={f}>
-                        <strong>{ (f.charAt(0).toUpperCase() + f.slice(1)) }</strong>: { this.props.metadata[f] }
-                    </p>
-                );
-            }
-        });
+        if (this.props.metadata) {
+            const fields = ['title', 'description', 'license'].map((f) => {
+                if (this.props.metadata[f]) {
+                    return (
+                        <p key={f}>
+                            <strong>{ (f.charAt(0).toUpperCase() + f.slice(1)) }</strong>: { this.props.metadata[f] }
+                        </p>
+                    );
+                }
+            });
 
-        const creators = this.props.metadata.creators.map((c, i) => {
-            return <li key={i}><Creator creator={c}/></li>;
-        });
+            const creators = this.props.metadata.creators.map((c, i) => {
+                return <li key={i}><Creator creator={c}/></li>;
+            });
 
-        return (
-            <div className="research-object-metadata">
-                {fields}
-                <div className="research-object-creators">
-                    <strong>Creators</strong>
-                    <ul>
-                        {creators}
-                    </ul>
+            return (
+                <div className="research-object-metadata">
+                    {fields}
+                    <div className="research-object-creators">
+                        <strong>Creators</strong>
+                        <ul>
+                            {creators}
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        )
+            )
+        } else {
+            return <span className="muted">No '_metadata' property found!</span>
+        }
     }
 }
 
@@ -394,6 +427,46 @@ class Creator extends React.Component {
         } else {
             return <span>{ this.props.creator.name + affiliation }</span>;
         }
+    }
+}
+
+class Property extends React.Component {
+    render() {
+        return (
+            <div className="property">
+                <strong>{this.props.property}</strong>: <Value value={this.props.value}></Value>
+            </div>
+        );
+    }
+}
+
+class Value extends React.Component {
+    render() {
+        let value = null;
+        if (Array.isArray(this.props.value)) {
+            value = (
+                <div className="property-array">
+                    {this.props.value.map((x, i) => <div className="property-array-item" key={i}><Value value={x}/></div>)}
+                </div>
+            );
+        } else {
+            if (!this.props.value) {
+                value = <span className="property-value muted">n/a</span>;
+            } else {
+                if (typeof this.props.value === 'object') {
+                    value = [];
+                    for (const property in this.props.value) {
+                        value.push(<Property key={property} property={property} value={this.props.value[property]}/>);
+                    }
+                    value = <div className="property-value">{value}</div>
+                } else {
+                    value = <span className="property-value">{this.props.value}</span>;;
+                }
+            }
+
+        }
+
+        return value;
     }
 }
 

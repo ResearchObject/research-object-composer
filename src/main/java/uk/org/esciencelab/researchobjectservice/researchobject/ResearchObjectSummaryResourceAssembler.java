@@ -1,5 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,9 @@ public class ResearchObjectSummaryResourceAssembler implements ResourceAssembler
         Resource<ResearchObjectSummary> resource = new Resource<>(summary,
                 linkTo(methodOn(ResearchObjectController.class).one(researchObject.getId())).withSelfRel(),
                 linkTo(methodOn(ResearchObjectProfileController.class).one(researchObject.getProfileName())).withRel("profile"));
+
+        if (researchObject.getDepositionUrl() != null)
+            resource.add(new Link(researchObject.getDepositionUrl().toString(), "deposition"));
 
         return resource;
     }

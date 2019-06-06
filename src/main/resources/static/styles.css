@@ -64,3 +64,26 @@
     position: relative;
     z-index: 1010;
 }
+
+.muted {
+    color: #999;
+}
+
+.property {
+    margin-left: 1em;
+}
+
+.property strong {
+    text-transform: capitalize;
+}
+
+.property-array-item {
+    border-width: 0 0 0 3px;
+    border-style: solid;
+    margin: 5px 0 5px 1em;
+    border-color: #ddd;
+}
+
+.property-array-item:nth-child(odd) {
+    border-color: #999;
+}
