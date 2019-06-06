@@ -16,6 +16,7 @@ class App extends React.Component {
         this.readResearchObject = this.readResearchObject.bind(this);
         this.updateResearchObject = this.updateResearchObject.bind(this);
         this.deleteResearchObject = this.deleteResearchObject.bind(this);
+        this.viewSchema = this.viewSchema.bind(this);
     }
 
     componentDidMount() {
@@ -93,6 +94,24 @@ class App extends React.Component {
             });
     }
 
+    viewSchema(profile, resolved) {
+        const schemaHref = profile._links.schema.href;
+        return schemaUtil.loadSchema(schemaHref).then((schema) => {
+            let schemaObject = schema;
+            let title = 'Schema for: ' + profile.name;
+
+            if (resolved) {
+                schemaObject = schemaUtil.resolveSchema(schemaHref, schema);
+                title += ' (resolved)';
+            }
+
+            this.setState({
+                modal: <SchemaJson title={title} schema={schemaObject} onCancel={this.cancelModal}/>
+            });
+
+        });
+    }
+
     cancelModal() {
         this.setState({ modal: null });
     }
@@ -149,7 +168,7 @@ class App extends React.Component {
         return (
             <div>
                 { this.state.modal }
-                <ProfileList profiles={this.state.profiles} loadForm={this.loadCreateForm}/>
+                <ProfileList profiles={this.state.profiles} loadForm={this.loadCreateForm} viewSchema={this.viewSchema}/>
                 <ResearchObjectList researchObjects={this.state.researchObjects}
                                     loadForm={this.loadEditForm}
                                     readResearchObject={this.readResearchObject}
@@ -163,7 +182,10 @@ class App extends React.Component {
 class ProfileList extends React.Component{
     render() {
         const profiles = this.props.profiles.map(profile =>
-            <Profile key={profile._links.self.href} profile={profile} loadForm={this.props.loadForm}/>
+            <Profile key={profile._links.self.href}
+                     profile={profile}
+                     loadForm={this.props.loadForm}
+                     viewSchema={this.props.viewSchema}/>
         );
         return (
             <div className="profile-list-wrapper">
@@ -180,25 +202,40 @@ class Profile extends React.Component{
     constructor(props) {
         super(props);
         this.loadForm = this.loadForm.bind(this);
+        this.viewSchema = this.viewSchema.bind(this);
+        this.viewResolvedSchema = this.viewResolvedSchema.bind(this);
     }
 
     loadForm() {
         this.props.loadForm(this.props.profile);
     }
 
+    viewSchema() {
+        this.props.viewSchema(this.props.profile);
+    }
+
+    viewResolvedSchema() {
+        this.props.viewSchema(this.props.profile, true);
+    }
+
     render() {
         return (
             <div className="profile col-sm-4">
                 <div className="panel panel-default">
-                    <div className="panel-body clearfix">
-                        <div className="pull-left">{this.props.profile.name}</div>
-                        <div className="btn-group pull-right" role="group">
-                            <button className="btn btn-xs btn-success" onClick={this.loadForm} target="_blank">
+                    <div className="panel-body">
+                        <div className="clearfix">
+                            <div className="pull-left">{this.props.profile.name}</div>
+                            <button className="btn btn-xs btn-success pull-right" onClick={this.loadForm}>
                                 <i className="glyphicon glyphicon-plus"></i> New RO
                             </button>
-                            <a className="btn btn-xs btn-default" href={this.props.profile._links.schema.href} target="_blank">
-                                <i className="glyphicon glyphicon-search"></i> View Schema
-                            </a>
+                        </div>
+                        <div>
+                            <button className="btn btn-xs btn-default" onClick={this.viewSchema}>
+                                <i className="glyphicon glyphicon-unchecked"></i> Schema
+                            </button>&nbsp;
+                            <button className="btn btn-xs btn-default" onClick={this.viewResolvedSchema}>
+                                <i className="glyphicon glyphicon-check"></i> Schema (resolved)
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -467,6 +504,29 @@ class Value extends React.Component {
         }
 
         return value;
+    }
+}
+
+class SchemaJson extends React.Component{
+    render() {
+        return (
+            <div className="form-wrapper">
+                <div className="blackout" onClick={this.props.onCancel}></div>
+                <div className="panel panel-default form-panel">
+                    <div className="panel-heading">
+                        {this.props.title}
+                        <button type="button" className="close" aria-label="Close" onClick={this.props.onCancel}>
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div className="panel-body">
+                        <pre className="schema-json">
+                            {JSON.stringify(this.props.schema, null, 2)}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        )
     }
 }
 
