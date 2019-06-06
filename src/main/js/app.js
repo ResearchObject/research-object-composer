@@ -520,9 +520,9 @@ class SchemaJson extends React.Component{
                         </button>
                     </div>
                     <div className="panel-body">
-                        <pre className="schema-json">
+                        <textarea className="schema-json" rows="30" readonly="readonly">
                             {JSON.stringify(this.props.schema, null, 2)}
-                        </pre>
+                        </textarea>
                     </div>
                 </div>
             </div>

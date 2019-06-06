@@ -87,3 +87,8 @@
 .property-array-item:nth-child(odd) {
     border-color: #999;
 }
+
+.schema-json {
+    font-family: monospace;
+    width: 100%;
+}
