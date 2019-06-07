@@ -50,7 +50,7 @@ class App extends React.Component {
             };
 
             this.setState({
-                modal: <ResearchObjectForm title={"New " + profile.name}
+                modal: <ResearchObjectForm title={'New "' + profile.name + '" RO'}
                                            schema={resolved}
                                            uiSchema={uiSchema}
                                            onCancel={this.cancelModal}
@@ -122,7 +122,7 @@ class App extends React.Component {
             path: profile._links.researchObjects.href,
             entity: formData,
             headers: {'Content-Type': 'application/json'}
-        }).then(response => {
+        }).then(() => {
             this.setState({ modal: null });
             return this.loadROs();
         });
@@ -148,7 +148,7 @@ class App extends React.Component {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             }
-        }).then(response => {
+        }).then(() => {
             this.setState({ modal: null });
             return this.loadROs();
         });
@@ -310,7 +310,7 @@ class ResearchObjectSummary extends React.Component{
         ];
 
         if (this.isMutable()) {
-            depositionUrl = <span className="muted">n/a</span>
+            depositionUrl = <span className="muted">n/a</span>;
 
             buttons.push(
                 <button key="edit" className="btn btn-xs btn-default" onClick={this.loadForm}>
@@ -341,8 +341,29 @@ class ResearchObjectSummary extends React.Component{
                     </div>
                 </td>
             </tr>
-        )
+        );
     }
+}
+
+function Modal(props) {
+    return (
+        <div className="form-wrapper">
+            <div className="blackout" onClick={props.onCancel}></div>
+            <div className="panel panel-default form-panel">
+                <div className="panel-heading">
+                    {props.title}
+                    <button type="button" className="close" aria-label="Close" onClick={props.onCancel}>
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div className="panel-body">
+                    <div className="research-object">
+                        {props.children}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 class ResearchObjectForm extends React.Component{
@@ -359,32 +380,21 @@ class ResearchObjectForm extends React.Component{
 
     render() {
         return (
-            <div className="form-wrapper">
-                <div className="blackout" onClick={this.cancel}></div>
-                <div className="panel panel-default form-panel">
-                    <div className="panel-heading">
-                        { this.props.title }
-                        <button type="button" className="close" aria-label="Close" onClick={this.cancel}>
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+            <Modal title={this.props.title} onCancel={this.cancel}>
+                <Form schema={this.props.schema}
+                      uiSchema={this.props.uiSchema}
+                      formData={this.props.formData}
+                    //  onChange={this.recordChanges}
+                    // onError={log("errors")}
+                      onSubmit={this.props.onSubmit}>
+                    <div>
+                        <button className="btn btn-primary" type="submit">Submit</button>
+                        &nbsp;
+                        <button className="btn btn-default" type="button" onClick={this.cancel}>Cancel</button>
                     </div>
-                    <div className="panel-body">
-                        <Form schema={this.props.schema}
-                              uiSchema={this.props.uiSchema}
-                              formData={this.props.formData}
-                            //  onChange={this.recordChanges}
-                            // onError={log("errors")}
-                              onSubmit={this.props.onSubmit}>
-                            <div>
-                                <button className="btn btn-primary" type="submit">Submit</button>
-                                &nbsp;
-                                <button className="btn btn-default" type="button" onClick={this.cancel}>Cancel</button>
-                            </div>
-                        </Form>
-                    </div>
-                </div>
-            </div>
-        )
+                </Form>
+            </Modal>
+        );
     }
 }
 
@@ -398,27 +408,16 @@ class ResearchObject extends React.Component{
         }
 
         return (
-            <div className="form-wrapper">
-                <div className="blackout" onClick={this.props.onCancel}></div>
-                <div className="panel panel-default form-panel">
-                    <div className="panel-heading">
-                        { this.props.researchObject.id }
-                        <button type="button" className="close" aria-label="Close" onClick={this.props.onCancel}>
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div className="panel-body">
-                        <div className="research-object">
-                            <Metadata metadata={this.props.researchObject.content._metadata}/>
-                            <hr/>
-                            <div className="research-object-content">
-                                {content}
-                            </div>
-                        </div>
+            <Modal title={this.props.researchObject.id} onCancel={this.props.onCancel}>
+                <div className="research-object">
+                    <Metadata metadata={this.props.researchObject.content._metadata}/>
+                    <hr/>
+                    <div className="research-object-content">
+                        {content}
                     </div>
                 </div>
-            </div>
-        )
+            </Modal>
+        );
     }
 }
 
@@ -429,7 +428,7 @@ class Metadata extends React.Component{
                 if (this.props.metadata[f]) {
                     return (
                         <p key={f}>
-                            <strong>{ (f.charAt(0).toUpperCase() + f.slice(1)) }</strong>: { this.props.metadata[f] }
+                            <strong className="property-key">{(f.charAt(0).toUpperCase() + f.slice(1))}</strong>: {this.props.metadata[f]}
                         </p>
                     );
                 }
@@ -462,7 +461,7 @@ class Creator extends React.Component {
         if (this.props.creator.orcid) {
             return <a href={this.props.creator.orcid} target="_blank">{this.props.creator.name + affiliation}</a>;
         } else {
-            return <span>{ this.props.creator.name + affiliation }</span>;
+            return <span>{this.props.creator.name + affiliation}</span>;
         }
     }
 }
@@ -471,7 +470,7 @@ class Property extends React.Component {
     render() {
         return (
             <div className="property">
-                <strong>{this.props.property}</strong>: <Value value={this.props.value}></Value>
+                <strong className="property-key">{this.props.property}</strong>: <Value value={this.props.value}></Value>
             </div>
         );
     }
@@ -495,9 +494,9 @@ class Value extends React.Component {
                     for (const property in this.props.value) {
                         value.push(<Property key={property} property={property} value={this.props.value[property]}/>);
                     }
-                    value = <div className="property-value">{value}</div>
+                    value = <div className="property-value">{value}</div>;
                 } else {
-                    value = <span className="property-value">{this.props.value}</span>;;
+                    value = <span className="property-value">{this.props.value}</span>;
                 }
             }
 
@@ -510,23 +509,13 @@ class Value extends React.Component {
 class SchemaJson extends React.Component{
     render() {
         return (
-            <div className="form-wrapper">
-                <div className="blackout" onClick={this.props.onCancel}></div>
-                <div className="panel panel-default form-panel">
-                    <div className="panel-heading">
-                        {this.props.title}
-                        <button type="button" className="close" aria-label="Close" onClick={this.props.onCancel}>
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div className="panel-body">
-                        <textarea className="schema-json" rows="30" readonly="readonly">
-                            {JSON.stringify(this.props.schema, null, 2)}
-                        </textarea>
-                    </div>
-                </div>
-            </div>
-        )
+            <Modal title={this.props.title} onCancel={this.props.onCancel}>
+                <textarea className="schema-json"
+                          rows="30"
+                          readOnly="readonly"
+                          value={JSON.stringify(this.props.schema, null, 2)}/>
+            </Modal>
+        );
     }
 }
 
@@ -552,7 +541,4 @@ const defaultUiSchema = {
     workflow_params: { 'ui:widget': 'textarea', 'ui:options': { rows: 5 } }
 };
 
-ReactDOM.render(
-    <App />,
-    document.getElementById('react')
-);
+ReactDOM.render(<App />, document.getElementById('react'));

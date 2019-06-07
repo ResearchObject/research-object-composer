@@ -88,6 +88,10 @@
     border-color: #999;
 }
 
+.property-key {
+    text-transform: capitalize;
+}
+
 .schema-json {
     font-family: monospace;
     width: 100%;
