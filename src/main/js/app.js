@@ -3,7 +3,6 @@ const ReactDOM = require('react-dom');
 import Form from "react-jsonschema-form";
 const client = require('./client');
 const schemaUtil = require('./schema');
-const follow = require('./follow');
 
 class App extends React.Component {
     constructor(props) {
@@ -17,26 +16,32 @@ class App extends React.Component {
         this.updateResearchObject = this.updateResearchObject.bind(this);
         this.deleteResearchObject = this.deleteResearchObject.bind(this);
         this.viewSchema = this.viewSchema.bind(this);
+        this.links = {};
     }
 
     componentDidMount() {
-        this.loadProfiles();
-        this.loadROs();
+        this.loadRoot().then(() => {
+            this.loadProfiles();
+            this.loadROs();
+        });
+    }
+
+    loadRoot() {
+        return client({ method: 'GET', path: '/' }).then(root => {
+            this.links = root.entity._links;
+        });
     }
 
     loadProfiles() {
-        // TODO: Refactor API so "/profiles" and "/research_objects" are discoverable from root
-        return follow(client, '/profiles', [])
-            .done(profileCollection => {
-                this.setState({ profiles: profileCollection.entity._embedded.researchObjectProfileList });
-            });
+        return client({ method: 'GET', path: this.links.profiles.href }).then(profileCollection => {
+            this.setState({ profiles: profileCollection.entity._embedded.researchObjectProfileList });
+        });
     }
 
     loadROs() {
-        return follow(client, '/research_objects', [])
-            .done(researchObjectCollection => {
-                this.setState({ researchObjects: researchObjectCollection.entity._embedded.researchObjectSummaryList });
-            });
+        return client({ method: 'GET', path: this.links.researchObjects.href }).then(researchObjectCollection => {
+            this.setState({ researchObjects: researchObjectCollection.entity._embedded.researchObjectSummaryList });
+        });
     }
 
     loadCreateForm(profile) {
@@ -61,42 +66,44 @@ class App extends React.Component {
 
     loadEditForm(researchObject) {
         // Load the Profile
-        follow(client, researchObject._links.profile.href, [])
-            .then(profile => {
-                const schemaHref = profile.entity._links.schema.href;
-                // Load the schema to generate the form
-                return schemaUtil.loadSchema(schemaHref).then((schema) => {
-                    const resolved = schemaUtil.resolveSchema(schemaHref, schema);
-                    const uiSchema = Object.assign(defaultUiSchema, schemaUtil.buildUiSchema(resolved));
+        return client({
+            method: 'GET',
+            path: researchObject._links.profile.href
+        }).then(profile => {
+            const schemaHref = profile.entity._links.schema.href;
+            // Load the schema to generate the form
+            return schemaUtil.loadSchema(schemaHref).then(schema => {
+                const resolved = schemaUtil.resolveSchema(schemaHref, schema);
+                const uiSchema = Object.assign(defaultUiSchema, schemaUtil.buildUiSchema(resolved));
 
-                    return {uiSchema, resolved};
-                }).then(schemas => {
-                    // Load the RO's content to populate the form
-                    return follow(client, researchObject._links.self.href, []).done(researchObject => {
-                        const submit = (x) => {
-                            this.updateResearchObject(researchObject.entity, x.formData);
-                        };
+                return {uiSchema, resolved};
+            }).then(schemas => {
+                // Load the RO's content to populate the form
+                return client({ method: 'GET', path: researchObject._links.self.href }).then(researchObject => {
+                    const submit = (x) => {
+                        this.updateResearchObject(researchObject.entity, x.formData);
+                    };
 
-                        const title = (researchObject.entity.content &&
-                            researchObject.entity.content._metadata &&
-                            researchObject.entity.content._metadata.title) || ("RO " + researchObject.entity.id);
+                    const title = (researchObject.entity.content &&
+                        researchObject.entity.content._metadata &&
+                        researchObject.entity.content._metadata.title) || ("RO " + researchObject.entity.id);
 
-                        this.setState({
-                            modal: <ResearchObjectForm title={"Editing: " + title}
-                                                       schema={schemas.resolved}
-                                                       uiSchema={schemas.uiSchema}
-                                                       formData={researchObject.entity.content}
-                                                       onCancel={this.cancelModal}
-                                                       onSubmit={submit}/>
-                        });
+                    this.setState({
+                        modal: <ResearchObjectForm title={"Editing: " + title}
+                                                   schema={schemas.resolved}
+                                                   uiSchema={schemas.uiSchema}
+                                                   formData={researchObject.entity.content}
+                                                   onCancel={this.cancelModal}
+                                                   onSubmit={submit}/>
                     });
                 });
             });
+        });
     }
 
     viewSchema(profile, resolved) {
         const schemaHref = profile._links.schema.href;
-        return schemaUtil.loadSchema(schemaHref).then((schema) => {
+        return schemaUtil.loadSchema(schemaHref).then(schema => {
             let schemaObject = schema;
             let title = 'Schema for: ' + profile.name;
 
@@ -108,7 +115,6 @@ class App extends React.Component {
             this.setState({
                 modal: <SchemaJson title={title} schema={schemaObject} onCancel={this.cancelModal}/>
             });
-
         });
     }
 
@@ -143,8 +149,7 @@ class App extends React.Component {
             method: 'PUT',
             path: researchObject._links.content.href,
             entity: formData,
-            // This request returns plain JSON
-            headers: {
+            headers: { // This request returns plain JSON
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             }
@@ -159,7 +164,7 @@ class App extends React.Component {
             method: 'DELETE',
             path: researchObject._links.self.href,
             headers: { 'Content-Type': 'application/json' }
-        }).then(response => {
+        }).then(() => {
             return this.loadROs();
         });
     }
