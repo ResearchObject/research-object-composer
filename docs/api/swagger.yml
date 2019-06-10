@@ -23,6 +23,19 @@ schemes:
 - "https"
 - "http"
 paths:
+  /:
+    get:
+      summary: "Root"
+      description: "Show the API root, with links to the available endpoints. If HTML is requested, renders a basic user interface as a React single-page application."
+      operationId: "root"
+      produces:
+      - "application/hal+json"
+      - "text/html"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Root"
   /profiles:
     get:
       tags:
@@ -100,6 +113,16 @@ paths:
         type: "string"
         description: "The unique identifier of the profile"
         required: true
+      - in: "query"
+        name: "page"
+        type: "integer"
+        description: "The page number to display. Starts from 0."
+        default: 0
+      - in: "query"
+        name: "size"
+        type: "integer"
+        description: "The number of items per page."
+        default: 10
       consumes:
       - "application/json"
       produces:
@@ -170,6 +193,17 @@ paths:
       summary: "List Research Objects"
       description: "Show a list of all Research Objects"
       operationId: "listResearchObjects"
+      parameters:
+      - in: "query"
+        name: "page"
+        type: "integer"
+        description: "The page number to display. Starts from 0."
+        default: 0
+      - in: "query"
+        name: "size"
+        type: "integer"
+        description: "The number of items per page."
+        default: 10
       consumes:
       - "application/json"
       produces:
@@ -507,7 +541,7 @@ definitions:
               format: "uri"
   ResearchObjectSummaryList:
     allOf:
-    - $ref: "#/definitions/HALCollection"
+    - $ref: "#/definitions/PagedHALCollection"
     - type: "object"
       properties:
         _embedded:
@@ -545,6 +579,7 @@ definitions:
               description: "The URL at which the Research Object is deposited, if applicable."
               type: "string"
               format: "uri"
+              nullable: true
   ResearchObjectSummary:
     type: "object"
     properties:
@@ -553,7 +588,19 @@ definitions:
       profileName:
         type: "string"
       _links:
-        $ref: "#/definitions/Links"
+        allOf:
+        - $ref: "#/definitions/Links"
+        - type: "object"
+          properties:
+            profile:
+              description: "The Research Object's Profile."
+              type: "string"
+              format: "uri"
+            deposition:
+              description: "The URL at which the Research Object is deposited, if applicable."
+              type: "string"
+              format: "uri"
+              nullable: true
   HALCollection:
     type: "object"
     properties:
@@ -561,12 +608,34 @@ definitions:
         type: "object"
       _links:
         $ref: "#/definitions/Links"
+  PagedHALCollection:
+    allOf:
+    - $ref: "#/definitions/HALCollection"
+    - type: "object"
+      properties:
+        page:
+          $ref: "#/definitions/Pagination"
   Links:
     type: "object"
     properties:
       self:
         type: "string"
         format: "uri"
+  Pagination:
+    type: "object"
+    properties:
+      size:
+        type: "integer"
+        description: "The number of items per page."
+      totalElements:
+        type: "integer"
+        description: "The total number of items in the collection."
+      totalPages:
+        type: "integer"
+        description: "The total number of pages in the collection."
+      number:
+        type: "integer"
+        description: "The current page number."
   JSONPointer:
     type: "string"
   JSONPatchRequest:
@@ -640,3 +709,19 @@ definitions:
   JSONSchemaDraft7:
     type: "object"
     description: "A schema conforming to the JSON schema (Draft 7) spec. https://json-schema.org/specification-links.html#draft-7"
+  Root:
+    type: "object"
+    properties:
+      _links:
+        allOf:
+        - $ref: "#/definitions/Links"
+        - type: "object"
+          properties:
+            profiles:
+              description: "The root endpoint for Research Object Profiles."
+              type: "string"
+              format: "uri"
+            researchObjects:
+              description: "The root endpoint for Research Objects."
+              type: "string"
+              format: "uri"
