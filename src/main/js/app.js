@@ -173,9 +173,11 @@ class App extends React.Component {
         return (
             <div>
                 { this.state.modal }
-                <ProfileList profiles={this.state.profiles} loadForm={this.loadCreateForm} viewSchema={this.viewSchema}/>
+                <ProfileList profiles={this.state.profiles}
+                             loadCreateForm={this.loadCreateForm}
+                             viewSchema={this.viewSchema}/>
                 <ResearchObjectList researchObjects={this.state.researchObjects}
-                                    loadForm={this.loadEditForm}
+                                    loadEditForm={this.loadEditForm}
                                     readResearchObject={this.readResearchObject}
                                     deleteResearchObject={this.deleteResearchObject}
                 />
@@ -189,7 +191,7 @@ class ProfileList extends React.Component{
         const profiles = this.props.profiles.map(profile =>
             <Profile key={profile._links.self.href}
                      profile={profile}
-                     loadForm={this.props.loadForm}
+                     loadCreateForm={this.props.loadCreateForm}
                      viewSchema={this.props.viewSchema}/>
         );
         return (
@@ -206,13 +208,13 @@ class ProfileList extends React.Component{
 class Profile extends React.Component{
     constructor(props) {
         super(props);
-        this.loadForm = this.loadForm.bind(this);
+        this.loadCreateForm = this.loadCreateForm.bind(this);
         this.viewSchema = this.viewSchema.bind(this);
         this.viewResolvedSchema = this.viewResolvedSchema.bind(this);
     }
 
-    loadForm() {
-        this.props.loadForm(this.props.profile);
+    loadCreateForm() {
+        this.props.loadCreateForm(this.props.profile);
     }
 
     viewSchema() {
@@ -230,7 +232,7 @@ class Profile extends React.Component{
                     <div className="panel-body">
                         <div className="clearfix">
                             <div className="pull-left">{this.props.profile.name}</div>
-                            <button className="btn btn-xs btn-success pull-right" onClick={this.loadForm}>
+                            <button className="btn btn-xs btn-success pull-right" onClick={this.loadCreateForm}>
                                 <i className="glyphicon glyphicon-plus"></i> New RO
                             </button>
                         </div>
@@ -254,7 +256,7 @@ class ResearchObjectList extends React.Component{
         const researchObjectSummaries = this.props.researchObjects.map(researchObject =>
             <ResearchObjectSummary key={researchObject._links.self.href}
                                    researchObject={researchObject}
-                                   loadForm={this.props.loadForm}
+                                   loadEditForm={this.props.loadEditForm}
                                    readResearchObject={this.props.readResearchObject}
                                    deleteResearchObject={this.props.deleteResearchObject}
             />
@@ -283,13 +285,13 @@ class ResearchObjectList extends React.Component{
 class ResearchObjectSummary extends React.Component{
     constructor(props) {
         super(props);
-        this.loadForm = this.loadForm.bind(this);
+        this.loadEditForm = this.loadEditForm.bind(this);
         this.readResearchObject = this.readResearchObject.bind(this);
         this.deleteResearchObject = this.deleteResearchObject.bind(this);
     }
 
-    loadForm() {
-        this.props.loadForm(this.props.researchObject);
+    loadEditForm() {
+        this.props.loadEditForm(this.props.researchObject);
     }
 
     readResearchObject() {
@@ -318,7 +320,7 @@ class ResearchObjectSummary extends React.Component{
             depositionUrl = <span className="muted">n/a</span>;
 
             buttons.push(
-                <button key="edit" className="btn btn-xs btn-default" onClick={this.loadForm}>
+                <button key="edit" className="btn btn-xs btn-default" onClick={this.loadEditForm}>
                     <i className="glyphicon glyphicon-edit"></i> Edit
                 </button>
             );
@@ -352,9 +354,9 @@ class ResearchObjectSummary extends React.Component{
 
 function Modal(props) {
     return (
-        <div className="form-wrapper">
+        <div className="modal-wrapper">
             <div className="blackout" onClick={props.onCancel}></div>
-            <div className="panel panel-default form-panel">
+            <div className="panel panel-default modal-panel">
                 <div className="panel-heading">
                     {props.title}
                     <button type="button" className="close" aria-label="Close" onClick={props.onCancel}>
