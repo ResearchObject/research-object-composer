@@ -3,8 +3,10 @@ package uk.org.esciencelab.researchobjectservice.researchobject;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceAssembler;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.stereotype.Component;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfileController;
+import uk.org.esciencelab.researchobjectservice.util.LinkWithName;
 
 import java.util.Iterator;
 
@@ -36,7 +38,9 @@ public class ResearchObjectResourceAssembler implements ResourceAssembler<Resear
         Iterator<String> i = researchObject.getContent().fieldNames();
         while(i.hasNext()) {
             String field = i.next();
-            resource.add(linkTo(methodOn(ContentController.class).getResearchObjectField(researchObject.getId(), field)).withRel(field));
+            ControllerLinkBuilder cb = linkTo(methodOn(ContentController.class).getResearchObjectField(researchObject.getId(), field));
+            LinkWithName link = new LinkWithName(cb.toString(), "fields", field);
+            resource.add(link);
         }
 
         return resource;
