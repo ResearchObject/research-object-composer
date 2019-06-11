@@ -534,11 +534,17 @@ definitions:
         - type: "object"
           properties:
             researchObjects:
-              type: "string"
-              format: "uri"
+              type: "object"
+              properties:
+                href:
+                  type: "string"
+                  format: "uri"
             schema:
-              type: "string"
-              format: "uri"
+              type: "object"
+              properties:
+                href:
+                  type: "string"
+                  format: "uri"
   ResearchObjectSummaryList:
     allOf:
     - $ref: "#/definitions/PagedHALCollection"
@@ -573,13 +579,39 @@ definitions:
           properties:
             profile:
               description: "The Research Object's Profile."
-              type: "string"
-              format: "uri"
+              type: "object"
+              properties:
+                href:
+                  type: "string"
+                  format: "uri"
             deposition:
               description: "The URL at which the Research Object is deposited, if applicable."
-              type: "string"
-              format: "uri"
+              type: "object"
+              properties:
+                href:
+                  type: "string"
+                  format: "uri"
               nullable: true
+            content:
+              description: "A resource for the actual JSON content of the Research Object."
+              type: "object"
+              properties:
+                href:
+                  type: "string"
+                  format: "uri"
+            fields:
+              description: "Resources where the top-level fields of the Research Object can be RESTfully modified."
+              type: "array"
+              items:
+                type: "object"
+                properties:
+                  href:
+                    type: "string"
+                    format: "uri"
+                  name:
+                    description: "The name of the field."
+                    type: "string"
+
   ResearchObjectSummary:
     type: "object"
     properties:
@@ -594,12 +626,18 @@ definitions:
           properties:
             profile:
               description: "The Research Object's Profile."
-              type: "string"
-              format: "uri"
+              type: "object"
+              properties:
+                href:
+                  type: "string"
+                  format: "uri"
             deposition:
               description: "The URL at which the Research Object is deposited, if applicable."
-              type: "string"
-              format: "uri"
+              type: "object"
+              properties:
+                href:
+                  type: "string"
+                  format: "uri"
               nullable: true
   HALCollection:
     type: "object"
@@ -619,8 +657,11 @@ definitions:
     type: "object"
     properties:
       self:
-        type: "string"
-        format: "uri"
+        type: "object"
+        properties:
+          href:
+            type: "string"
+            format: "uri"
   Pagination:
     type: "object"
     properties:
@@ -719,9 +760,15 @@ definitions:
           properties:
             profiles:
               description: "The root endpoint for Research Object Profiles."
-              type: "string"
-              format: "uri"
+              type: "object"
+              properties:
+                href:
+                  type: "string"
+                  format: "uri"
             researchObjects:
               description: "The root endpoint for Research Objects."
-              type: "string"
-              format: "uri"
+              type: "object"
+              properties:
+                href:
+                  type: "string"
+                  format: "uri"
