@@ -26,6 +26,10 @@ public class MendeleyDataClient {
     private String accessToken;
 
     private static final String USER_AGENT = "Java/Research Object Composer";
+    private static final String DRAFT_DATASET_TYPE = "application/vnd.mendeley-draft-dataset.1+json";
+    private static final String DRAFT_DATASET_CREATE_TYPE = "application/vnd.mendeley-dataset-creation-request.1+json";
+    private static final String DRAFT_DATASET_PATCH_TYPE = "application/vnd.mendeley-dataset-patch.1+json";
+    private static final String FILE_CONTENT_TYPE = "application/vnd.mendeley-content-ticket.1+json";
 
     public MendeleyDataClient(String baseUrl, String accessToken) {
         this.baseUrl = baseUrl.replaceAll("/$", "");
@@ -54,7 +58,7 @@ public class MendeleyDataClient {
      */
     public JsonNode createFileContent(File file) throws IOException {
         Request req = Request.Post(buildUrl("/file_contents"))
-                .addHeader("Accept", "application/vnd.mendeley-content-ticket.1+json")
+                .addHeader("Accept", FILE_CONTENT_TYPE)
                 .bodyFile(file, ContentType.create("application/zip"));
 
         return performRequest(req);
@@ -80,8 +84,8 @@ public class MendeleyDataClient {
         content.set("content_details", contentDetails);
 
         Request req = Request.Patch(buildUrl("/datasets/drafts/" + datasetId))
-                .addHeader("Accept", "application/vnd.mendeley-draft-dataset.1+json")
-                .bodyString(content.toString(), ContentType.create("application/vnd.mendeley-dataset-patch.1+json"));
+                .addHeader("Accept", DRAFT_DATASET_TYPE)
+                .bodyString(content.toString(), ContentType.create(DRAFT_DATASET_PATCH_TYPE));
 
         return performRequest(req);
     }
@@ -103,6 +107,20 @@ public class MendeleyDataClient {
         }
 
         return mapper.readTree(writer.toString());
+    }
+
+    /**
+     * Publish a Mendeley Data draft Dataset.
+     * @param datasetId The ID of the Dataset.
+     * @return The modified Mendeley Data Dataset resource, as JSON.
+     * @throws IOException
+     */
+    public JsonNode publishDataset(String datasetId) throws IOException {
+        Request req = Request.Post(buildUrl("/datasets/drafts/" + datasetId))
+                .addHeader("Accept", DRAFT_DATASET_TYPE)
+                .addHeader("Content-Type", DRAFT_DATASET_TYPE);
+
+        return performRequest(req);
     }
 
     private String buildUrl(String path) {

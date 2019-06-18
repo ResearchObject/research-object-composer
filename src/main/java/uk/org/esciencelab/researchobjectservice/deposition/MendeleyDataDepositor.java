@@ -54,6 +54,10 @@ public class MendeleyDataDepositor implements Depositor {
             JsonNode patchResponse = client.addFileToDataset(datasetId, fileContentId, researchObject.getFriendlyId() + ".zip", "Research Object");
             logger.info(patchResponse.toString());
 
+//            logger.info("Publishing Dataset (id: " + datasetId + ").");
+//            JsonNode pubResponse = client.publishDataset(datasetId);
+//            logger.info(pubResponse.toString());
+
             return new URI("https://doi.org/" + patchResponse.get("doi").get("id").asText());
         } catch (DepositionException e) { // Don't double wrap
             logger.error("Deposition error:", e);
