@@ -79,9 +79,7 @@ public class MendeleyDataClient {
         contentDetails.put("id", fileId);
         content.set("content_details", contentDetails);
 
-        System.out.println(content);
-
-        Request req = Request.Post(buildUrl("/datasets/drafts/" + datasetId))
+        Request req = Request.Patch(buildUrl("/datasets/drafts/" + datasetId))
                 .addHeader("Accept", "application/vnd.mendeley-draft-dataset.1+json")
                 .bodyString(content.toString(), ContentType.create("application/vnd.mendeley-dataset-patch.1+json"));
 

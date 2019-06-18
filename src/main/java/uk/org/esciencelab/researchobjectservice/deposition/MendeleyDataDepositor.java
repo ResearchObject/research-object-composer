@@ -1,6 +1,7 @@
 package uk.org.esciencelab.researchobjectservice.deposition;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import uk.org.esciencelab.researchobjectservice.serialization.BagItROService;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
@@ -40,28 +42,36 @@ public class MendeleyDataDepositor implements Depositor {
 
             logger.info("Creating Mendeley Data Dataset.");
             JsonNode datasetResponse = client.createDataset(buildMetadata(researchObject));
-            System.out.println(datasetResponse);
+            logger.info(datasetResponse.toString());
             String datasetId = datasetResponse.get("id").asText();
 
             logger.info("Uploading Mendeley Data File Content.");
             JsonNode fileContentResponse = client.createFileContent(tempFile);
-            System.out.println(fileContentResponse);
+            logger.info(fileContentResponse.toString());
             String fileContentId = fileContentResponse.get("id").asText();
 
             logger.info("Linking File Content (id: " + fileContentId + ") to Dataset (id: " + datasetId + ").");
             JsonNode patchResponse = client.addFileToDataset(datasetId, fileContentId, researchObject.getFriendlyId() + ".zip", "Research Object");
-            System.out.println(patchResponse);
+            logger.info(patchResponse.toString());
 
-            return new URI("https://doi.org/" + patchResponse.get("doi").asText());
+            return new URI("https://doi.org/" + patchResponse.get("doi").get("id").asText());
         } catch (DepositionException e) { // Don't double wrap
+            logger.error("Deposition error:", e);
             throw e;
         } catch (Exception e) {
+            logger.error("Deposition error:", e);
             throw new DepositionException(e);
         }
     }
 
     private JsonNode buildMetadata(ResearchObject researchObject) {
-        ObjectNode meta = (ObjectNode) researchObject.getField("_metadata");
+        ObjectMapper om = new ObjectMapper();
+        ObjectNode meta;
+        try {
+            meta = (ObjectNode) om.readTree(researchObject.getField("_metadata").toString());
+        } catch (IOException e) {
+            throw new DepositionException("Could not duplicate metadata.");
+        }
         if (meta == null)
             throw new DepositionException("No '_metadata' field provided!");
 

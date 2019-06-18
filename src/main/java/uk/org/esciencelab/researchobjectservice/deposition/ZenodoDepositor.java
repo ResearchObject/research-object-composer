@@ -50,12 +50,14 @@ public class ZenodoDepositor implements Depositor {
 
             logger.info("Publishing deposition.");
             JsonNode pubRes = client.publishDeposition(depositionId);
-            System.out.println(pubRes);
+            logger.info(pubRes.toString());
 
             return depositionUrl;
         } catch (DepositionException e) { // Don't double wrap
+            logger.error("Deposition error:", e);
             throw e;
         } catch (Exception e) {
+            logger.error("Deposition error:", e);
             throw new DepositionException(e);
         }
     }

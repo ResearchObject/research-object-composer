@@ -1,5 +1,7 @@
 package uk.org.esciencelab.researchobjectservice.deposition;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
@@ -19,6 +21,7 @@ import java.util.Map;
  */
 @Component
 public class GenericHTTPDepositor implements Depositor {
+    private static final Logger logger = LoggerFactory.getLogger(GenericHTTPDepositor.class);
     private static final String USER_AGENT = "Java/Research Object Composer";
 
     @Autowired
@@ -64,6 +67,7 @@ public class GenericHTTPDepositor implements Depositor {
                 throw new DepositionException(code, null);
             }
         } catch (Exception e) {
+            logger.error("Deposition error:", e);
             throw new DepositionException(e);
         }
     }
