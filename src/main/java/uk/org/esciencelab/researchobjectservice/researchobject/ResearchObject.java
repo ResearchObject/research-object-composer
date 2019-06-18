@@ -215,7 +215,7 @@ public class ResearchObject {
     /**
      * Validate the RO against its profile.
      */
-    public void validate() {
+    public void validate() throws ProfileValidationException {
         getValidator().validate(getContent());
         this.updateContentSha256();
         this.state = State.VALIDATED;

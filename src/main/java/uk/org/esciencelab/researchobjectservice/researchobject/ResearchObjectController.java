@@ -93,6 +93,7 @@ public class ResearchObjectController {
     @PostMapping(value="/research_objects/{id}/bag", produces="application/zip")
     public void mintBag(@PathVariable long id, HttpServletResponse response) throws Exception {
         ResearchObject researchObject = getResearchObject(id);
+        researchObject.validate();
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.addHeader("Content-Disposition", "attachment; filename=\"+" + id + "+.zip\"");
@@ -107,6 +108,8 @@ public class ResearchObjectController {
     public String deposit(@PathVariable long id, HttpServletResponse response, @RequestParam Map<String,String> depositorParams) {
         ResearchObject researchObject = getResearchObject(id);
         checkMutable(researchObject);
+        researchObject.validate();
+
         URI depositionUri = depositorService.deposit(researchObject, depositorParams);
         researchObject.setDepositionUrl(depositionUri);
         researchObjectRepository.save(researchObject);
