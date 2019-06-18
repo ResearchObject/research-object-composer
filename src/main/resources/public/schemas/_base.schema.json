@@ -117,7 +117,8 @@
           "type": "string",
           "pattern": "^[0-9a-f]{32}$"
         }
-      }
+      },
+      "required": ["type", "checksum"]
     },
     "sha256sum": {
       "title": "SHA-256",
@@ -131,7 +132,8 @@
           "type": "string",
           "pattern": "^[0-9a-f]{64}$"
         }
-      }
+      },
+      "required": ["type", "checksum"]
     },
     "sha512sum": {
       "title": "SHA-512",
@@ -145,7 +147,8 @@
           "type": "string",
           "pattern": "^[0-9a-f]{128}$"
         }
-      }
+      },
+      "required": ["type", "checksum"]
     }
   }
 }
