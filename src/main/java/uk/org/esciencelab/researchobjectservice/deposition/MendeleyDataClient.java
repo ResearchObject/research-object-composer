@@ -44,8 +44,8 @@ public class MendeleyDataClient {
      */
     public JsonNode createDataset(JsonNode metadata) throws IOException {
         Request req = Request.Post(buildUrl("/datasets/drafts"))
-                .addHeader("Accept", "application/vnd.mendeley-draft-dataset.1+json")
-                .bodyString(metadata.toString(), ContentType.create("application/vnd.mendeley-dataset-creation-request.1+json"));
+                .addHeader("Accept", DRAFT_DATASET_TYPE)
+                .bodyString(metadata.toString(), ContentType.create(DRAFT_DATASET_CREATE_TYPE));
 
         return performRequest(req);
     }
