@@ -2,15 +2,13 @@ package uk.org.esciencelab.researchobjectservice.deposition;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,16 +74,34 @@ public class MendeleyDataClient {
     public JsonNode addFileToDataset(String datasetId, String fileId, String filename, String description) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
-        ObjectNode content = mapper.createObjectNode();
-        content.put("filename", filename);
-        content.put("description", description);
+        ObjectNode wrapper = mapper.createObjectNode();
+        ArrayNode files = mapper.createArrayNode();
+        ObjectNode fileContent = mapper.createObjectNode();
+        fileContent.put("filename", filename);
+        fileContent.put("description", description);
         ObjectNode contentDetails = mapper.createObjectNode();
         contentDetails.put("id", fileId);
-        content.set("content_details", contentDetails);
+        fileContent.set("content_details", contentDetails);
+        files.add(fileContent);
+        wrapper.set("files", files);
 
         Request req = Request.Patch(buildUrl("/datasets/drafts/" + datasetId))
                 .addHeader("Accept", DRAFT_DATASET_TYPE)
-                .bodyString(content.toString(), ContentType.create(DRAFT_DATASET_PATCH_TYPE));
+                .bodyString(wrapper.toString(), ContentType.create(DRAFT_DATASET_PATCH_TYPE));
+
+        return performRequest(req);
+    }
+
+    /**
+     * Publish a Mendeley Data draft Dataset.
+     * @param datasetId The ID of the Dataset.
+     * @return The modified Mendeley Data Dataset resource, as JSON.
+     * @throws IOException
+     */
+    public JsonNode publishDataset(String datasetId) throws IOException {
+        Request req = Request.Post(buildUrl("/datasets/drafts/" + datasetId))
+                .addHeader("Accept", DRAFT_DATASET_TYPE)
+                .addHeader("Content-Type", DRAFT_DATASET_TYPE);
 
         return performRequest(req);
     }
@@ -107,20 +123,6 @@ public class MendeleyDataClient {
         }
 
         return mapper.readTree(writer.toString());
-    }
-
-    /**
-     * Publish a Mendeley Data draft Dataset.
-     * @param datasetId The ID of the Dataset.
-     * @return The modified Mendeley Data Dataset resource, as JSON.
-     * @throws IOException
-     */
-    public JsonNode publishDataset(String datasetId) throws IOException {
-        Request req = Request.Post(buildUrl("/datasets/drafts/" + datasetId))
-                .addHeader("Accept", DRAFT_DATASET_TYPE)
-                .addHeader("Content-Type", DRAFT_DATASET_TYPE);
-
-        return performRequest(req);
     }
 
     private String buildUrl(String path) {
