@@ -19,13 +19,9 @@
     display: none;
 }
 
-.checksums .field-object legend {
-    display: none;
-}
-
-.checksums .array-item .field-string:first-of-type {
-    display: none;
-}
+/*.checksums select {*/
+    /*display: none;*/
+/*}*/
 
 .metadata {
     background-color: #d4dee3;
