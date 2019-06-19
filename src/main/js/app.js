@@ -373,6 +373,88 @@ function Modal(props) {
     );
 }
 
+const CHECKSUM_TYPES = [
+    { type: "md5", title: "MD5", regex: /^[0-9a-f]{32}$/ },
+    { type: "sha256", title: "SHA-256", regex: /^[0-9a-f]{64}$/ },
+    { type: "sha512", title: "SHA-512", regex: /^[0-9a-f]{128}$/ }
+];
+
+// Define a custom component for handling the array of checksums
+class ChecksumsComponent extends React.Component {
+    constructor(props) {
+        super(props);
+        this.maxId = 0;
+        this.state = { checksums: (props.formData || []).filter(Boolean).map(c => Object.assign(c, { id: ++this.maxId })) };
+        this.onChange = this.onChange.bind(this);
+        this.add = this.add.bind(this);
+        this.delete = this.delete.bind(this);
+    }
+
+    onChange(id, updated) {
+        let newState = this.state.checksums.map((c) => (c.id === id) ? Object.assign(c, updated) : c);
+
+        this.setState({ checksums: newState },
+            () => this.props.onChange(this.state.checksums)); // This passes up the state back to the Form for validation
+    }
+
+    add () {
+        const newArray = this.state.checksums.concat({ type: CHECKSUM_TYPES[0].type, checksum: '', id: ++this.maxId });
+        this.setState({ checksums: newArray },
+            () => this.props.onChange(this.state.checksums)); // This passes up the state back to the Form for validation
+    }
+
+    delete (id) {
+        this.setState({ checksums: this.state.checksums.filter((c) => c.id !== id) },
+            () => this.props.onChange(this.state.checksums)); // This passes up the state back to the Form for validation
+    }
+
+    render() {
+        const sums = this.state.checksums.map((c) =>
+            <ChecksumForm key={c.id} type={c.type} checksum={c.checksum} id={c.id} onChange={this.onChange} onDelete={() => this.delete(c.id)}/>
+        );
+        return (
+            <div>
+                <label className="control-label">Checksums<span className="required">*</span></label>
+                { sums }
+                <div className="clearfix">
+                    <button type="button" className="btn btn-info btn-add btn-xs col-xs-2" onClick={this.add}>
+                        <i className="glyphicon glyphicon-plus"></i>
+                    </button>
+                </div>
+            </div>
+        );
+    }
+}
+
+
+// Define a custom component for handling a single checksum
+class ChecksumForm extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    onChange(name) {
+        return (event) => {
+            this.setState({
+                [name]: event.target.value
+            }, () => this.props.onChange(this.props.id, this.state));
+        };
+    }
+
+    render() {
+        const selectOpts = CHECKSUM_TYPES.map((c) => <option key={c.type} value={c.type}>{c.title}</option>);
+        return (
+            <div className="form-inline checksum-row">
+                <select className="form-control" value={this.props.type} onChange={this.onChange("type")}>{ selectOpts }</select>
+                <input className="form-control" size="70" type="text" value={this.props.checksum} onChange={this.onChange("checksum")}/>
+                <button type="button" className="btn btn-danger array-item-remove pull-right" onClick={this.props.onDelete}>
+                    <i className="glyphicon glyphicon-remove"></i>
+                </button>
+            </div>
+        );
+    }
+}
+
 class ResearchObjectForm extends React.Component{
     constructor(props) {
         super(props);
@@ -391,8 +473,9 @@ class ResearchObjectForm extends React.Component{
                 <Form schema={this.props.schema}
                       uiSchema={this.props.uiSchema}
                       formData={this.props.formData}
+                      fields={{ checksums: ChecksumsComponent }}
                     //  onChange={this.recordChanges}
-                    // onError={log("errors")}
+                      onError={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                       onSubmit={this.props.onSubmit}>
                     <div>
                         <button className="btn btn-primary" type="submit">Submit</button>

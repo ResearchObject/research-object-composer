@@ -92,3 +92,7 @@
     font-family: monospace;
     width: 100%;
 }
+
+.checksum-row {
+    margin-bottom: 5px;
+}

@@ -78,7 +78,8 @@
           },
           "minItems": 1,
           "$ui": {
-            "classNames": "checksums"
+            "classNames": "checksums",
+            "ui:field": "checksums"
           }
         }
       },
