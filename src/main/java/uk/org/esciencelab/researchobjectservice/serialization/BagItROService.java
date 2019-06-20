@@ -158,9 +158,11 @@ public class BagItROService {
 
         if (json.isArray()) {
             Schema itemSchema = ((ArraySchema) schema).getAllItemSchema();
-            for (JsonNode child : json) {
-                if (child.isContainerNode()) {
-                    gatherBagEntries(entries, bagRoot, child, itemSchema, bagPath);
+            if (itemSchema != null) {
+                for (JsonNode child : json) {
+                    if (child.isContainerNode()) {
+                        gatherBagEntries(entries, bagRoot, child, itemSchema, bagPath);
+                    }
                 }
             }
         } else if (json.isObject()) {
@@ -169,8 +171,7 @@ public class BagItROService {
                 try {
                     entries.add(new BagEntry(bagRoot, bagPath, json));
                 } catch (MalformedURLException e) {
-                    System.err.println("Bad URL:");
-                    System.err.println(json);
+                    logger.error("Could not bag malformed URL: " + json.toString());
                 }
             }
             Iterator<Map.Entry<String, JsonNode>> i = json.fields();
@@ -179,12 +180,14 @@ public class BagItROService {
                 if (entry.getValue().isContainerNode()) {
                     Schema propertySchema = ((ObjectSchema) resolveSchema(schema)).getPropertySchemas().get(entry.getKey());
 
-                    // If this property has an entry in the $baggable map, set up bagPath.
-                    String newBagPath = null;
-                    if (baggableMap != null) {
-                        newBagPath = baggableMap.get(entry.getKey());
+                    if (propertySchema != null) {
+                        // If this property has an entry in the $baggable map, set up bagPath.
+                        String newBagPath = null;
+                        if (baggableMap != null) {
+                            newBagPath = baggableMap.get(entry.getKey());
+                        }
+                        gatherBagEntries(entries, bagRoot, entry.getValue(), propertySchema, newBagPath);
                     }
-                    gatherBagEntries(entries, bagRoot, entry.getValue(), propertySchema, newBagPath);
                 }
             }
         }

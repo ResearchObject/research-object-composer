@@ -25,7 +25,7 @@ public class ZenodoClient {
     private String accessToken;
 
     private static final String DEPOSITIONS_BASE = "/api/deposit/depositions";
-    private final String USER_AGENT = "Java/Research Object Composer";
+    private static final String USER_AGENT = "Java/Research Object Composer";
 
     public ZenodoClient(String baseUrl, String accessToken) {
         this.baseUrl = baseUrl.replaceAll("/$", "");

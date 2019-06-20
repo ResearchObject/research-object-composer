@@ -16,15 +16,15 @@
         "description": {
           "type": "string"
         },
+        "license": {
+          "type": "string"
+        },
         "creators": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Author"
           },
           "minItems": 1
-        },
-        "license": {
-          "type": "string"
         }
       },
       "required": [
@@ -61,22 +61,26 @@
     "RemoteItem": {
       "type": "object",
       "properties": {
-        "length": {
-          "type": "integer"
-        },
         "filename": {
           "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "length": {
+          "type": "integer"
         },
         "checksums": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Checksum"
           },
-          "minItems": 1
-        },
-        "url": {
-          "type": "string",
-          "format": "uri"
+          "minItems": 1,
+          "$ui": {
+            "classNames": "checksums",
+            "ui:field": "checksums"
+          }
         }
       },
       "required": [
@@ -84,7 +88,10 @@
         "filename",
         "url",
         "checksums"
-      ]
+      ],
+      "$ui": {
+        "classNames": "remote-item"
+      }
     },
     "Checksum": {
       "oneOf": [
@@ -100,6 +107,7 @@
       ]
     },
     "md5sum": {
+      "title": "MD5",
       "type": "object",
       "properties": {
         "type": {
@@ -110,9 +118,11 @@
           "type": "string",
           "pattern": "^[0-9a-f]{32}$"
         }
-      }
+      },
+      "required": ["type", "checksum"]
     },
     "sha256sum": {
+      "title": "SHA-256",
       "type": "object",
       "properties": {
         "type": {
@@ -123,9 +133,11 @@
           "type": "string",
           "pattern": "^[0-9a-f]{64}$"
         }
-      }
+      },
+      "required": ["type", "checksum"]
     },
     "sha512sum": {
+      "title": "SHA-512",
       "type": "object",
       "properties": {
         "type": {
@@ -136,7 +148,8 @@
           "type": "string",
           "pattern": "^[0-9a-f]{128}$"
         }
-      }
+      },
+      "required": ["type", "checksum"]
     }
   }
 }

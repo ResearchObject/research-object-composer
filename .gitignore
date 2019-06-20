@@ -26,3 +26,7 @@
 # Jupyter Noteboook
 .ipynb_checkpoints
 bag.zip
+
+### JS ###
+node_modules
+src/main/resources/static/built

@@ -1,0 +1,98 @@
+/*.profile-list-wrapper {*/
+    /*max-width: 300px;*/
+/*}*/
+
+#root legend, #root .control-label {
+    text-transform: capitalize;
+}
+
+.metadata .array-item .form-group {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.creator-name .form-control {
+    width: 26.5em;
+}
+
+.metadata .array-item .control-label {
+    display: none;
+}
+
+/*.checksums select {*/
+    /*display: none;*/
+/*}*/
+
+.metadata {
+    background-color: #d4dee3;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.remote-item {
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+#react {
+    position: relative;
+}
+
+.blackout {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: 0.5;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.modal-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-wrapper .modal-panel {
+    position: relative;
+    z-index: 1010;
+}
+
+.muted {
+    color: #999;
+}
+
+.property {
+    margin-left: 1em;
+}
+
+.property strong {
+    text-transform: capitalize;
+}
+
+.property-array-item {
+    border-width: 0 0 0 3px;
+    border-style: solid;
+    margin: 5px 0 5px 1em;
+    border-color: #ddd;
+}
+
+.property-array-item:nth-child(odd) {
+    border-color: #999;
+}
+
+.property-key {
+    text-transform: capitalize;
+}
+
+.schema-json {
+    font-family: monospace;
+    width: 100%;
+}
+
+.checksum-row {
+    margin-bottom: 5px;
+}

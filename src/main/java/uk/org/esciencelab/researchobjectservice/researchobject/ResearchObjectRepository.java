@@ -1,9 +1,9 @@
 package uk.org.esciencelab.researchobjectservice.researchobject;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
-
-import java.util.List;
 
 /**
  * A repository to handle fetching of Research Objects from the database.
@@ -14,5 +14,5 @@ public interface ResearchObjectRepository extends PagingAndSortingRepository<Res
      * @param profile
      * @return
      */
-    List<ResearchObject> findAllByProfile(ResearchObjectProfile profile);
+    Page<ResearchObject> findAllByProfile(Pageable pageable, ResearchObjectProfile profile);
 }
