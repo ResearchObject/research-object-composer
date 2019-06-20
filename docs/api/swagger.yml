@@ -197,8 +197,8 @@ paths:
       - in: "query"
         name: "page"
         type: "integer"
-        description: "The page number to display. Starts from 0."
-        default: 0
+        description: "The page number to display. Starts from 1."
+        default: 1
       - in: "query"
         name: "size"
         type: "integer"
