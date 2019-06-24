@@ -5,10 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.loc.repository.bagit.creator.BagCreator;
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.domain.Manifest;
+import gov.loc.repository.bagit.domain.Metadata;
 import gov.loc.repository.bagit.hash.Hasher;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import gov.loc.repository.bagit.hash.SupportedAlgorithm;
+import gov.loc.repository.bagit.util.PathUtils;
 import gov.loc.repository.bagit.writer.BagWriter;
+import gov.loc.repository.bagit.writer.MetadataWriter;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.ObjectSchema;
 import org.everit.json.schema.ReferenceSchema;
@@ -77,7 +80,11 @@ public class BagItROService {
         gatherBagEntries(entries, bagLocation, researchObject.getContent(),
                 researchObject.getProfile().getSchemaWrapper().getObjectSchema(), null);
 
-        // For each remote file found, check which checksums are used and add to the respective map
+        // For each remote file found, check which checksums are used and add to the respective map.
+        // Also track total octet count of all remote files;
+        int octetCount = 0;
+        int streamCount = 0;
+
         for (BagEntry entry : entries) {
             for (SupportedAlgorithm alg : checksumMap.keySet()) {
                 String checksum = entry.getChecksum(alg);
@@ -85,6 +92,9 @@ public class BagItROService {
                     checksumMap.get(alg).put(entry.getFilepath(), checksum);
                 }
             }
+
+            octetCount += entry.getLength();
+            streamCount++;
         }
 
         // Merge remote file checksums into the existing payload manifests (which should each just contain the one entry for data/content.json)
@@ -119,6 +129,18 @@ public class BagItROService {
 
         // Write everything into the temp dir (payload manifests, tag manifests, fetch file)
         BagWriter.write(bag, bagLocation);
+
+        // Hack the "Payload-Oxum" in bag-info.txt because it doesn't include the remote fetch.txt items in its sum.
+        Metadata bagitMetadata = bag.getMetadata();
+        String payloadOxum = bagitMetadata.get("Payload-Oxum").get(0);
+        String [] parts = payloadOxum.split("\\.");
+        octetCount += Integer.parseInt(parts[0]);
+        streamCount += Integer.parseInt(parts[1]);
+        bagitMetadata.upsertPayloadOxum("" + octetCount + "." + streamCount);
+        bag.setMetadata(bagitMetadata); // Not sure this is needed...
+
+        // Re-write the metadata file with the updated Oxum.
+        MetadataWriter.writeBagMetadata(bagitMetadata, bag.getVersion(), PathUtils.getBagitDir(bag), bag.getFileEncoding());
 
         return bagLocation;
     }
