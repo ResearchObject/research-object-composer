@@ -476,13 +476,51 @@ paths:
       tags:
       - "research_object"
       summary: "Deposit a Research Object"
-      description: "Deposit the Research Object into the configured repository."
+      description: "Deposit the Research Object into the default configured repository."
       operationId: "depositResearchObject"
       parameters:
       - in: "path"
         name: "id"
         type: "integer"
         description: "The numeric ID of the Research Object"
+        required: true
+      - in: "query"
+        name: "accessToken"
+        type: "string"
+        description: "An OAuth2 access token to provide to the depositor, if required."
+        required: false
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "object"
+        404:
+          description: "Research Object not found"
+        400:
+          description: "An error occurred whilst depositing the Research Object."
+          schema:
+            $ref: "#/definitions/DepositionErrorDocument"
+        405:
+          description: "The Research Object cannot be modified (it was already deposited?)."
+  /research_objects/{id}/deposit/{location}:
+    post:
+      tags:
+      - "research_object"
+      summary: "Deposit a Research Object in specified repository"
+      description: "Deposit the Research Object into the specified repository."
+      operationId: "depositResearchObjectAt"
+      parameters:
+      - in: "path"
+        name: "id"
+        type: "integer"
+        description: "The numeric ID of the Research Object"
+        required: true
+      - in: "path"
+        name: "location"
+        type: "string"
+        description: "The repository in which to deposit the Research Object"
         required: true
       - in: "query"
         name: "accessToken"

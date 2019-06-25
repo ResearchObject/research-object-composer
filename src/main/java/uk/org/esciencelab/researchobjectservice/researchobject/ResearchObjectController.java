@@ -105,14 +105,18 @@ public class ResearchObjectController {
     }
 
     @PostMapping(value="/research_objects/{id}/deposit", produces="text/plain")
-    public String deposit(@PathVariable long id, HttpServletResponse response, @RequestParam Map<String,String> depositorParams) {
-        ResearchObject researchObject = getResearchObject(id);
-        checkMutable(researchObject);
-        researchObject.validate();
+    public String defaultDeposit(@PathVariable long id, HttpServletResponse response, @RequestParam Map<String,String> depositorParams) {
+        URI depositionUri = doDeposit(id, null, depositorParams);
 
-        URI depositionUri = depositorService.deposit(researchObject, depositorParams);
-        researchObject.setDepositionUrl(depositionUri);
-        researchObjectRepository.save(researchObject);
+        response.setStatus(HttpServletResponse.SC_OK);
+        return depositionUri.toString();
+    }
+
+    @PostMapping(value="/research_objects/{id}/deposit/{depositor}", produces="text/plain")
+    public String deposit(@PathVariable long id, @PathVariable String depositor, HttpServletResponse response, @RequestParam Map<String,String> depositorParams) {
+        URI depositionUri = doDeposit(id,
+                depositor.endsWith("Depositor") ? depositor : (depositor + "Depositor"),
+                depositorParams);
 
         response.setStatus(HttpServletResponse.SC_OK);
         return depositionUri.toString();
@@ -126,5 +130,22 @@ public class ResearchObjectController {
         if (!researchObject.isMutable()) {
             throw new ImmutableResearchObjectException();
         }
+    }
+
+    private URI doDeposit(long id, String depositor, Map<String,String> depositorParams) {
+        ResearchObject researchObject = getResearchObject(id);
+        checkMutable(researchObject);
+        researchObject.validate();
+
+        URI depositionUri;
+        if (depositor != null) {
+            depositionUri = depositorService.deposit(researchObject, depositor, depositorParams);
+        } else {
+            depositionUri = depositorService.deposit(researchObject, depositorParams);
+        }
+        researchObject.setDepositionUrl(depositionUri);
+        researchObjectRepository.save(researchObject);
+
+        return depositionUri;
     }
 }
