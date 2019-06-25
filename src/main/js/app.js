@@ -7,7 +7,7 @@ const schemaUtil = require('./schema');
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { profiles: [], researchObjects: [], modal: null };
+        this.state = { profiles: [], researchObjects: [], roLinks: [], roPagination: {}, modal: null };
         this.loadCreateForm = this.loadCreateForm.bind(this);
         this.loadEditForm = this.loadEditForm.bind(this);
         this.cancelModal = this.cancelModal.bind(this);
@@ -16,6 +16,7 @@ class App extends React.Component {
         this.updateResearchObject = this.updateResearchObject.bind(this);
         this.deleteResearchObject = this.deleteResearchObject.bind(this);
         this.viewSchema = this.viewSchema.bind(this);
+        this.onNavigate = this.onNavigate.bind(this);
         this.links = {};
     }
 
@@ -39,9 +40,17 @@ class App extends React.Component {
     }
 
     loadROs() {
-        return client({ method: 'GET', path: this.links.researchObjects.href }).then(researchObjectCollection => {
-            this.setState({ researchObjects: researchObjectCollection.entity._embedded.researchObjectSummaryList });
-        });
+        return this.onNavigate(this.links.researchObjects.href);
+    }
+
+    onNavigate(location) {
+        return client({ method: 'GET', path: location }).then(researchObjectCollection => {
+            this.setState({
+                researchObjects: researchObjectCollection.entity._embedded.researchObjectSummaryList,
+                roLinks: researchObjectCollection.entity._links,
+                roPagination: researchObjectCollection.entity.page
+            });
+        })
     }
 
     loadCreateForm(profile) {
@@ -177,6 +186,9 @@ class App extends React.Component {
                              loadCreateForm={this.loadCreateForm}
                              viewSchema={this.viewSchema}/>
                 <ResearchObjectList researchObjects={this.state.researchObjects}
+                                    links={this.state.roLinks}
+                                    pagination={this.state.roPagination}
+                                    onNavigate={this.onNavigate}
                                     loadEditForm={this.loadEditForm}
                                     readResearchObject={this.readResearchObject}
                                     deleteResearchObject={this.deleteResearchObject}
@@ -196,7 +208,7 @@ class ProfileList extends React.Component{
         );
         return (
             <div className="profile-list-wrapper">
-                <h2>Available Profiles</h2>
+                <h2>Profiles</h2>
                 <div className="profile-list row">
                     {profiles}
                 </div>
@@ -252,6 +264,34 @@ class Profile extends React.Component{
 }
 
 class ResearchObjectList extends React.Component{
+    constructor(props) {
+        super(props);
+        this.handleNavFirst = this.handleNavFirst.bind(this);
+        this.handleNavPrev = this.handleNavPrev.bind(this);
+        this.handleNavNext = this.handleNavNext.bind(this);
+        this.handleNavLast = this.handleNavLast.bind(this);
+    }
+
+    handleNavFirst(e){
+        e.preventDefault();
+        this.props.onNavigate(this.props.links.first.href);
+    }
+
+    handleNavPrev(e) {
+        e.preventDefault();
+        this.props.onNavigate(this.props.links.prev.href);
+    }
+
+    handleNavNext(e) {
+        e.preventDefault();
+        this.props.onNavigate(this.props.links.next.href);
+    }
+
+    handleNavLast(e) {
+        e.preventDefault();
+        this.props.onNavigate(this.props.links.last.href);
+    }
+
     render() {
         const researchObjectSummaries = this.props.researchObjects.map(researchObject =>
             <ResearchObjectSummary key={researchObject._links.self.href}
@@ -261,6 +301,37 @@ class ResearchObjectList extends React.Component{
                                    deleteResearchObject={this.props.deleteResearchObject}
             />
         );
+
+        const navLinks = [];
+        // if ("first" in this.props.links) {
+        //     navLinks.push(<li className="previous"><a href="#" key="first" onClick={this.handleNavFirst}><span aria-hidden="true">&larr;</span> First</a></li>);
+        // }
+        if ("prev" in this.props.links) {
+            navLinks.push(<li className="previous"><a href="#" key="prev" onClick={this.handleNavPrev}><span aria-hidden="true">&larr;</span> Prev</a></li>);
+        }
+        // if ("last" in this.props.links) {
+        //     navLinks.push(<li className="next"><a href="#" key="last" onClick={this.handleNavLast}>Last <span aria-hidden="true">&rarr;</span></a></li>);
+        // }
+        if ("next" in this.props.links) { // Yes, the order of this is correct.
+            navLinks.push(<li className="next"><a href="#" key="next" onClick={this.handleNavNext}>Next <span aria-hidden="true">&rarr;</span></a></li>);
+        }
+
+        let pagination = null;
+        if (this.props.pagination && this.props.pagination.number) {
+            pagination =
+                <div>
+                    <div className="page-info clearfix row">
+                        <div className="col-xs-6">Page {this.props.pagination.number} of {this.props.pagination.totalPages}</div>
+                        <div className="col-xs-6 text-right">{this.props.pagination.totalElements} total Research Objects</div>
+                    </div>
+                    <nav>
+                        <ul className="pager">
+                            {navLinks}
+                        </ul>
+                    </nav>
+                </div>;
+        }
+
         return (
             <div className="research-object-list-wrapper">
                 <h2>Research Objects</h2>
@@ -277,6 +348,8 @@ class ResearchObjectList extends React.Component{
                     {researchObjectSummaries}
                     </tbody>
                 </table>
+
+                {pagination}
             </div>
         )
     }
