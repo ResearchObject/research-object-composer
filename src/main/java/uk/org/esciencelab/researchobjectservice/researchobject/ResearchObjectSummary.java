@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import uk.org.esciencelab.researchobjectservice.profile.ResearchObjectProfile;
 
 import java.net.URI;
+import java.util.Date;
 
 /**
  * A sparse "summary" version of a Research Object, to be used to serialize ROs on index views.
@@ -31,11 +32,19 @@ public class ResearchObjectSummary {
         return getProfile().getName();
     }
 
-    public String getContentSha256() {
-        return researchObject.getContentSha256();
-    }
-
     public URI getDepositionUrl() {
         return researchObject.getDepositionUrl();
+    }
+
+    public Date getCreatedAt() {
+        return researchObject.getCreatedAt();
+    }
+
+    public Date getModifiedAt() {
+        return researchObject.getModifiedAt();
+    }
+
+    public Date getDepositedAt() {
+        return researchObject.getDepositedAt();
     }
 }

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 
 /**
  * A representation of a RO produced by the composer.
@@ -59,6 +60,12 @@ public class ResearchObject {
     private String contentSha256;
 
     private URI depositionUrl;
+
+    private Date createdAt;
+
+    private Date modifiedAt;
+
+    private Date depositedAt;
 
     public ResearchObject() { }
 
@@ -229,10 +236,23 @@ public class ResearchObject {
     public void setDepositionUrl(URI depositionUrl) {
         this.depositionUrl = depositionUrl;
         this.state = State.DEPOSITED;
+        this.depositedAt = new Date();
     }
 
     public boolean isMutable() {
         return this.state != State.DEPOSITED;
+    }
+
+    public Date getCreatedAt() {
+        return this.createdAt;
+    }
+
+    public Date getModifiedAt() {
+        return this.modifiedAt;
+    }
+
+    public Date getDepositedAt() {
+        return this.depositedAt;
     }
 
     private ResearchObjectValidator getValidator() {
@@ -241,5 +261,15 @@ public class ResearchObject {
 
     private ObjectNode getTemplate() {
         return getProfile().getTemplate();
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.modifiedAt = new Date();
     }
 }
