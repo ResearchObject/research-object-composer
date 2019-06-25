@@ -224,6 +224,13 @@ public class ResearchObject {
      */
     public void validate() throws ProfileValidationException {
         getValidator().validate(getContent());
+    }
+
+    /**
+     * Validate the RO and mark it as validated.
+     */
+    public void validateAndUpdateState() throws ProfileValidationException {
+        validate();
         this.updateContentSha256();
         this.state = State.VALIDATED;
     }

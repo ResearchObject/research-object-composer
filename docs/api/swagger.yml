@@ -471,6 +471,28 @@ paths:
             $ref: "#/definitions/ValidationErrorDocument"
         405:
           description: "The Research Object cannot be modified (it was already deposited?)."
+  /research_objects/{id}/validate:
+    get:
+      tags:
+      - "research_object"
+      summary: "Validate a Research Object"
+      description: "Validate the Research Object, returning an error document if invalid."
+      operationId: "validateResearchObject"
+      parameters:
+      - in: "path"
+        name: "id"
+        type: "integer"
+        description: "The numeric ID of the Research Object"
+        required: true
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "The Research Object is valid"
+        400:
+          description: "The Research Object is invalid"
+          schema:
+            $ref: "#/definitions/DepositionErrorDocument"
   /research_objects/{id}/deposit:
     post:
       tags:
