@@ -155,11 +155,8 @@ public class BagItROService {
         Path bagLocation = bag(researchObject); // Create the bag
         logger.info("Zipping Research Object.");
         ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream); // Prep the stream
-        Path base = Paths.get(researchObject.getFriendlyId()); // The top-level folder in the Zip file that serves as the bag.
         // Zip each file in the bag
-        Files.walk(bagLocation).forEach(
-                source -> zipTo(source, base.resolve(bagLocation.relativize(source)), zipOutputStream)
-        );
+        Files.walk(bagLocation).forEach(source -> zipTo(source, bagLocation.relativize(source), zipOutputStream));
         zipOutputStream.flush();
         zipOutputStream.close();
     }
