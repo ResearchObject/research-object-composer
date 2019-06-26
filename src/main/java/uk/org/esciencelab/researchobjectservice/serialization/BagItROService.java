@@ -84,7 +84,7 @@ public class BagItROService {
 
         for (BagEntry entry : entries) {
             for (SupportedAlgorithm alg : checksumMap.keySet()) {
-                String checksum = entry.getChecksum(alg);
+                String checksum = entry.getChecksum("MD5");
                 if (checksum != null) {
                     checksumMap.get(alg).put(entry.getFilepath(), checksum);
                 }
@@ -193,7 +193,7 @@ public class BagItROService {
             // Bag this thing if bagPath was set!
             if (bagPath != null) {
                 try {
-                    entries.add(new BagEntry(bagRoot, bagPath, json));
+                    entries.add(new BagEntry(bagPath, json));
                 } catch (MalformedURLException e) {
                     logger.error("Could not bag malformed URL: " + json.toString());
                 }
