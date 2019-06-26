@@ -122,6 +122,14 @@ public class ResearchObjectController {
         return depositionUri.toString();
     }
 
+    @GetMapping(value="/research_objects/{id}/validate")
+    public void validate(@PathVariable long id, HttpServletResponse response) {
+        ResearchObject researchObject = getResearchObject(id);
+        researchObject.validate();
+
+        response.setStatus(HttpServletResponse.SC_OK);
+    }
+
     private ResearchObjectProfile getResearchObjectProfile(String name) {
         return researchObjectProfileRepository.findByName(name).orElseThrow(ResearchObjectProfileNotFoundException::new);
     }
@@ -135,7 +143,7 @@ public class ResearchObjectController {
     private URI doDeposit(long id, String depositor, Map<String,String> depositorParams) {
         ResearchObject researchObject = getResearchObject(id);
         checkMutable(researchObject);
-        researchObject.validate();
+        researchObject.validateAndUpdateState();
 
         URI depositionUri;
         if (depositor != null) {
