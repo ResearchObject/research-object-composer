@@ -11,6 +11,7 @@ import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import gov.loc.repository.bagit.hash.SupportedAlgorithm;
 import gov.loc.repository.bagit.util.PathUtils;
 import gov.loc.repository.bagit.writer.BagWriter;
+import gov.loc.repository.bagit.writer.ManifestWriter;
 import gov.loc.repository.bagit.writer.MetadataWriter;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.ObjectSchema;
@@ -28,10 +29,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -139,7 +137,15 @@ public class BagItROService {
         bag.setMetadata(bagitMetadata); // Not sure this is needed...
 
         // Re-write the metadata file with the updated Oxum.
-        MetadataWriter.writeBagMetadata(bagitMetadata, bag.getVersion(), PathUtils.getBagitDir(bag), bag.getFileEncoding());
+        Path bagitDir = PathUtils.getBagitDir(bag);
+        MetadataWriter.writeBagMetadata(bagitMetadata, bag.getVersion(), bagitDir, bag.getFileEncoding());
+
+        // Re-write the tag manifests to account for changes to bagit-info.txt
+        Path bagInfo = bagitDir.resolve("bag-info.txt");
+        Hasher.hash(bagInfo, tagManifestToDigestMap);
+        Set<Manifest> updatedTagManifests = tagManifestToDigestMap.keySet();
+        bag.setTagManifests(updatedTagManifests);
+        ManifestWriter.writeTagManifests(updatedTagManifests, bagitDir, bagLocation, bag.getFileEncoding());
 
         return bagLocation;
     }
