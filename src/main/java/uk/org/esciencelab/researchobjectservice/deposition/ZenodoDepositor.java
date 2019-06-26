@@ -43,7 +43,6 @@ public class ZenodoDepositor implements Depositor {
             logger.info("Creating Zenodo deposition.");
             JsonNode depositionResponse = client.createDeposition(buildMetadata(researchObject));
             int depositionId = depositionResponse.get("id").asInt();
-            URI depositionUrl = new URI(depositionResponse.get("links").get("record").asText());
 
             logger.info("Uploading Zenodo deposition file.");
             client.createDepositionFile(tempFile, depositionId, researchObject.getFriendlyId() + ".zip");
@@ -52,6 +51,7 @@ public class ZenodoDepositor implements Depositor {
             JsonNode pubRes = client.publishDeposition(depositionId);
             logger.info(pubRes.toString());
 
+            URI depositionUrl = new URI(pubRes.get("links").get("record").asText());
             return depositionUrl;
         } catch (DepositionException e) { // Don't double wrap
             logger.error("Deposition error:", e);
