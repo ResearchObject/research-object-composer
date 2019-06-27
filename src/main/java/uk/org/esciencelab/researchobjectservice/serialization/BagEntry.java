@@ -1,9 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.serialization;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import gov.loc.repository.bagit.domain.FetchItem;
-import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
-import gov.loc.repository.bagit.hash.SupportedAlgorithm;
 import org.apache.taverna.robundle.manifest.PathMetadata;
 import org.apache.taverna.robundle.manifest.Proxy;
 
@@ -90,15 +87,7 @@ public class BagEntry {
     }
 
     public Path getFilepath() {
-        return getFullFolderPath().resolve(getFilename());
-    }
-
-    /**
-     * Create a FetchItem entry for this resource, used to populate fetch.txt in the BagIt bag.
-     * @return The FetchItem entry.
-     */
-    public FetchItem getFetchItem() {
-        return new FetchItem(url, length, getFilepath());
+        return bagRoot.relativize(getFullFolderPath().resolve(filename));
     }
 
     /**

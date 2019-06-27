@@ -2,17 +2,6 @@ package uk.org.esciencelab.researchobjectservice.serialization;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gov.loc.repository.bagit.creator.BagCreator;
-import gov.loc.repository.bagit.domain.Bag;
-import gov.loc.repository.bagit.domain.Manifest;
-import gov.loc.repository.bagit.domain.Metadata;
-import gov.loc.repository.bagit.hash.Hasher;
-import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
-import gov.loc.repository.bagit.hash.SupportedAlgorithm;
-import gov.loc.repository.bagit.util.PathUtils;
-import gov.loc.repository.bagit.writer.BagWriter;
-import gov.loc.repository.bagit.writer.ManifestWriter;
-import gov.loc.repository.bagit.writer.MetadataWriter;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.ObjectSchema;
 import org.everit.json.schema.ReferenceSchema;
@@ -25,12 +14,12 @@ import uk.org.esciencelab.researchobjectservice.researchobject.ResearchObject;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -51,101 +40,22 @@ public class BagItROService {
         logger.info("Bagging Research Object.");
         // Create a (unique) temp directory to hold the various BagIt files
         Path bagLocation = Files.createTempDirectory("bag");
-
-        // directory to hold the RO manifest
-        Path roMetadataLocation = bagLocation.resolve("metadata");
-        BagItROManifest roManifest = new BagItROManifest(roMetadataLocation);
-        roManifest.setId(URI.create("../"));
+        BagItRO bag = new BagItRO(bagLocation);
 
         // Write the RO's JSON content into the temp dir, so it will be automatically bagged by the BagCreator
         ObjectMapper mapper = new ObjectMapper();
-        Files.write(bagLocation.resolve("content.json"),
-                mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(researchObject.getContent()));
-
-        // Create a map of maps (checksum type -> (file -> checksum)), to hold the checksums of the remote files referenced
-        //  by the RO, grouped by checksum type.
-        Map<SupportedAlgorithm, Map<Path, String>> checksumMap = new HashMap<>(3);
-        checksumMap.put(StandardSupportedAlgorithms.MD5, new HashMap<>());
-        checksumMap.put(StandardSupportedAlgorithms.SHA256, new HashMap<>());
-        checksumMap.put(StandardSupportedAlgorithms.SHA512, new HashMap<>());
-
-        // Create a new bag in our temp dir, should originally just contain the RO's content in data/content.json
-        Bag bag = BagCreator.bagInPlace(bagLocation, checksumMap.keySet(), false);
+        bag.addData("content.json", mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(researchObject.getContent()));
 
         // Traverse through the RO content and gather up all the remote files that are to be referenced in fetch.txt
         ArrayList<BagEntry> entries = new ArrayList<>();
         gatherBagEntries(entries, bagLocation, researchObject.getContent(),
                 researchObject.getProfile().getSchemaWrapper().getObjectSchema(), null);
 
-        // For each remote file found, check which checksums are used and add to the respective map.
-        // Also track total octet count of all remote files;
-        int octetCount = 0;
-        int streamCount = 0;
-
         for (BagEntry entry : entries) {
-            for (SupportedAlgorithm alg : checksumMap.keySet()) {
-                String checksum = entry.getChecksum("MD5");
-                if (checksum != null) {
-                    checksumMap.get(alg).put(entry.getFilepath(), checksum);
-                }
-            }
-
-            octetCount += entry.getLength();
-            streamCount++;
+            bag.addRemote(entry);
         }
 
-        // Merge remote file checksums into the existing payload manifests (which should each just contain the one entry for data/content.json)
-        for (Manifest manifest : bag.getPayLoadManifests()) {
-            SupportedAlgorithm alg = manifest.getAlgorithm();
-            Map<Path, String> map = checksumMap.get(alg);
-            if (map != null && !map.isEmpty()) {
-                Map<Path, String> existingMap = manifest.getFileToChecksumMap();
-                Iterator<Map.Entry<Path, String>> i = map.entrySet().iterator();
-                while (i.hasNext()) {
-                    Map.Entry<Path, String> entry = i.next();
-                    existingMap.put(entry.getKey(), entry.getValue());
-                }
-            }
-        }
-
-        // Set the fetch items
-        bag.setItemsToFetch(entries.stream().map(BagEntry::getFetchItem).collect(Collectors.toList()));
-
-        // Populate the RO manifest
-        roManifest.setAggregates(entries.stream().map(BagEntry::getPathMetadata).collect(Collectors.toList()));
-        Path roManifestPath = roManifest.writeAsJsonLD();
-
-        // Write the checksums of the RO manifest (metadata/manifest.json) into the respective BagIt tag manifests
-        Map<Manifest, MessageDigest> tagManifestToDigestMap = new HashMap<>();
-        for (Manifest manifest : bag.getTagManifests()) {
-            tagManifestToDigestMap.put(manifest, MessageDigest.getInstance(manifest.getAlgorithm().getMessageDigestName()));
-        }
-
-        // TODO: This code currently assumes there will only be the 1 file (manifest.json) under metadata/ !
-        Hasher.hash(roManifestPath, tagManifestToDigestMap);
-
-        // Write everything into the temp dir (payload manifests, tag manifests, fetch file)
-        BagWriter.write(bag, bagLocation);
-
-        // Hack the "Payload-Oxum" in bag-info.txt because it doesn't include the remote fetch.txt items in its sum.
-        Metadata bagitMetadata = bag.getMetadata();
-        String payloadOxum = bagitMetadata.get("Payload-Oxum").get(0);
-        String [] parts = payloadOxum.split("\\.");
-        octetCount += Integer.parseInt(parts[0]);
-        streamCount += Integer.parseInt(parts[1]);
-        bagitMetadata.upsertPayloadOxum("" + octetCount + "." + streamCount);
-        bag.setMetadata(bagitMetadata); // Not sure this is needed...
-
-        // Re-write the metadata file with the updated Oxum.
-        Path bagitDir = PathUtils.getBagitDir(bag);
-        MetadataWriter.writeBagMetadata(bagitMetadata, bag.getVersion(), bagitDir, bag.getFileEncoding());
-
-        // Re-write the tag manifests to account for changes to bagit-info.txt
-        Path bagInfo = bagitDir.resolve("bag-info.txt");
-        Hasher.hash(bagInfo, tagManifestToDigestMap);
-        Set<Manifest> updatedTagManifests = tagManifestToDigestMap.keySet();
-        bag.setTagManifests(updatedTagManifests);
-        ManifestWriter.writeTagManifests(updatedTagManifests, bagitDir, bagLocation, bag.getFileEncoding());
+        bag.write();
 
         return bagLocation;
     }
