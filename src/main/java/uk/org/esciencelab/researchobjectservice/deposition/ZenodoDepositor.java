@@ -13,6 +13,7 @@ import uk.org.esciencelab.researchobjectservice.serialization.BagItROService;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -63,9 +64,13 @@ public class ZenodoDepositor implements Depositor {
     }
 
     private JsonNode buildMetadata(ResearchObject researchObject) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-
-        ObjectNode meta = (ObjectNode) researchObject.getField("_metadata");
+        ObjectMapper om = new ObjectMapper();
+        ObjectNode meta;
+        try {
+            meta = (ObjectNode) om.readTree(researchObject.getField("_metadata").toString());
+        } catch (IOException e) {
+            throw new DepositionException("Could not duplicate metadata.");
+        }
         if (meta == null)
             throw new DepositionException("No '_metadata' field provided!");
 
@@ -88,7 +93,7 @@ public class ZenodoDepositor implements Depositor {
             meta.put("access_right", "closed");
         }
 
-        ObjectNode node = mapper.createObjectNode();
+        ObjectNode node = om.createObjectNode();
         node.set("metadata", meta);
 
         return node;
