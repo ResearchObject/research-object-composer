@@ -179,9 +179,10 @@ public class BagItRO {
     private ChecksummedOutputStream writeWithChecksums(InputStream in, OutputStream out) throws NoSuchAlgorithmException, IOException {
         ChecksummedOutputStream output = new ChecksummedOutputStream(out, supportedAlgorithms);
 
+        int length;
         byte [] bytes = new byte[1024];
-        while (in.read(bytes) >= 0) {
-            output.write(bytes);
+        while ((length = in.read(bytes)) >= 0) {
+            output.write(bytes, 0, length);
         }
 
         return output;
