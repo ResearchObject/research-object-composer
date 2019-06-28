@@ -47,11 +47,10 @@ public class BagItROService {
         bag.addData("content.json", mapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(researchObject.getContent()));
 
         // Traverse through the RO content and gather up all the remote files that are to be referenced in fetch.txt
-        ArrayList<BagEntry> entries = new ArrayList<>();
-        gatherBagEntries(entries, bagLocation, researchObject.getContent(),
+        ArrayList<RemoteResource> entries = gatherBagEntries(researchObject.getContent(),
                 researchObject.getProfile().getSchemaWrapper().getObjectSchema(), null);
 
-        for (BagEntry entry : entries) {
+        for (RemoteResource entry : entries) {
             bag.addRemote(entry);
         }
 
@@ -77,25 +76,24 @@ public class BagItROService {
     }
 
     /**
-     * A recursive method to traverse a JSON object, discovering and gathering a list of BagEntry objects that should
+     * A recursive method to traverse a JSON object, discovering and gathering a list of RemoteResource objects that should
      * be bagged in the BagIt RO.
      *
-     * @param entries The list of entries to be populated.
-     * @param bagRoot A path to the root of the bag.
      * @param json The JSON object to traverse.
      * @param schema A schema for the JSON object.
      * @param bagPath The path (relative to bagRoot) where to bag the next JSON object that is discovered.
      *                Should be null to start with.
      */
-    public void gatherBagEntries(ArrayList<BagEntry> entries, Path bagRoot, JsonNode json, Schema schema, String bagPath) {
+    public ArrayList<RemoteResource> gatherBagEntries(JsonNode json, Schema schema, String bagPath) {
         HashMap<String, String> baggableMap = (HashMap<String, String>) schema.getUnprocessedProperties().get("$baggable");
+        ArrayList<RemoteResource> entries = new ArrayList<>();
 
         if (json.isArray()) {
             Schema itemSchema = ((ArraySchema) schema).getAllItemSchema();
             if (itemSchema != null) {
                 for (JsonNode child : json) {
                     if (child.isContainerNode()) {
-                        gatherBagEntries(entries, bagRoot, child, itemSchema, bagPath);
+                        entries.addAll(gatherBagEntries(child, itemSchema, bagPath));
                     }
                 }
             }
@@ -103,7 +101,7 @@ public class BagItROService {
             // Bag this thing if bagPath was set!
             if (bagPath != null) {
                 try {
-                    entries.add(new BagEntry(bagPath, json));
+                    entries.add(new RemoteResource(bagPath, json));
                 } catch (MalformedURLException e) {
                     logger.error("Could not bag malformed URL: " + json.toString());
                 }
@@ -120,13 +118,14 @@ public class BagItROService {
                         if (baggableMap != null) {
                             newBagPath = baggableMap.get(entry.getKey());
                         }
-                        gatherBagEntries(entries, bagRoot, entry.getValue(), propertySchema, newBagPath);
+                        entries.addAll(gatherBagEntries(entry.getValue(), propertySchema, newBagPath));
                     }
                 }
             }
         }
-    }
 
+        return entries;
+    }
 
     private void zipTo(Path sourceFile, Path zipDestination, ZipOutputStream zipOutputStream) {
         try {

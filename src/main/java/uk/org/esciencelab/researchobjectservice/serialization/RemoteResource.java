@@ -13,13 +13,13 @@ import java.util.HashMap;
 /**
  * A remote resource to be bagged.
  */
-public class BagEntry {
+public class RemoteResource {
     private Path folder;
     private String filename;
     private URL url;
     private long length;
     private HashMap<String, String> checksums;
-    private static Path bagRoot = Paths.get("/");
+    private static Path root = Paths.get("/");
 
     /**
      *
@@ -28,7 +28,7 @@ public class BagEntry {
      * @param url The URL from which this resource should be fetched/
      * @param length The length in bytes of the resource.
      */
-    public BagEntry(Path folder, String filename, URL url, long length) {
+    public RemoteResource(Path folder, String filename, URL url, long length) {
         this.folder = folder;
         this.filename = filename;
         this.url = url;
@@ -45,7 +45,7 @@ public class BagEntry {
      *                  information on the filename, URL, length and checksums of this resource.
      * @throws MalformedURLException
      */
-    public BagEntry(String folder, JsonNode entryNode) throws MalformedURLException {
+    public RemoteResource(String folder, JsonNode entryNode) throws MalformedURLException {
         this(Paths.get("/").relativize(Paths.get(folder)),
                 entryNode.get("filename").asText(),
                 new URL(entryNode.get("url").asText()),
@@ -83,11 +83,11 @@ public class BagEntry {
     }
 
     public Path getFullFolderPath() {
-        return bagRoot.resolve("data").resolve(folder);
+        return root.resolve("data").resolve(folder);
     }
 
     public Path getFilepath() {
-        return bagRoot.relativize(getFullFolderPath().resolve(filename));
+        return root.relativize(getFullFolderPath().resolve(filename));
     }
 
     /**
@@ -99,12 +99,12 @@ public class BagEntry {
         Proxy bundledAs = pm.getOrCreateBundledAs();
         bundledAs.setFilename(this.filename);
         // Folder path should be relative to the `_bag_root_/metadata` directory (e.g. `../data/foo`).
-        bundledAs.setFolder(bagRoot.resolve("metadata").relativize(getFullFolderPath()));
+        bundledAs.setFolder(root.resolve("metadata").relativize(getFullFolderPath()));
 
         return pm;
     }
 
     public String toString() {
-        return "[BagEntry: (" + filename + " @ " + url + " (" + length + ") " + bagRoot + "/" + folder + "]";
+        return "[RemoteResource: (" + filename + " @ " + url + " (" + length + ") " + getFilepath() + "]";
     }
 }

@@ -13,11 +13,14 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * A class to construct BagItROs.
+ */
 public class BagItRO {
 
     private Path location;
     private String [] supportedAlgorithms;
-    private List<BagEntry> remoteItems;
+    private List<RemoteResource> remoteItems;
     private List<File> files;
     private Map<String, Map<Path, String>> checksumMap;
     private long payloadOxumLength = 0;
@@ -26,13 +29,22 @@ public class BagItRO {
     private static final String [] defaultSupportedAlgorithms = { "MD5", "SHA-256", "SHA-512"};
     private static final Logger logger = LoggerFactory.getLogger(BagItROService.class);
 
+    /**
+     *
+     * @param location The location where to put the bag-in-progress (can be a temp directory!).
+     */
     public BagItRO(Path location) {
         this(location, defaultSupportedAlgorithms);
     }
 
-    public BagItRO(Path location, String [] algorithms) {
+    /**
+     *
+     * @param location The location where to put the bag-in-progress.
+     * @param checksumAlgorithms An array of checksum algorithm names to use in the manifest and tagmanifest files.
+     */
+    public BagItRO(Path location, String [] checksumAlgorithms) {
         this.location = location;
-        this.supportedAlgorithms = algorithms;
+        this.supportedAlgorithms = checksumAlgorithms;
         this.checksumMap = new HashMap<>(supportedAlgorithms.length);
         for (String alg : supportedAlgorithms) {
             this.checksumMap.put(alg, new HashMap<>());
@@ -41,16 +53,25 @@ public class BagItRO {
         this.files = new ArrayList<>();
     }
 
+    /**
+     * Write an actual file to the bag.
+     * @param filename The file name to write to, under data/.
+     * @param bytes The bytes of the file to write.
+     */
     public void addData(String filename, byte [] bytes) throws NoSuchAlgorithmException, IOException {
         Path path = getDataFolder().resolve(filename);
-        ChecksummedOutputStream c = writeWithChecksums(new ByteArrayInputStream(bytes), Files.newOutputStream(path));
+        StreamWithDigests c = writeWithChecksums(new ByteArrayInputStream(bytes), Files.newOutputStream(path));
         updateChecksumMap(checksumMap, c, location.relativize(path));
 
         payloadOxumLength += bytes.length;
         payloadOxumStreams++;
     }
 
-    public void addRemote(BagEntry entry) {
+    /**
+     * Add a remote file to the bag.
+     * @param entry The remote file to add, as a RemoteResource object.
+     */
+    public void addRemote(RemoteResource entry) {
         remoteItems.add(entry);
 
         for (String alg : supportedAlgorithms) {
@@ -64,6 +85,9 @@ public class BagItRO {
         payloadOxumStreams++;
     }
 
+    /**
+     * Write out all the necessary tag files and manifests to the bag's location.
+     */
     public Path write() throws NoSuchAlgorithmException, IOException {
         // Create a (unique) temp directory to hold the various BagIt files
         Path bagLocation = Files.createTempDirectory("bag");
@@ -100,7 +124,7 @@ public class BagItRO {
         return bagLocation;
     }
 
-    private void updateChecksumMap(Map<String, Map<Path, String>> checksumMap, ChecksummedOutputStream stream, Path path) {
+    private void updateChecksumMap(Map<String, Map<Path, String>> checksumMap, StreamWithDigests stream, Path path) {
         for (String alg : supportedAlgorithms) {
             checksumMap.get(alg).put(path, stream.getDigest(alg));
         }
@@ -108,10 +132,10 @@ public class BagItRO {
 
     private void writeFetch(Map<String, Map<Path, String>> tagChecksumMap) throws IOException, NoSuchAlgorithmException {
         Path path = location.resolve("fetch.txt");
-        ChecksummedOutputStream stream = new ChecksummedOutputStream(Files.newOutputStream(path), supportedAlgorithms);
+        StreamWithDigests stream = new StreamWithDigests(Files.newOutputStream(path), supportedAlgorithms);
         PrintStream s = new PrintStream(stream);
 
-        for (BagEntry entry : this.remoteItems) {
+        for (RemoteResource entry : this.remoteItems) {
             s.println(entry.getUrl() + " " + entry.getLength() + " " + entry.getFilepath());
         }
 
@@ -120,7 +144,7 @@ public class BagItRO {
 
     private void writeBagIt(Map<String, Map<Path, String>> tagChecksumMap) throws IOException, NoSuchAlgorithmException {
         Path path = location.resolve("bagit.txt");
-        ChecksummedOutputStream stream = new ChecksummedOutputStream(Files.newOutputStream(path), supportedAlgorithms);
+        StreamWithDigests stream = new StreamWithDigests(Files.newOutputStream(path), supportedAlgorithms);
         PrintStream s = new PrintStream(stream);
 
         s.println("BagIt-Version: 1.0");
@@ -132,10 +156,10 @@ public class BagItRO {
     private void writeROManifest(Map<String, Map<Path, String>> tagChecksumMap) throws IOException, NoSuchAlgorithmException {
         Path roMetadataLocation = getMetadataFolder();
         Path path = roMetadataLocation.resolve("manifest.json");
-        ChecksummedOutputStream stream = new ChecksummedOutputStream(Files.newOutputStream(path), supportedAlgorithms);
+        StreamWithDigests stream = new StreamWithDigests(Files.newOutputStream(path), supportedAlgorithms);
         BagItROManifest roManifest = new BagItROManifest(roMetadataLocation);
         roManifest.setId(URI.create("../"));
-        roManifest.setAggregates(remoteItems.stream().map(BagEntry::getPathMetadata).collect(Collectors.toList()));
+        roManifest.setAggregates(remoteItems.stream().map(RemoteResource::getPathMetadata).collect(Collectors.toList()));
         roManifest.writeAsJsonLD(stream);
 
         updateChecksumMap(tagChecksumMap, stream, path);
@@ -143,7 +167,7 @@ public class BagItRO {
 
     private void writeBagInfo(Map<String, Map<Path, String>> tagChecksumMap) throws IOException, NoSuchAlgorithmException {
         Path path = location.resolve("bag-info.txt");
-        ChecksummedOutputStream stream = new ChecksummedOutputStream(Files.newOutputStream(path), supportedAlgorithms);
+        StreamWithDigests stream = new StreamWithDigests(Files.newOutputStream(path), supportedAlgorithms);
         PrintStream s = new PrintStream(stream);
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -156,7 +180,7 @@ public class BagItRO {
 
     private void writeManifest(Map<String, Map<Path, String>> tagChecksumMap, String algorithm) throws IOException, NoSuchAlgorithmException {
         Path path = location.resolve("manifest-" + algorithm.toLowerCase().replace("-", "") + ".txt");
-        ChecksummedOutputStream stream = new ChecksummedOutputStream(Files.newOutputStream(path), supportedAlgorithms);
+        StreamWithDigests stream = new StreamWithDigests(Files.newOutputStream(path), supportedAlgorithms);
         PrintStream s = new PrintStream(stream);
 
         for (Map.Entry<Path,String> entry : checksumMap.get(algorithm).entrySet()) {
@@ -168,7 +192,7 @@ public class BagItRO {
 
     private void writeTagManifest(Map<String, Map<Path, String>> tagChecksumMap, String algorithm) throws IOException, NoSuchAlgorithmException {
         Path path = location.resolve("tagmanifest-" + algorithm.toLowerCase().replace("-", "") + ".txt");
-        ChecksummedOutputStream stream = new ChecksummedOutputStream(Files.newOutputStream(path), supportedAlgorithms);
+        StreamWithDigests stream = new StreamWithDigests(Files.newOutputStream(path), supportedAlgorithms);
         PrintStream s = new PrintStream(stream);
 
         for (Map.Entry<Path,String> entry : tagChecksumMap.get(algorithm).entrySet()) {
@@ -176,8 +200,8 @@ public class BagItRO {
         }
     }
 
-    private ChecksummedOutputStream writeWithChecksums(InputStream in, OutputStream out) throws NoSuchAlgorithmException, IOException {
-        ChecksummedOutputStream output = new ChecksummedOutputStream(out, supportedAlgorithms);
+    private StreamWithDigests writeWithChecksums(InputStream in, OutputStream out) throws NoSuchAlgorithmException, IOException {
+        StreamWithDigests output = new StreamWithDigests(out, supportedAlgorithms);
 
         int length;
         byte [] bytes = new byte[1024];
