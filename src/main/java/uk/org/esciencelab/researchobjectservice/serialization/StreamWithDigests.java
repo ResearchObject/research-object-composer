@@ -15,6 +15,7 @@ public class StreamWithDigests extends OutputStream {
     private OutputStream out;
     private String [] supportedAlgorithms;
     private Map<String, MessageDigest> digests;
+    private long length = 0;
 
     /**
      * Return the digest (as a hex string) for the given algorithm.
@@ -37,6 +38,7 @@ public class StreamWithDigests extends OutputStream {
         for (String alg : supportedAlgorithms) {
             digests.get(alg).update(b, off, len);
         }
+        length += len;
     }
 
     @Override
@@ -45,6 +47,7 @@ public class StreamWithDigests extends OutputStream {
         for (String alg : supportedAlgorithms) {
             digests.get(alg).update((byte) i);
         }
+        length++;
     }
 
     @Override
@@ -53,6 +56,7 @@ public class StreamWithDigests extends OutputStream {
         for (String alg : supportedAlgorithms) {
             digests.get(alg).update(b);
         }
+        length += b.length;
     }
 
     @Override
@@ -72,6 +76,11 @@ public class StreamWithDigests extends OutputStream {
     public String getDigest(String algorithm) {
         return bytesToHex(digests.get(algorithm).digest());
     }
+
+    /**
+     * Return the number of bytes that were written.
+     */
+    public long getLength() { return length; }
 
     private static String bytesToHex(byte [] hash) {
         StringBuffer hexString = new StringBuffer();

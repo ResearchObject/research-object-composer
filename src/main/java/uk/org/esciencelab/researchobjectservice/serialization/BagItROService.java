@@ -2,6 +2,7 @@ package uk.org.esciencelab.researchobjectservice.serialization;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.IOUtils;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.ObjectSchema;
 import org.everit.json.schema.ReferenceSchema;
@@ -54,7 +55,7 @@ public class BagItROService {
             bag.addRemote(entry);
         }
 
-        bag.write();
+        new BagItROWriter(bag).write();
 
         return bagLocation;
     }
@@ -138,12 +139,8 @@ public class BagItROService {
 
             zipOutputStream.putNextEntry(zipEntry);
 
-            byte[] bytes = new byte[1024];
-            int length;
+            IOUtils.copy(inputStream, zipOutputStream);
 
-            while ((length = inputStream.read(bytes)) >= 0) {
-                zipOutputStream.write(bytes, 0, length);
-            }
             zipOutputStream.closeEntry();
             inputStream.close();
         } catch (Exception e) {
