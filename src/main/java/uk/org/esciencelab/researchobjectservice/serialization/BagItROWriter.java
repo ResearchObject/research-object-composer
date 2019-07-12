@@ -15,6 +15,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * A class for writing all necessary tag files etc. for a given BagItRO.
+ */
 public class BagItROWriter {
 
     class TagFileWriter {
@@ -38,10 +41,9 @@ public class BagItROWriter {
         }
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(BagItROWriter.class);
-
     private BagItRO bag;
     private Map<String, Map<Path, String>> tagFileChecksums;
+    private static final Logger logger = LoggerFactory.getLogger(BagItROWriter.class);
 
     public BagItROWriter(BagItRO bag) {
         this.bag = bag;

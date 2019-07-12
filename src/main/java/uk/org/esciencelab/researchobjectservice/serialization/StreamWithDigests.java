@@ -1,6 +1,5 @@
 package uk.org.esciencelab.researchobjectservice.serialization;
 
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.MessageDigest;
@@ -18,7 +17,6 @@ public class StreamWithDigests extends OutputStream {
     private long length = 0;
 
     /**
-     * Return the digest (as a hex string) for the given algorithm.
      * @param out The actual output stream being wrapped.
      * @param algorithms An array of algorithm names.
      */

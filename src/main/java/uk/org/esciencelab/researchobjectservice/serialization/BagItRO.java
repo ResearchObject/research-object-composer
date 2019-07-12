@@ -27,11 +27,9 @@ public class BagItRO {
     private Map<String, Map<Path, String>> checksumMap;
     private long localByteLength = 0; // Total length of all local files in the bag
     private long localByteStreams = 0; // Total number of local files in the bag
-
     private static final String [] defaultSupportedAlgorithms = { "MD5", "SHA-256", "SHA-512"};
 
     /**
-     *
      * @param location The location where to put the bag-in-progress (can be a temp directory!).
      */
     public BagItRO(Path location) {
@@ -39,7 +37,6 @@ public class BagItRO {
     }
 
     /**
-     *
      * @param location The location where to put the bag-in-progress.
      * @param checksumAlgorithms An array of checksum algorithm names to use in the manifest and tagmanifest files.
      */

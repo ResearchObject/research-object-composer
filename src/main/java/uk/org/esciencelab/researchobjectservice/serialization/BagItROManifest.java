@@ -42,6 +42,10 @@ public class BagItROManifest extends Manifest {
         return this.writeAsJsonLD(o);
     }
 
+    /**
+     * Write the manifest to the given output stream.
+     * @param out The stream to write to.
+     */
     public Path writeAsJsonLD(OutputStream out) throws IOException {
         Path jsonld = this.root.resolve(MANIFEST_JSON);
         createDirectories(jsonld.getParent());
