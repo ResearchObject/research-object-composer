@@ -3,9 +3,10 @@ package uk.org.esciencelab.researchobjectservice.util;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.hateoas.Link;
 
-/*
- HATEOAS's Link class does not support the "name" attribute yet, so we are using the "title" attribute as the "name".
- */
+/**
+ HATEOAS's Link class does not support the "name" attribute yet, which we need for listing the "field" links for a
+ ResearchObject.
+*/
 public class LinkWithName extends Link {
 
     private String name;

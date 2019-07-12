@@ -7,17 +7,15 @@ import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import org.apache.taverna.robundle.manifest.Manifest;
 
 import java.io.IOException;
-import java.io.Writer;
+import java.io.OutputStream;
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 
 import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
 import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
 import static java.nio.file.Files.createDirectories;
-import static java.nio.file.Files.newBufferedWriter;
-import static java.nio.file.StandardOpenOption.*;
 
 /**
  * A modification of the ROBundle Manifest "bean", that allows writing the JSON-LD manifest to the appropriate
@@ -39,6 +37,16 @@ public class BagItROManifest extends Manifest {
 
     @Override
     public Path writeAsJsonLD() throws IOException {
+        OutputStream o = Files.newOutputStream(this.root.resolve(MANIFEST_JSON));
+
+        return this.writeAsJsonLD(o);
+    }
+
+    /**
+     * Write the manifest to the given output stream.
+     * @param out The stream to write to.
+     */
+    public Path writeAsJsonLD(OutputStream out) throws IOException {
         Path jsonld = this.root.resolve(MANIFEST_JSON);
         createDirectories(jsonld.getParent());
         if (!getManifest().contains(jsonld))
@@ -57,10 +65,8 @@ public class BagItROManifest extends Manifest {
                 .setSerializationInclusion(Include.NON_EMPTY)
                 .setSerializerFactory(serializerFactory);
 
-        try (Writer w = newBufferedWriter(jsonld, Charset.forName("UTF-8"),
-                WRITE, TRUNCATE_EXISTING, CREATE)) {
-            om.writeValue(w, this);
-        }
+        om.writeValue(out, this);
+
         return jsonld;
     }
 

@@ -1,9 +1,6 @@
 package uk.org.esciencelab.researchobjectservice.serialization;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import gov.loc.repository.bagit.domain.FetchItem;
-import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
-import gov.loc.repository.bagit.hash.SupportedAlgorithm;
 import org.apache.taverna.robundle.manifest.PathMetadata;
 import org.apache.taverna.robundle.manifest.Proxy;
 
@@ -16,24 +13,22 @@ import java.util.HashMap;
 /**
  * A remote resource to be bagged.
  */
-public class BagEntry {
-    private Path bagRoot;
+public class RemoteResource {
     private Path folder;
     private String filename;
     private URL url;
     private long length;
-    private HashMap<SupportedAlgorithm, String> checksums;
+    private HashMap<String, String> checksums;
+    private static Path root = Paths.get("/");
 
     /**
      *
-     * @param bagRoot A path to the root of the bag.
      * @param folder A relative path where this resource will be bagged (within `_bag_root_/data`).
      * @param filename The filename of this resource.
      * @param url The URL from which this resource should be fetched/
      * @param length The length in bytes of the resource.
      */
-    public BagEntry(Path bagRoot, Path folder, String filename, URL url, long length) {
-        this.bagRoot = bagRoot;
+    public RemoteResource(Path folder, String filename, URL url, long length) {
         this.folder = folder;
         this.filename = filename;
         this.url = url;
@@ -43,7 +38,6 @@ public class BagEntry {
 
     /**
      *
-     * @param bagRoot A path to the root of the bag.
      * @param folder A string containing an absolute path of a folder in which to bag this resource. The root ("/") of
      *               the path is `_bag_root_/data`, so `/foo` would be bagged at `_bag_root_/data/foo` and `/` would be
      *               bagged at `_bag_root_/data`.
@@ -51,19 +45,19 @@ public class BagEntry {
      *                  information on the filename, URL, length and checksums of this resource.
      * @throws MalformedURLException
      */
-    public BagEntry(Path bagRoot, String folder, JsonNode entryNode) throws MalformedURLException {
-        this(bagRoot, Paths.get("/").relativize(Paths.get(folder)),
+    public RemoteResource(String folder, JsonNode entryNode) throws MalformedURLException {
+        this(Paths.get("/").relativize(Paths.get(folder)),
                 entryNode.get("filename").asText(),
                 new URL(entryNode.get("url").asText()),
                 entryNode.get("length").asLong());
 
         for (JsonNode checksumNode : entryNode.get("checksums")) {
             if (checksumNode.get("type").asText().equals("md5")) {
-                this.setChecksum(StandardSupportedAlgorithms.MD5, checksumNode.get("checksum").asText());
+                this.setChecksum("MD5", checksumNode.get("checksum").asText());
             } else if (checksumNode.get("type").asText().equals("sha256")) {
-                this.setChecksum(StandardSupportedAlgorithms.SHA256, checksumNode.get("checksum").asText());
+                this.setChecksum("SHA-256", checksumNode.get("checksum").asText());
             } else if (checksumNode.get("type").asText().equals("sha512")) {
-                this.setChecksum(StandardSupportedAlgorithms.SHA512, checksumNode.get("checksum").asText());
+                this.setChecksum("SHA-512", checksumNode.get("checksum").asText());
             }
         }
     }
@@ -80,28 +74,20 @@ public class BagEntry {
         return length;
     }
 
-    public String getChecksum(SupportedAlgorithm alg) {
+    public String getChecksum(String alg) {
         return this.checksums.get(alg);
     }
 
-    public void setChecksum(SupportedAlgorithm alg, String value) {
+    public void setChecksum(String alg, String value) {
         this.checksums.put(alg, value);
     }
 
     public Path getFullFolderPath() {
-        return bagRoot.resolve("data").resolve(folder);
+        return root.resolve("data").resolve(folder);
     }
 
     public Path getFilepath() {
-        return getFullFolderPath().resolve(getFilename());
-    }
-
-    /**
-     * Create a FetchItem entry for this resource, used to populate fetch.txt in the BagIt bag.
-     * @return The FetchItem entry.
-     */
-    public FetchItem getFetchItem() {
-        return new FetchItem(url, length, getFilepath());
+        return root.relativize(getFullFolderPath().resolve(filename));
     }
 
     /**
@@ -113,12 +99,12 @@ public class BagEntry {
         Proxy bundledAs = pm.getOrCreateBundledAs();
         bundledAs.setFilename(this.filename);
         // Folder path should be relative to the `_bag_root_/metadata` directory (e.g. `../data/foo`).
-        bundledAs.setFolder(bagRoot.resolve("metadata").relativize(getFullFolderPath()));
+        bundledAs.setFolder(root.resolve("metadata").relativize(getFullFolderPath()));
 
         return pm;
     }
 
     public String toString() {
-        return "[BagEntry: (" + filename + " @ " + url + " (" + length + ") " + bagRoot + "/" + folder + "]";
+        return "[RemoteResource: (" + filename + " @ " + url + " (" + length + ") " + getFilepath() + "]";
     }
 }
