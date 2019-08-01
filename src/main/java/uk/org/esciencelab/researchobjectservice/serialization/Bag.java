@@ -1,30 +1,26 @@
 package uk.org.esciencelab.researchobjectservice.serialization;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.jena.reasoner.rulesys.builtins.Print;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * A class to construct BagItROs.
+ * A class to construct BagIt bags.
  */
-public class BagItRO {
+public class Bag {
 
     private Path location;
     private String [] supportedAlgorithms;
     private List<RemoteResource> remoteItems;
     private List<File> files;
-    private Map<String, Map<Path, String>> checksumMap;
+    private Map<String, Map<Path, String>> fileChecksums;
     private long localByteLength = 0; // Total length of all local files in the bag
     private long localByteStreams = 0; // Total number of local files in the bag
     private static final String [] defaultSupportedAlgorithms = { "MD5", "SHA-256", "SHA-512"};
@@ -32,7 +28,7 @@ public class BagItRO {
     /**
      * @param location The location where to put the bag-in-progress (can be a temp directory!).
      */
-    public BagItRO(Path location) {
+    public Bag(Path location) {
         this(location, defaultSupportedAlgorithms);
     }
 
@@ -40,10 +36,10 @@ public class BagItRO {
      * @param location The location where to put the bag-in-progress.
      * @param checksumAlgorithms An array of checksum algorithm names to use in the manifest and tagmanifest files.
      */
-    public BagItRO(Path location, String [] checksumAlgorithms) {
+    public Bag(Path location, String [] checksumAlgorithms) {
         this.location = location;
         this.supportedAlgorithms = checksumAlgorithms;
-        this.checksumMap = getEmptyChecksumMap();
+        this.fileChecksums = getEmptyChecksumMap();
         this.remoteItems = new ArrayList<>();
         this.files = new ArrayList<>();
     }
@@ -57,7 +53,7 @@ public class BagItRO {
         Path path = getDataFolder().resolve(filename);
         try (StreamWithDigests c = writeWithChecksums(new ByteArrayInputStream(bytes), Files.newOutputStream(path))) {
 
-            updateChecksumMap(checksumMap, c, location.relativize(path));
+            updateChecksumMap(fileChecksums, c, location.relativize(path));
 
             localByteLength += c.getLength();
             localByteStreams++;
@@ -75,19 +71,9 @@ public class BagItRO {
         for (String alg : supportedAlgorithms) {
             String sum = entry.getChecksum(alg);
             if (sum != null) {
-                checksumMap.get(alg).put(entry.getFilepath(), sum);
+                fileChecksums.get(alg).put(entry.getFilepath(), sum);
             }
         }
-    }
-
-    /**
-     * Write out all the necessary tag files and manifests to the bag's location.
-     */
-    public Path write() throws NoSuchAlgorithmException, IOException {
-        // Create a (unique) temp directory to hold the various BagIt files
-        new BagItROWriter(this).write();
-
-        return location;
     }
 
     public Path getLocation() {
@@ -106,8 +92,8 @@ public class BagItRO {
         return files;
     }
 
-    public Map<String, Map<Path, String>> getChecksumMap() {
-        return checksumMap;
+    public Map<String, Map<Path, String>> getFileChecksums() {
+        return fileChecksums;
     }
 
     public String getPayloadOxum() {
@@ -125,13 +111,9 @@ public class BagItRO {
         return Files.createDirectories(location.resolve("data"));
     }
 
-    public Path getMetadataFolder() throws IOException {
-        return Files.createDirectories(location.resolve("metadata"));
-    }
-
-    private void updateChecksumMap(Map<String, Map<Path, String>> checksumMap, StreamWithDigests stream, Path path) {
+    private void updateChecksumMap(Map<String, Map<Path, String>> fileChecksums, StreamWithDigests stream, Path path) {
         for (String alg : supportedAlgorithms) {
-            checksumMap.get(alg).put(path, stream.getDigest(alg));
+            fileChecksums.get(alg).put(path, stream.getDigest(alg));
         }
     }
 

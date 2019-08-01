@@ -2,6 +2,7 @@ package uk.org.esciencelab.researchobjectservice.serialization;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.io.IOUtils;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.ObjectSchema;
@@ -41,7 +42,7 @@ public class BagItROService {
         logger.info("Bagging Research Object.");
         // Create a (unique) temp directory to hold the various BagIt files
         Path bagLocation = Files.createTempDirectory("bag");
-        BagItRO bag = new BagItRO(bagLocation);
+        Bag bag = new Bag(bagLocation);
 
         // Write the RO's JSON content into the temp dir, so it will be automatically bagged by the BagCreator
         ObjectMapper mapper = new ObjectMapper();
@@ -55,7 +56,7 @@ public class BagItROService {
             bag.addRemote(entry);
         }
 
-        new BagItROWriter(bag).write();
+        new BagItROCrateWriter(bag, (ObjectNode) researchObject.getField("_metadata")).write();
 
         return bagLocation;
     }

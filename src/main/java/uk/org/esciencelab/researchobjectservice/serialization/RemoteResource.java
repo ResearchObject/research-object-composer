@@ -86,6 +86,10 @@ public class RemoteResource {
         return root.resolve("data").resolve(folder);
     }
 
+    /**
+     * Get the file path relative to the root of the bag. e.g. data/hello_world.txt.
+     * @return
+     */
     public Path getFilepath() {
         return root.relativize(getFullFolderPath().resolve(filename));
     }
