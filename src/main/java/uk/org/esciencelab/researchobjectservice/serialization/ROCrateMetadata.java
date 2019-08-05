@@ -4,9 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @JsonPropertyOrder({ "@context", "@graph" })
 public class ROCrateMetadata {
@@ -35,7 +39,14 @@ public class ROCrateMetadata {
             if (this.getIdentifier() != null) {
                 return this.getIdentifier();
             } else {
-                return this.getName();
+                String id;
+                try {
+                    id = URLEncoder.encode(this.getName().replace(' ', '_'), StandardCharsets.UTF_8.toString());
+                } catch (UnsupportedEncodingException e) {
+                    id = UUID.randomUUID().toString();
+                }
+
+                return "#" + id;
             }
         }
 
