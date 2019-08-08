@@ -571,7 +571,7 @@ class ResearchObject extends React.Component{
         }
 
         return (
-            <Modal title={this.props.researchObject.id} onCancel={this.props.onCancel}>
+            <Modal title={this.props.researchObject._links.self.href} onCancel={this.props.onCancel}>
                 <div className="research-object">
                     <Metadata metadata={this.props.researchObject.content._metadata}/>
                     <hr/>
