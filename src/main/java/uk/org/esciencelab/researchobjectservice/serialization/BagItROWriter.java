@@ -16,6 +16,10 @@ import java.util.stream.Collectors;
 public class BagItROWriter extends BagWriter {
     private static final Logger logger = LoggerFactory.getLogger(BagItROWriter.class);
 
+    /**
+     * Create a new BagIt RO writer for the given bag.
+     * @param bag The bag to write.
+     */
     public BagItROWriter(Bag bag) {
         super(bag);
     }

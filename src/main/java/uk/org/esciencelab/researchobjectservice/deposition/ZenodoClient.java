@@ -27,6 +27,11 @@ public class ZenodoClient {
     private static final String DEPOSITIONS_BASE = "/api/deposit/depositions";
     private static final String USER_AGENT = "Java/Research Object Composer";
 
+    /**
+     * @param baseUrl The URL of the instance of Zenodo to interact with.
+     *                Usually `https://zenodo.org` for production, or `https://sandbox.zenodo.org` for development.
+     * @param accessToken A valid OAuth access token. We are assuming all authentication has been done externally.
+     */
     public ZenodoClient(String baseUrl, String accessToken) {
         this.baseUrl = baseUrl.replaceAll("/$", "");
         this.accessToken = accessToken;

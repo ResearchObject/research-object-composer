@@ -11,6 +11,11 @@ public class LinkWithName extends Link {
 
     private String name;
 
+    /**
+     * @param href
+     * @param rel
+     * @param name
+     */
     public LinkWithName(String href, String rel, String name) {
         super(href, rel);
         this.name = name;

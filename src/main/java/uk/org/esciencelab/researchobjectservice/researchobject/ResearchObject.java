@@ -125,6 +125,12 @@ public class ResearchObject {
     @JsonProperty("checksum")
     public String getContentSha256() { return this.contentSha256; }
 
+    /**
+     * Compute a SHA-256 checksum of the RO's JSON content.
+     * @return The SHA-256 digest as a hex string.
+     * @throws NoSuchAlgorithmException
+     * @throws JsonProcessingException
+     */
     public String computeContentSha256() throws NoSuchAlgorithmException, JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -134,6 +140,9 @@ public class ResearchObject {
         return DatatypeConverter.printHexBinary(bytes);
     }
 
+    /**
+     * Compute and update the SHA-256 checksum of the content.
+     */
     public void updateContentSha256() {
         try {
             this.contentSha256 = this.computeContentSha256();

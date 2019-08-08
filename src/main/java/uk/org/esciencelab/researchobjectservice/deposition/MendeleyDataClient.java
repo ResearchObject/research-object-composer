@@ -29,6 +29,10 @@ public class MendeleyDataClient {
     private static final String DRAFT_DATASET_PATCH_TYPE = "application/vnd.mendeley-dataset-patch.1+json";
     private static final String FILE_CONTENT_TYPE = "application/vnd.mendeley-content-ticket.1+json";
 
+    /**
+     * @param baseUrl The URL of the instance of Mendeley Data to interact with. Usually `https://api.mendeley.com`.
+     * @param accessToken A valid OAuth access token. We are assuming all authentication has been done externally.
+     */
     public MendeleyDataClient(String baseUrl, String accessToken) {
         this.baseUrl = baseUrl.replaceAll("/$", "");
         this.accessToken = accessToken;

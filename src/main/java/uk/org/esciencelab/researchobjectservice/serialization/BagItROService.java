@@ -85,6 +85,7 @@ public class BagItROService {
      * @param schema A schema for the JSON object.
      * @param bagPath The path (relative to bagRoot) where to bag the next JSON object that is discovered.
      *                Should be null to start with.
+     * @return A list of RemoteResources.
      */
     public ArrayList<RemoteResource> gatherBagEntries(JsonNode json, Schema schema, String bagPath) {
         HashMap<String, String> baggableMap = (HashMap<String, String>) schema.getUnprocessedProperties().get("$baggable");

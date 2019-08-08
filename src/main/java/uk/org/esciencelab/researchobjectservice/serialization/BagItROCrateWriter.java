@@ -22,6 +22,11 @@ public class BagItROCrateWriter extends BagWriter {
     private ObjectNode metadata;
     private static final Logger logger = LoggerFactory.getLogger(BagItROCrateWriter.class);
 
+    /**
+     * Create a new RO crate writer for the given bag, with the given metadata to be converted and written to ro-crate-metadata.jsonld.
+     * @param bag The bag to write.
+     * @param metadata The RO metadata, usually held under a top-level property named `_metadata`.
+     */
     public BagItROCrateWriter(Bag bag, ObjectNode metadata) {
         super(bag);
         this.metadata = metadata;

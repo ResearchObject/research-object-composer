@@ -43,11 +43,20 @@ public class BagWriter {
     protected Map<String, Map<Path, String>> tagFileChecksums;
     private static final Logger logger = LoggerFactory.getLogger(BagWriter.class);
 
+    /**
+     * Create a new BagIt writer for the given bag.
+     * @param bag The bag to write.
+     */
     public BagWriter(Bag bag) {
         this.bag = bag;
         this.tagFileChecksums = bag.getEmptyChecksumMap();
     }
-    
+
+    /**
+     * Write the bag!
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     */
     public void write() throws IOException, NoSuchAlgorithmException {
         logger.info("Writing Bag to: " + bag.getLocation());
         writeTagFiles();
