@@ -1,7 +1,8 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
 import Form from "react-jsonschema-form";
-const client = require('./client');
+import LoadingBar from 'react-top-loading-bar'
+const _client = require('./client');
 const schemaUtil = require('./schema');
 
 class App extends React.Component {
@@ -27,14 +28,30 @@ class App extends React.Component {
         });
     }
 
+    perform(opts) {
+        this.LoadingBar.staticStart();
+        return _client(opts).finally((args) => {
+            this.LoadingBar.complete();
+            return args;
+        })
+    }
+
+    loadSchema(path) {
+        this.LoadingBar.staticStart();
+        return schemaUtil.loadSchema(path).finally((args) => {
+            this.LoadingBar.complete();
+            return args;
+        })
+    }
+
     loadRoot() {
-        return client({ method: 'GET', path: '/' }).then(root => {
+        return this.perform({ method: 'GET', path: '/' }).then(root => {
             this.links = root.entity._links;
         });
     }
 
     loadProfiles() {
-        return client({ method: 'GET', path: this.links.profiles.href }).then(profileCollection => {
+        return this.perform({ method: 'GET', path: this.links.profiles.href }).then(profileCollection => {
             this.setState({ profiles: profileCollection.entity._embedded.researchObjectProfileList });
         });
     }
@@ -44,7 +61,7 @@ class App extends React.Component {
     }
 
     onNavigate(location) {
-        return client({ method: 'GET', path: location }).then(researchObjectCollection => {
+        return this.perform({ method: 'GET', path: location }).then(researchObjectCollection => {
             this.setState({
                 researchObjects: researchObjectCollection.entity._embedded.researchObjectSummaryList,
                 roLinks: researchObjectCollection.entity._links,
@@ -56,7 +73,7 @@ class App extends React.Component {
     loadCreateForm(profile) {
         const schemaHref = profile._links.schema.href;
 
-        schemaUtil.loadSchema(schemaHref).then((schema) => {
+        this.loadSchema(schemaHref).then((schema) => {
             const resolved = schemaUtil.resolveSchema(schemaHref, schema);
             const uiSchema = Object.assign(defaultUiSchema, schemaUtil.buildUiSchema(resolved));
             const submit = (x) => {
@@ -75,20 +92,20 @@ class App extends React.Component {
 
     loadEditForm(researchObject) {
         // Load the Profile
-        return client({
+        return this.perform({
             method: 'GET',
             path: researchObject._links.profile.href
         }).then(profile => {
             const schemaHref = profile.entity._links.schema.href;
             // Load the schema to generate the form
-            return schemaUtil.loadSchema(schemaHref).then(schema => {
+            return this.loadSchema(schemaHref).then(schema => {
                 const resolved = schemaUtil.resolveSchema(schemaHref, schema);
                 const uiSchema = Object.assign(defaultUiSchema, schemaUtil.buildUiSchema(resolved));
 
                 return {uiSchema, resolved};
             }).then(schemas => {
                 // Load the RO's content to populate the form
-                return client({ method: 'GET', path: researchObject._links.self.href }).then(researchObject => {
+                return this.perform({ method: 'GET', path: researchObject._links.self.href }).then(researchObject => {
                     const submit = (x) => {
                         this.updateResearchObject(researchObject.entity, x.formData);
                     };
@@ -112,7 +129,7 @@ class App extends React.Component {
 
     viewSchema(profile, resolved) {
         const schemaHref = profile._links.schema.href;
-        return schemaUtil.loadSchema(schemaHref).then(schema => {
+        return this.loadSchema(schemaHref).then(schema => {
             let schemaObject = schema;
             let title = 'Schema for: ' + profile.name;
 
@@ -132,7 +149,7 @@ class App extends React.Component {
     }
 
     createResearchObject(profile, formData) {
-        client({
+        this.perform({
             method: 'POST',
             path: profile._links.researchObjects.href,
             entity: formData,
@@ -144,7 +161,7 @@ class App extends React.Component {
     }
 
     readResearchObject(researchObject) {
-        client({
+        this.perform({
             method: 'GET',
             path: researchObject._links.self.href,
             headers: {'Content-Type': 'application/json'}
@@ -154,7 +171,7 @@ class App extends React.Component {
     }
 
     updateResearchObject(researchObject, formData) {
-        client({
+        this.perform({
             method: 'PUT',
             path: researchObject._links.content.href,
             entity: formData,
@@ -169,7 +186,7 @@ class App extends React.Component {
     }
 
     deleteResearchObject(researchObject) {
-        client({
+        this.perform({
             method: 'DELETE',
             path: researchObject._links.self.href,
             headers: { 'Content-Type': 'application/json' }
@@ -181,6 +198,11 @@ class App extends React.Component {
     render() {
         return (
             <div>
+                <LoadingBar
+                    color='#4583f1'
+                    height={3}
+                    onRef={ref => (this.LoadingBar = ref)}
+                />
                 { this.state.modal }
                 <ProfileList profiles={this.state.profiles}
                              loadCreateForm={this.loadCreateForm}
