@@ -13,7 +13,7 @@ constrained to a pre-defined profile.
 It uses JSON as an intermediary format for populating the Research Objects, 
 and uses JSON Schemas (with some modifications) as "Profiles" to validate their correctness/completeness. 
 
-The Research Objects are serialized as zipped BagIt-ROs, and automatically deposited in a pre-configured repository.
+The Research Objects are serialized as zipped RO Crates/BagIt bags, and deposited in a pre-configured repository.
 
 
 ## Installation
@@ -47,8 +47,10 @@ jupyter notebook introduction.ipynb
 ## Usage
 
 ### Configuration
+To configure how Research Object Composer, please refer to:
+https://github.com/ResearchObject/research-object-composer/blob/master/src/main/resources/application.properties to see the available properties, and https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html for information on how to change them.
 
-...
+For example, the database username can be changed by setting the environment variable `SPRING_DATASOURCE_USERNAME=joebloggs`
 
 ### Profiles
 Profiles are specified as [JSON Schemas](https://json-schema.org/) in `public/schemas`, and are named `<name>.schema.json`.
@@ -76,7 +78,7 @@ They can be referenced like so:
 
 ##### $baggable
 `$baggable` is a special schema keyword that tells the Research Object Composer which properties contain references to 
-remote files, and where they should be included in the BagIt-RO. It is a simple map of `<property name> : <relative path in the bag>`.
+remote files, and where they should be included in the bag. It is a simple map of `<property name> : <relative path in the bag>`. 
 
 For example the following schema:
 ```json
@@ -104,7 +106,9 @@ For example the following schema:
 
 ```
 
-...tells the Research Object Composer to bag anything found under `data` at the root of the bag (`/`).
+...tells the Research Object Composer to bag any items found under the `data` property at the root of the bag (`/`).
+
+To be bagged correctly, a `$baggable` property must contain an object that conforms to the `RemoteItem` schema, or an array of objects that conform to that schema.
 
 ##### _metadata
 `_metadata` is not a schema keyword, but a recommended property of the Research Object JSON. It contains a minimal set of 
