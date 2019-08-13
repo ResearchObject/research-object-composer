@@ -47,7 +47,7 @@ jupyter notebook introduction.ipynb
 ## Usage
 
 ### Configuration
-To configure how Research Object Composer, please refer to:
+To configure the Research Object Composer, please refer to:
 https://github.com/ResearchObject/research-object-composer/blob/master/src/main/resources/application.properties to see the available properties, and https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html for information on how to change them.
 
 For example, the database username can be changed by setting the environment variable `SPRING_DATASOURCE_USERNAME=joebloggs`
