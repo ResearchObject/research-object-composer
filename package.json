@@ -21,7 +21,7 @@
   "homepage": "https://github.com/ResearchObject/research-object-composer",
   "dependencies": {
     "jsonpointer": "^4.0.1",
-    "lodash": ">=4.17.13",
+    "lodash": ">=4.17.21",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "react-jsonschema-form": "^1.5.0",
